@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_side_bar_checkInventory"
+            android:title="@string/menu_checkInventory" />
+        <item
+            android:id="@+id/menu_side_bar_inStock"
+            android:title="@string/menu_insock" />
+        <item
+            android:id="@+id/menu_side_bar_outStock"
+            android:title="@string/menu_outsock" />
+    </group>
+
+    <item android:title="@string/menu_subTitle">
+        <menu>
+            <item
+                android:id="@+id/menu_side_bar_setting"
+                android:title="@string/acticity_login_setting_label" />
+        </menu>
+    </item>
+
+</menu>

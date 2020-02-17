@@ -1,0 +1,127 @@
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background = "#ffffff"
+    >
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height = "220dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:src="@drawable/splash_log"
+    />
+    <TextView
+        android:id="@+id/acticity_login_id_showErrorMsg"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:textColor="#FF0000"/>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity ="center"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:text="@string/acticity_login_login_label"/>
+        <Spinner
+            android:id="@+id/acticity_login_account_select"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textAlignment="center"
+    />
+
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_height="0.5dp"
+        android:background="#444"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity ="center_horizontal"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:text="@string/acticity_login_password_label"/>
+        <AutoCompleteTextView
+            android:id="@+id/acticity_login_account_password"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:textSize="40dp"
+            android:inputType="textPassword"
+            android:gravity="center"
+            android:textAlignment="center"
+        />
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_height="0.5dp"
+        android:background="#444"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity ="center"
+        android:layout_marginLeft="0pt"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+        <CheckBox
+            android:id="@+id/acticity_login_record_password"
+            android:layout_width="wrap_content"
+            android:layout_height="10pt"
+            android:text="@string/acticity_login_record_password_label"/>
+        <CheckBox
+            android:id="@+id/acticity_login_auto_loin"
+            android:layout_width="wrap_content"
+            android:layout_height="10pt"
+            android:text="@string/acticity_login_auto_loin_label"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20pt"
+        android:gravity ="center_horizontal"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/acticity_login_login"
+            android:topLeftRadius="10pt"
+            android:topRightRadius="10pt"
+            android:bottomRightRadius="10pt"
+            android:bottomLeftRadius="10pt"
+            android:layout_width="90pt"
+            android:layout_height="match_parent"
+            android:text="@string/acticity_login_login_label"/>
+        <View
+            android:layout_width="10pt"
+            android:layout_height="match_parent"/>
+        <Button
+            android:topLeftRadius="3pt"
+            android:topRightRadius="3pt"
+            android:bottomRightRadius="3pt"
+            android:bottomLeftRadius="3pt"
+            android:id="@+id/acticity_login_setting"
+            android:layout_width="30pt"
+            android:layout_height="match_parent"
+            android:text="@string/acticity_login_setting_label"/>
+    </LinearLayout>
+
+</LinearLayout>

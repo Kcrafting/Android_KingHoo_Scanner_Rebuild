@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/activity_Itemselect_parent"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+            <TextView
+                android:gravity="center"
+                android:text="@string/activity_item_select_search_label"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"/>
+            <EditText
+                android:id="@+id/activity_item_select_search"
+                android:singleLine="true"
+                android:gravity="center"
+                android:layout_weight="4"
+                android:layout_width="0dp"
+                android:inputType="text"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
+        <RelativeLayout
+            android:layout_weight="9"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+                <ListView
+                    android:id="@+id/activity_item_select_list_item"
+                android:listSelector="#FFF8DC" 
+                    android:choiceMode="singleChoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+           
+            <ScrollView
+                android:alpha="0.5"
+                android:gravity="right"
+                android:layout_alignParentRight="true"
+                android:background="@android:color/transparent"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:gravity="right"
+                    android:orientation="vertical"
+                    android:id="@+id/activity_item_select_index"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+            </ScrollView>
+        </RelativeLayout>
+    </LinearLayout>
+
+
+</RelativeLayout>

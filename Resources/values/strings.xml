@@ -1,0 +1,98 @@
+<resources>
+    <string name="app_name">Android_KingHoo_Scanner_Rebuild</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_menu_save">提交</string>
+    <string name="action_menu_check">审核</string>
+    <string name="action_menu_delete">删除</string>
+  <string name="welcome_h1">注意事项：</string>
+  <string name="welcome_body">1.请确认您的PDA处于WiFi覆盖范围内，且保持足够的信号强度\n
+  2.请确保您的服务器和PDA处于可通信状态\n
+  3.网络速度将会影响PDA的响应速度，如果PDA卡顿那么请稍等片刻\n
+  4.PDA的出入库相对简略，只建议做紧急情况的简单出入库，不紧急的单据建议使用电脑端客户端建立\n</string>
+
+    <string name="activity_splash_title">登录</string>
+
+    <string name="company_logo">KingHoo</string>
+    <string name="company_tel">0317-3588578</string>
+  <string name="fab_text">添加</string>
+  <string name="company_main_title">沧州市金宏扫码</string>
+
+  <string name="acticity_login_login_label">登录</string>
+  <string name="acticity_login_password_label">密码</string>
+  <string name="acticity_login_record_password_label">记住密码</string>
+  <string name="acticity_login_auto_loin_label">自动登录</string>
+  <string name="acticity_login_setting_label">设置</string>
+
+  <string name="acticity_setting_connect_label">连接</string>
+  <string name="acticity_setting_serverip_label">服务器</string>
+  <string name="acticity_setting_serverip_label_description">请设置数据库服务器地址\n可以设置服务器名称或者IP地址</string>
+  <string name="acticity_setting_userName_label">用户名</string>
+  <string name="acticity_setting_userName_label_description">请输入数据库的用户名称\nSql Server用户名称一般为sa</string>
+  <string name="acticity_setting_userpassword_label">密码</string>
+  <string name="acticity_setting_userpassword_label_description">数据库用户名的密码</string>
+  <string name="acticity_setting_port_label">端口</string>
+  <string name="acticity_setting_port_label_description">管理数据库更新的端口\n此处不用设置</string>
+  <string name="acticity_setting_database_label">账套</string>
+  <string name="acticity_setting_database_label_description">请在设置完服务器用户名和密码后\n点击连接后，获得账套列表后再选择账套</string>
+  <string name="acticity_setting_save_label">保存设置</string>
+  <string name="acticity_setting_changepassword_label">修改密码</string>
+  <string name="acticity_setting_cancelautologin_label">取消自动登录</string>
+
+  <string name="menu_checkInventory">扫码盘点</string>
+  <string name="menu_insock">扫码入库</string>
+  <string name="menu_outsock">扫码出库</string>
+  <string name="menu_subTitle">扫码出库</string>
+
+  <string name="acticity_setting_changepassword_title">修改密码</string>
+  <string name="acticity_setting_changepassword_account_label">用户名</string>
+  <string name="acticity_setting_changepassword_origin_password_label">原密码</string>
+  <string name="acticity_setting_changepassword_new_password_label">新密码</string>
+  <string name="acticity_setting_changepassword_repeat_password_label">确认密码</string>
+  <string name="acticity_setting_changepassword_save_change_label">保存密码</string>
+
+  <string name="activity_main_check_inventory_layout_item_select_label">选择</string>
+  <string name="activity_main_check_inventory_layout_item_fnumber_label">物料代码</string>
+  <string name="activity_main_check_inventory_layout_item_fname_label">物料名称</string>
+  <string name="activity_main_check_inventory_layout_item_fmodel_label">规格型号</string>
+
+  <string name="activity_main_check_inventory_layout_stock_label">仓库</string>
+  <string name="activity_main_check_inventory_layout_bill_or_stock_label">单据/仓库</string>
+  <string name="activity_main_check_inventory_layout_stockplace_label">仓位</string>
+  <string name="activity_main_check_inventory_layout_mianuint_label">主计量</string>
+  <string name="activity_main_check_inventory_layout_fqty_label">数量</string>
+  <string name="activity_main_check_inventory_layout_seconduint_label">辅助计量</string>
+  <string name="activity_main_check_inventory_layout_batch_label">批号</string>
+
+  <string name="activity_item_select_search_label">搜索</string>
+
+
+  <string name="activity_itemSelect_entry_layout_fnumber_label">物料代码</string>
+  <string name="activity_itemSelect_entry_layout_fname_label">物料名称</string>
+  <string name="activity_itemSelect_entry_layout_fmodel_label">规格型号</string>
+
+  <string name="activity_itemSelect_entry_tag_layout_tag_label">规格型号</string>
+
+  <string name ="activity_main_instock_layout_billType_waigouruku_label">外购入库单</string>
+ 
+  <string name ="activity_main_instock_layout_billType_label">单据类型</string>
+  <string name ="activity_main_instock_layout_fbillno_label">单据编号</string>
+  <string name ="activity_main_instock_layout_supply_label">供应商</string>
+  <string name ="activity_main_instock_layout_billdate_label">单据日期</string>
+  <string name ="activity_main_instock_layout_buystyle_label">采购方式</string>
+  <string name ="activity_main_instock_layout_buystyle_shexiao_label">赊购</string>
+  <string name ="activity_main_instock_layout_note_label">摘要</string>
+
+  <string name ="activity_main_instock_layout_save_label">保存</string>
+  <string name ="activity_main_instock_layout_cancel_label">取消</string>
+
+  <string name ="activity_main_instock_layout_Entry_edit_button">编辑</string>
+  <string name ="activity_main_instock_layout_Entry_delete_button">删除</string>
+  <string name ="activity_main_instock_layout_Entry_unknow_button">待定</string>
+
+  <string name ="activity_main_outstock_layout_billType_xiaoshouchuku_label">外购入库单</string>
+  <string name ="activity_main_outstock_layout_customer_label">客户</string>
+  <string name ="activity_main_outstock_layout_shexiao_label">赊销</string>
+  <string name ="activity_main_outstock_layout_saleSrtle_label">销售方式</string>
+</resources>

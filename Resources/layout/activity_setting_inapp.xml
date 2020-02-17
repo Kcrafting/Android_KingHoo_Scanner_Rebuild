@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+        android:layout_margin="18dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="horizontal"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <TextView
+        android:gravity="left|center"
+             android:layout_gravity="left|center"
+        android:text="@string/acticity_login_auto_loin_label"
+            android:textSize="25dp"
+            android:layout_weight="3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+        <Switch
+            android:id="@+id/activity_setting_inapp_autologin"
+            android:gravity="right|center"
+           style="@style/Switch"
+            android:layout_weight="1"
+            android:layout_gravity="right"
+            android:maxWidth="50dp"
+            android:checked="false"
+            android:layout_width="wrap_content"
+            android:switchMinWidth="0dp"
+            android:minWidth="50dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+<View
+        android:background="#000000"
+    android:layout_width="match_parent"
+    android:layout_height="1dp"/>
+
+</LinearLayout>
