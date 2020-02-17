@@ -16,6 +16,7 @@ using Android.Util;
 using Android.Support.V7.Widget;
 using Java.Util;
 using Android.Text.Format;
+using System.Threading;
 
 namespace Android_KingHoo_Scanner_Rebuild
 {
@@ -570,6 +571,8 @@ namespace Android_KingHoo_Scanner_Rebuild
                 var fstock_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStock_Name);
                 var fstockplace_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStockPlace_Name);
                 var fmainuint_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FMainUint_Name);
+                var fbatchNo = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_fbatchNo);
+
                 var uuid = Guid.NewGuid();
                 m_list[position].m_uuid = uuid;
                 button_delete.SetTag(Resource.Id.activity_main_instock_entry_layout_delete, new UIDTag(uuid));
@@ -623,6 +626,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     fnote.Text = ((Stock_Entry)GetItem(position)).m_fnote;
                 }
+                if (fbatchNo != null)
+                {
+                    fbatchNo.Text = ((Stock_Entry)GetItem(position)).m_fbatchno; 
+                }
                 return view;
             }
 
@@ -634,6 +641,42 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
         }
 
+        public class FBatch_Msg: Java.Lang.Object
+        {
+            public int m_id { get; set; }
+            public string m_FBatchNo { get; set; }
+            public string m_FQty { get; set; }
+        }
+
+        public class Batch_Adapter : BaseAdapter
+        {
+            public override int Count { get { return m_list.Count; } }
+            List<FBatch_Msg> m_list = null; Context m_context = null;
+            public Batch_Adapter(Context context, List<FBatch_Msg> list)
+            {
+                m_context = context;
+                m_list = list;
+            }
+            public override Java.Lang.Object GetItem(int position)
+            {
+                return m_list[position];
+            }
+
+            public override long GetItemId(int position)
+            {
+                return position;
+            }
+
+            public override View GetView(int position, View convertView, ViewGroup parent)
+            {
+                View view = convertView;
+
+                view = LayoutInflater.From(m_context).Inflate(Resource.Layout.dialog_entry_add_batch_list, null);
+                var batchNo = view.FindViewById<TextView>(Resource.Id.dialog_entry_add_batch_list_batch);
+                batchNo.Text = ((FBatch_Msg)GetItem(position)).m_FBatchNo;
+                return view;
+            }
+        }
         public class TypeEntry : Dialog
         {
 
@@ -642,9 +685,10 @@ namespace Android_KingHoo_Scanner_Rebuild
             Android.Support.V4.App.Fragment m_fragment;
             string m_ClassType = "";
             Button m_cancel = null, m_save = null;
-            EditText m_fnumber = null, m_fstock = null, m_stockplace = null, m_mainuint = null, m_fqty = null, m_fnote = null;
+            EditText m_fnumber = null, m_fstock = null, m_stockplace = null, m_mainuint = null, m_fqty = null, m_fnote = null, m_fqty_outStock = null,m_stock_fqty = null;
             EditText m_batchno = null;
             bool StockPlace_Enable = false, BatchNo_Enable = false;
+            Spinner m_batchSelector = null;
 
             class _Item{
                 public string fnumber { get; set; }
@@ -680,7 +724,113 @@ namespace Android_KingHoo_Scanner_Rebuild
                     ((Fragment_OutStock)fragment).outStock_FunRecivieData += Fragment_inStock_FunRecivieData;
                 }            
             }
+            List<FBatch_Msg> m_batchNo_list = new List<FBatch_Msg>();
+            private void getBatchNo(string FItemID,string FStock,string FStockPlace)
+            {
+                if(FItemID!="" && FStock != "")
+                {
+                    var T = new System.Threading.Thread(new ThreadStart(() => {
+                        if (!BatchNo_Enable /*&& StockPlace_Enable*/)
+                        {
+                            var _ret = Tools_SQL_Class.getTable(
+                            "select cast(FQty as decimal(18,2)) FQty from ICInventory A " +
+                            "join t_ICItem B on A.FItemID = B.FItemID " +
+                            "join t_Stock C on A.FStockID = C.FItemID " +
+                            "join t_StockPlace D on A.FStockPlaceID = D.FSPID " +
+                            "where B.FNumber like '" + FItemID + "' and C.FNumber like '" + FStock + "' and D.FNumber like '" + FStockPlace + "' ");
+                            if(_ret!=null && _ret.Rows.Count > 0)
+                            {
+                                m_fragment.Activity.RunOnUiThread(()=> {
+                                    m_stock_fqty.Text = _ret.Rows[0]["FQty"].ToString();
+                                });
+                                
+                            }
+                            else
+                            {
+                                m_fragment.Activity.RunOnUiThread(() => {
+                                    m_stock_fqty.Text = "";
+                                });
+                            }
+                            return;
+                        };
+                        //if (!BatchNo_Enable && !StockPlace_Enable)
+                        //{
+                        //    var _ret = Tools_SQL_Class.getTable(
+                        //    "select FQty from ICInventory A " +
+                        //    "join t_ICItem B on A.FItemID = B.FItemID " +
+                        //    "join t_Stock C on A.FStockID = C.FItemID " +
+                        //    "join t_StockPlace D on A.FStockPlaceID = D.FSPID " +
+                        //    "where B.FNumber like '" + FItemID + "' and C.FNumber like '" + FStock + "';" );
+                        //    return;
+                        //};
+                        //if (BatchNo_Enable && !StockPlace_Enable)
+                        //{
+                        //    var _ret = Tools_SQL_Class.getTable(
+                        //    "select FBatchNo,FQty from ICInventory A " +
+                        //    "join t_ICItem B on A.FItemID = B.FItemID " +
+                        //    "join t_Stock C on A.FStockID = C.FItemID " +
+                        //    "join t_StockPlace D on A.FStockPlaceID = D.FSPID " +
+                        //    "where B.FNumber like '" + FItemID + "' and C.FNumber like '" + FStock + "' and D.FNumber like '" + FStockPlace + "' ");
+                        //    return;
+                        //};
+                        if (BatchNo_Enable)
+                        {
+                            var ret = Tools_SQL_Class.getTable(
+                            "select FBatchNo,cast(FQty as decimal(18,2)) FQty from ICInventory A " +
+                            "join t_ICItem B on A.FItemID = B.FItemID " +
+                            "join t_Stock C on A.FStockID = C.FItemID " +
+                            "join t_StockPlace D on A.FStockPlaceID = D.FSPID " +
+                            "where B.FNumber like '" + FItemID + "' and C.FNumber like '" + FStock + "' and D.FNumber like '" + FStockPlace + "' ");
+                            if (ret != null && ret.Rows.Count > 0)
+                            {
+                                m_batchNo_list.Clear();
+                                for (int i = 0; i < ret.Rows.Count; i++)
+                                {
+                                    var bat = new FBatch_Msg();
+                                    bat.m_id = i;
+                                    bat.m_FBatchNo = ret.Rows[i]["FBatchNo"].ToString();
+                                    bat.m_FQty = ret.Rows[i]["FQty"].ToString();
+                                    m_batchNo_list.Add(bat);
+                                }
+                                m_fragment.Activity.RunOnUiThread(()=> {
+                                    m_batchSelector.Enabled = true;
+                                    m_batchSelector.Adapter = new Batch_Adapter(m_context, m_batchNo_list);
+                                });
+                               
+                            }
+                            else
+                            {
+                                m_fragment.Activity.RunOnUiThread(() => {
+                                    m_stock_fqty.Text = "";
+                                });
+                               
+                            }
+                        };
 
+
+                    }));
+                    T.IsBackground = true;
+                    T.Start();
+                }
+                
+            }
+            void getStock()
+            {
+                if (m_ClassType == "OUT")
+                {
+                    if (_m_Item!=null && _m_stock!=null&& _m_Item.fnumber != "" && _m_stock.fnumber != "")
+                    {
+                        if (StockPlace_Enable && _m_stockplace.fnumber != "")
+                        {
+                            getBatchNo(_m_Item.fnumber, _m_stock.fnumber, _m_stockplace.fnumber);
+                        }
+                        else
+                        {
+                            getBatchNo(_m_Item.fnumber, _m_stock.fnumber, "*");
+                        }
+                    }
+                } 
+            }
             private void Fragment_inStock_FunRecivieData(string Type, string fnumber,string fname,string fextend)
             {
                switch (Type)
@@ -706,13 +856,16 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 //m_mainuint.Text = ret.Rows[0]["FName"].ToString();
                                 m_batchno.Enabled = true;
                                 BatchNo_Enable = true;
+                                m_batchSelector.Enabled = false;
                             }
                             else
                             {
                                 m_batchno.Text = "";
                                 m_batchno.Enabled = false;
                                 BatchNo_Enable = false;
+                                m_batchSelector.Enabled = true;
                             }
+                            getStock();
                         }
                         break;
                     case ItemType.ICStock:
@@ -736,6 +889,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 StockPlace_Enable = false;
                                // m_stockplace.RequestFocus();
                             }
+                            getStock();
                         }
                         break;
                     case ItemType.ICStockPlace:
@@ -745,6 +899,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             _m_stockplace.fname = fname;
 
                             m_stockplace.Text = fnumber;
+                            getStock();
                         }
                         break;
                     default:
@@ -767,10 +922,57 @@ namespace Android_KingHoo_Scanner_Rebuild
                 m_fnote = view.FindViewById<EditText>(Resource.Id.dialog_entry_add_fnote);
                 m_cancel = view.FindViewById<Button>(Resource.Id.dialog_entry_add_cancel);
                 m_save = view.FindViewById<Button>(Resource.Id.dialog_entry_add_save);
+                m_batchSelector = view.FindViewById<Spinner>(Resource.Id.dialog_entry_add_fbatchno_selector);
+                m_batchSelector.ItemSelected += M_batchSelector_ItemSelected;
+
+                m_fqty_outStock = view.FindViewById<EditText>(Resource.Id.dialog_entry_add_fqty_outstock);
+                m_fqty_outStock.AfterTextChanged += M_fqty_outStock_AfterTextChanged;
+                m_stock_fqty = view.FindViewById<EditText>(Resource.Id.dialog_entry_add_stock_fqty);
+
+
+                if (m_ClassType == "IN")
+                {
+                    m_batchSelector.Visibility = ViewStates.Invisible;
+                    m_fqty_outStock.Visibility = ViewStates.Invisible;
+                    m_stock_fqty.Visibility = ViewStates.Invisible;
+                }
+                else
+                {
+                    m_batchno.Visibility = ViewStates.Invisible;
+                    m_fqty.Visibility = ViewStates.Invisible;
+                }
                 m_cancel.Click += M_cancel_Click;
                 m_save.Click += M_save_Click;
                 m_fnumber.Click += M_fnumber_Click;
                 m_fstock.Click += M_fstock_Click;
+            }
+
+            private void M_fqty_outStock_AfterTextChanged(object sender, Android.Text.AfterTextChangedEventArgs e)
+            {
+                //throw new NotImplementedException();
+                try
+                {
+                    if(Convert.ToDecimal(m_stock_fqty.Text) < Convert.ToDecimal(((EditText)sender).Text))
+                    {
+                        ShowMsg(m_fragment.Activity, "错误", "出库数量不能大于库存数量");
+                        ((EditText)sender).Text = "";
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+
+            private void M_batchSelector_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
+            {
+                try
+                {
+                    m_stock_fqty.Text = m_batchNo_list[(int)((Spinner)sender).SelectedItemId].m_FQty;
+                }catch(Exception ex)
+                {
+                    ShowMsg(m_context,"错误",ex.Message);
+                }
             }
 
             private void M_fstock_Click(object sender, EventArgs e)
@@ -842,8 +1044,19 @@ namespace Android_KingHoo_Scanner_Rebuild
                     entry.m_fuint = _m_unit.fnumber;
                     entry.m_fuint_name = _m_unit.fname;
                 }
-                entry.m_fbatchno = m_batchno.Text;
-                entry.m_fqty = m_fqty.Text;
+
+               
+                if(m_ClassType == "IN")
+                {
+                    entry.m_fqty = m_fqty.Text;
+                    entry.m_fbatchno = m_batchno.Text;
+                }
+                else
+                {
+                    entry.m_fqty = m_fqty_outStock.Text;
+                    entry.m_fbatchno = m_batchNo_list[((int)m_batchSelector.SelectedItemId)].m_FBatchNo;
+                }
+                
                 entry.m_fnote = m_fnote.Text;
                 if(entry.m_fnumber == "")
                 {
@@ -857,7 +1070,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
                 if (entry.m_fqty == "")
                 {
-                    ShowMsg(m_fragment.Activity, "错误", "您还没有填写入库数量！");
+                    ShowMsg(m_fragment.Activity, "错误", "您还没有填写数量！");
                     return;
                 }
 
@@ -922,7 +1135,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         }
 
 
-        public static Bitmap textAsBitmap(String text, float textSize, Color textColor)
+        public static Bitmap textAsBitmap(System.String text, float textSize, Color textColor)
         {
             Paint paint = new Paint(PaintFlags.AntiAlias);
             paint.TextSize = textSize;

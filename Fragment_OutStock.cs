@@ -49,7 +49,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_date_picker = v.FindViewById<TextView>(Resource.Id.activity_main_outstock_layout_billdate);
             m_date_picker_edittext = v.FindViewById<EditText>(Resource.Id.activity_main_outstock_layout_billdate_edittext);
 
-            m_customer_select_edit = v.FindViewById<EditText>(Resource.Id.activity_main_outstock_layout_supply_edittext);
+            m_customer_select_edit = v.FindViewById<EditText>(Resource.Id.activity_main_outstock_layout_customer_edittext);
             m_customer_select_edit.Click += M_customer_select_edit_Click; ;
 
             var m_date_picker_edit = v.FindViewById<EditText>(Resource.Id.activity_main_outstock_layout_billdate_edittext);
@@ -186,7 +186,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                             case Tools_Tables_Adapter_Class.ItemType.Customer:
                                 {
                                     //var ret = data.GetStringExtra("FNumber");
+                                    m_customer_select_edit.Enabled = true;
                                     m_customer_select_edit.Text = ret_FName;
+                                    m_Stock_Header.m_FCustomerName = ret_FName;
                                     m_Stock_Header.m_FCustomer = ret_FNumber;
                                 }
                                 break;
@@ -239,11 +241,11 @@ namespace Android_KingHoo_Scanner_Rebuild
                     m_date_picker_edittext.Text = m_Stock_Header.m_FDate;
                 }
             }
-            if (m_Stock_Header.m_FSupplyName != "")
+            if (m_Stock_Header.m_FCustomerName != "")
             {
                 if (m_customer_select_edit != null)
                 {
-                    m_customer_select_edit.Text = m_Stock_Header.m_FSupplyName;
+                    m_customer_select_edit.Text = m_Stock_Header.m_FCustomerName;
                 }
             }
             if (m_Stock_Header.m_Fbillno != "")

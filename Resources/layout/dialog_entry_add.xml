@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:padding="16dp"
@@ -68,6 +68,8 @@
                 android:textStyle="italic|bold"
             android:text="@string/activity_main_check_inventory_layout_batch_label"
             android:layout_weight="1"
+                android:gravity="center|left"
+                android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <!--<Spinner
@@ -79,13 +81,24 @@
             android:layout_width="wrap_content"
             android:layout_weight="9"
             android:layout_height="wrap_content"/>-->
+            <FrameLayout
+                 android:layout_weight="9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
             <EditText
                  android:gravity="center"
                 android:id="@+id/dialog_entry_add_fbatchno"
                 android:editable="false"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
+            android:layout_width="match_parent"
+           
             android:layout_height="wrap_content"/>
+                <Spinner
+                     android:id="@+id/dialog_entry_add_fbatchno_selector"
+                    android:layout_gravity="center"
+                     android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </FrameLayout>
     </LinearLayout>
             <LinearLayout
         android:orientation="horizontal"
@@ -108,16 +121,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
+                 android:layout_gravity="center"
             android:text="@string/activity_main_check_inventory_layout_fqty_label"
             android:layout_weight="1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <EditText
-            android:id="@+id/dialog_entry_add_fqty"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
-                android:inputType="numberDecimal"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"/>  
+            <FrameLayout
+                 android:layout_weight="9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/dialog_entry_add_fqty"
+                android:layout_width="match_parent"
+                    android:inputType="numberDecimal"
+                android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:gravity="center"
+                     android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:id="@+id/dialog_entry_add_stock_fqty"
+                        android:editable="false"
+                        android:gravity="center"
+                         android:layout_gravity="center"
+                         android:layout_weight="1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                    <EditText
+                         android:id="@+id/dialog_entry_add_fqty_outstock"
+                        android:gravity="center"
+                         android:layout_gravity="center"
+                         android:layout_weight="1"
+                        android:inputType="numberDecimal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+                </FrameLayout>
     </LinearLayout>
               <LinearLayout
         android:orientation="horizontal"

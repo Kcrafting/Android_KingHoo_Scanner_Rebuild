@@ -62,7 +62,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_FModel = v.FindViewById<TextView>(Resource.Id.activity_main_check_inventory_layout_item_fmodel);
             m_sub_main_layout = v.FindViewById<LinearLayout>(Resource.Id.activity_main_check_inventory_layout_sub_main);
             //m_sub_main_layout.SetMinimumHeight(0);
-            m_selectitem_button.Click += M_selectitem_button_Click;
+            m_scancode.Click += M_selectitem_button_Click;
             //m_scancode.FocusChange += M_scancode_FocusChange;
             //new Thread(new ThreadStart(() => { 
             //})).Start();

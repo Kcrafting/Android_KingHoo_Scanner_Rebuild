@@ -159,6 +159,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                         Fragment_OutStock.Instance().m_Stock_Header.m_FInterID == 0 &&
                          Fragment_OutStock.Instance().m_Stock_Header.m_Fbillno!="")
                     {
+                        var ret = Tools_SQL_Class.getTable("SELECT 1 FROM dbo.ICInventory A JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID " +
+                                "JOIN dbo.t_Stock C ON A.FStockID = C.FItemID" +
+                                "JOIN dbo.t_StockPlace D ON A.FStockPlaceID = D.FSPID WHERE A.FBatchNo = '' AND B.FNumber = '' AND D.FNumber = '' AND C.FNumber = ''"
+                                );
                         Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "单据头没有填写完整！");
                         return;
                     }
