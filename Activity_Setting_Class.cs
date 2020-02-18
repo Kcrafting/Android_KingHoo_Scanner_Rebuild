@@ -79,7 +79,7 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         private void CancelAutoLogin_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         private void ChangePassword_Click(object sender, EventArgs e)

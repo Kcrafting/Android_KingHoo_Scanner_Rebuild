@@ -111,6 +111,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_date_picker_edittext.Text = "";
             m_customer_select_edit.Text = "";
             m_fnote.Text = "";
+            m_operator.Text = "";
             m_Stock_Header.Clear();
             new Thread(new ThreadStart(() =>
             {

@@ -196,6 +196,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             }
                             else
                             {
+                                Tools_SQL_Class.ExecutProcedure("dbo.CheckInventory", System.Data.CommandType.StoredProcedure, null);
                                 RunOnUiThread(() => {
                                     progrss.Dismiss();
                                     Fragment_OutStock.Instance().clear();
@@ -276,6 +277,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             }
                             else
                             {
+                                Tools_SQL_Class.ExecutProcedure("dbo.CheckInventory", System.Data.CommandType.StoredProcedure, null);
                                 RunOnUiThread(() => {
                                     progrss.Dismiss();
                                     Fragment_InStock.Instance().clear();
