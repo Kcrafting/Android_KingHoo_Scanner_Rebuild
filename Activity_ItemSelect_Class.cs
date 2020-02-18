@@ -12,6 +12,12 @@ using Android.Widget;
 using Android.Support.V7.App;
 using Android.Support.V7.Widget;
 using System.Threading;
+//using System.Data;
+using System.Data;
+using Android.Util;
+//  using System.Data;
+//using System.Data;
+
 
 namespace Android_KingHoo_Scanner_Rebuild
 {
@@ -38,6 +44,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         List<Tools_Tables_Adapter_Class.Item> m_ItemList = new List<Tools_Tables_Adapter_Class.Item>();
         List<TextView> m_indexItem = new List<TextView>();
         bool m_AdapterInitFinsh = false;
+        TextView m_search_textview = null;
         protected override void OnResume()
         {
             m_ItemType = this.Intent.GetStringExtra("Type");
@@ -49,11 +56,17 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_listview.ChoiceMode = ChoiceMode.Single;
             m_listview.ItemClick += M_listview_ItemClick;
             m_search = FindViewById<EditText>(Resource.Id.activity_item_select_search);
+            m_search_textview = FindViewById<TextView>(Resource.Id.activity_item_select_search_tv);
             //m_search.KeyPress += M_search_KeyPress;
             m_search.AfterTextChanged += M_search_AfterTextChanged;
+            m_search_textview.Click += M_search_textview_Click; ;
             //m_listview.Scroll += M_listview_Scroll;
             m_AdapterInitFinsh = false;
             //m_listview.Adapter
+
+            //m_timer.Enabled = true;
+            m_timer.Elapsed += M_timer_Elapsed;
+            m_search.Enabled = false;
 
             switch (m_ItemType)
             {
@@ -99,23 +112,83 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
         }
 
+        private void M_search_textview_Click(object sender, EventArgs e)
+        {
+           
+        }
+
+        private DataTable m_dataTable_Group = null;
+        private DataTable m_dataTable_Items = null;
+
+
+        private void search_()
+        {
+            var words = m_search.Text;
+            switch (m_ItemType)
+            {
+                case Tools_Tables_Adapter_Class.ItemType.ICItem:
+                    {
+
+                        words.Replace("'", "").Replace(",", "").Replace("[", "");
+                        updateItemsInAnotherThread(words, "FNumber", "FName", "FModel");
+                    }
+                    break;
+                case Tools_Tables_Adapter_Class.ItemType.ICStock:
+                    {
+
+                        words.Replace("'", "").Replace(",", "").Replace("[", "");
+                        updateItemsInAnotherThread(words, "FNumber", "FName", "FFullName");
+                    }
+                    break;
+                case Tools_Tables_Adapter_Class.ItemType.ICStockPlace:
+                    {
+
+                        words.Replace("'", "").Replace(",", "").Replace("[", "");
+                        updateItemsInAnotherThread(words, "FNumber", "FName", "FFullName");
+                    }
+                    break;
+                case Tools_Tables_Adapter_Class.ItemType.User:
+                    {
+
+                        words.Replace("'", "").Replace(",", "").Replace("[", "");
+                        updateItemsInAnotherThread(words, "FNumber", "FName", "FFullName");
+                    }
+                    break;
+                case Tools_Tables_Adapter_Class.ItemType.Supply:
+                    {
+
+                        words.Replace("'", "").Replace(",", "").Replace("[", "");
+                        updateItemsInAnotherThread(words, "FNumber", "FName", "FFullName");
+                    }
+                    break;
+                case Tools_Tables_Adapter_Class.ItemType.Customer:
+                    {
+
+                        words.Replace("'", "").Replace(",", "").Replace("[", "");
+                        updateItemsInAnotherThread(words, "FNumber", "FName", "FFullName");
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
         private void ProcessItemsInAnotherThread(string getGroupSql, string getItemsSql, string fnumber, string fname, string fextend)
         {
             var T = new Thread(new ThreadStart(() =>
             {
                 if (Tools_SQL_Class.Status())
                 {
-                    var ret = Tools_SQL_Class.getTable(getGroupSql);
-                    var ret1 = Tools_SQL_Class.getTable(getItemsSql);
+                    m_dataTable_Group = Tools_SQL_Class.getTable(getGroupSql);
+                    m_dataTable_Items = Tools_SQL_Class.getTable(getItemsSql);
                     m_ItemList.Clear();
-                    if (ret1 != null && ret1.Rows.Count >= 1)
+                    if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count >= 1)
                     {
-                        for (int i = 0; i < ret1.Rows.Count; i++)
+                        for (int i = 0; i < m_dataTable_Items.Rows.Count; i++)
                         {
                             var it = new Tools_Tables_Adapter_Class.Item();
-                            it.m_fnumber = ret1.Rows[i][fnumber].ToString();
-                            it.m_fname = ret1.Rows[i][fname].ToString();
-                            it.m_fextend = ret1.Rows[i][fextend].ToString();
+                            it.m_fnumber = m_dataTable_Items.Rows[i][fnumber].ToString();
+                            it.m_fname = m_dataTable_Items.Rows[i][fname].ToString();
+                            it.m_fextend = m_dataTable_Items.Rows[i][fextend].ToString();
                             m_ItemList.Add(it);
                         }
                     }
@@ -124,16 +197,17 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
 
                         m_listview.Adapter = adapter;
+                        m_search.Enabled = true;
                     });
                     m_indexItem.Clear();
                     m_groupKey.Clear();
-                    if (ret != null && ret.Rows.Count >= 1)
+                    if (m_dataTable_Group != null && m_dataTable_Group.Rows.Count >= 1)
                     {
-                        for (int i = 0; i < ret.Rows.Count; i++)
+                        for (int i = 0; i < m_dataTable_Group.Rows.Count; i++)
                         {
-                            m_groupKey.Add(ret.Rows[i][fnumber].ToString());
+                            m_groupKey.Add(m_dataTable_Group.Rows[i][fnumber].ToString());
                             var tv = new TextView(this);
-                            tv.Text = ret.Rows[i][fname].ToString() + "  " + ret.Rows[i][fnumber].ToString();
+                            tv.Text = m_dataTable_Group.Rows[i][fname].ToString() + "  " + m_dataTable_Group.Rows[i][fnumber].ToString();
                             tv.Click += Tv_Click;
                             tv.Gravity = GravityFlags.Right;
                             tv.TextAlignment = TextAlignment.Gravity;
@@ -154,58 +228,21 @@ namespace Android_KingHoo_Scanner_Rebuild
             T.IsBackground = true;
             T.Start();
         }
+        System.Timers.Timer m_timer = new System.Timers.Timer(1000);
         private void M_search_AfterTextChanged(object sender, Android.Text.AfterTextChangedEventArgs e)
         {
-            //updateInAnotherThread(((TextView)sender).Text);
-            switch (m_ItemType)
-            {
-                case Tools_Tables_Adapter_Class.ItemType.ICItem:
-                    {
-                        var words = ((TextView)sender).Text;
-                        words.Replace("'", "").Replace(",", "").Replace("[", "");
-                        updateItemsInAnotherThread("select B.FNumber,B.FName,A.FModel from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4 " +
-                                 "and (B.FNumber like '%" + words + "%' or B.FName like '%" + words + "%' or A.FModel like '%" + words + "%' )order by B.FNumber", "FNumber", "FName", "FModel");
-                    }
-                    break;
-                case Tools_Tables_Adapter_Class.ItemType.ICStock:
-                    {
-                        var words = ((TextView)sender).Text;
-                        words.Replace("'", "").Replace(",", "").Replace("[", "");
-                        updateItemsInAnotherThread("select B.FNumber,B.FName,B.FFullName from t_Stock A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=5 and (B.FNumber like '%" + words + "%' or B.FName like '%" + words + "%' or B.FFullName like '%" + words + "%') order by B.FNumber", "FNumber", "FName", "FFullName");
-                    }
-                    break;
-                case Tools_Tables_Adapter_Class.ItemType.ICStockPlace:
-                    {
-                        var words = ((TextView)sender).Text;
-                        words.Replace("'", "").Replace(",", "").Replace("[", "");
-                        updateItemsInAnotherThread("select FNumber,FName,FFullName from t_StockPlace where FSPID!=0 and (FNumber like '%" + words + "%' or FName like '%" + words + "%' or FFullName like '%" + words + "%') order by FNumber", "FNumber", "FName", "FFullName");
-                    }
-                    break;
-                case Tools_Tables_Adapter_Class.ItemType.User:
-                    {
-                        var words = ((TextView)sender).Text;
-                        words.Replace("'", "").Replace(",", "").Replace("[", "");
-                        updateItemsInAnotherThread("select FNumber,FName,FFullName from t_Item where FItemClassID=3 and (FNumber like '%" + words + "%' or FName like '%" + words + "%' or FFullName like '%" + words + "%') order by FNumber", "FNumber", "FName", "FModel");
-                    }
-                    break;
-                case Tools_Tables_Adapter_Class.ItemType.Supply:
-                    {
-                        var words = ((TextView)sender).Text;
-                        words.Replace("'", "").Replace(",", "").Replace("[", "");
-                        updateItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=8 and  (FNumber like '%" + words + "%' or FName like '%" + words + "%' or FFullName like '%" + words + "%') order by FNumber", "FNumber", "FName", "FModel");
-                    }
-                break;
-                case Tools_Tables_Adapter_Class.ItemType.Customer:
-                    {
-                        var words = ((TextView)sender).Text;
-                        words.Replace("'", "").Replace(",", "").Replace("[", "");
-                        updateItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=1 and (FNumber like '%" + words + "%' or FName like '%" + words + "%' or FFullName like '%" + words + "%') order by FNumber", "FNumber", "FName", "FModel");
-                    }
-                break;
-                default:
-                    break;
-            }
-            //throw new NotImplementedException();
+            
+            m_timer.Stop();
+            m_timer.Start();
+        }
+
+        private void M_timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            m_timer.Stop();
+            RunOnUiThread(()=> {
+                m_search.Enabled = false;
+            });
+            search_();
         }
 
         //private void M_search_KeyPress(object sender, View.KeyEventArgs e)
@@ -213,9 +250,50 @@ namespace Android_KingHoo_Scanner_Rebuild
         //    ((EditText)sender).Text += e.KeyCode.ToString();
         //    e.KeyCode.
         //        updateInAnotherThread(e.KeyCode , ((EditText)sender).Text);
-
         //}
-        private void updateItemsInAnotherThread(string getItemLikesql, string fnumber, string fname, string fextend)
+        //Thread m_Last_Running_Thread = null;
+        //Thread m_Current_Running_Thread = null;
+        //string _Tag = "----------------------->";
+        private void updateItemsInAnotherThread(string words, string fnumber, string fname, string fextend)
+        {
+            //Log.Error(_Tag, "enter updateItemsInAnotherThread ");
+            var T = new Thread(new ThreadStart(() =>
+            {
+                //Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(),"enter a new Thread" ) ;
+                //if (m_Last_Running_Thread != null && m_Last_Running_Thread.IsAlive)
+                //{
+                //    Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(), "开始处理上次未运行完成的线程" );
+                //    while (m_Last_Running_Thread.IsAlive) ;
+                //    Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(), "上次运行的线程处理完成");
+                //}
+                //Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(), "设置 m_Last_Running_Thread 值");
+                //m_Last_Running_Thread = m_Current_Running_Thread;
+                //Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(), "进入过滤阶段");
+
+                if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count > 0)
+                {
+                    var items = m_dataTable_Items.AsEnumerable();
+                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fnumber).Contains(words) || t.Field<string>(fnumber).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend) }).ToList<Tools_Tables_Adapter_Class.Item>();
+                    //DataTable _ret = items.OrderByDescending(t => t.Field<string>(fnumber).Contains(words));
+                    //List<Tools_Tables_Adapter_Class.Item> _ret_List = items.Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend) }).ToList<Tools_Tables_Adapter_Class.Item>();
+                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, ret, m_groupKey);
+                    //Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(), "开始更新Adapter");
+                    RunOnUiThread(() =>
+                    {
+                        m_listview.Adapter = adapter;
+                        m_search.Enabled = true;
+                    });
+                }
+                //Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(), "结束");
+
+            }));
+            T.IsBackground = true;
+
+            T.Start();
+        }
+
+        //废弃，每次搜索数据库延迟严重，改为搜索datatable，优化为 search_()
+        private void updateItemsInAnotherThread__(string getItemLikesql, string fnumber, string fname, string fextend)
         {
             //if (keycode == Keycode.Enter)
             //{
@@ -262,13 +340,13 @@ namespace Android_KingHoo_Scanner_Rebuild
         int m_lastSelectItem = -1;
         private void M_listview_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            if (e.Position == m_lastSelectItem && !m_groupKey.Contains(m_ItemList[e.Position].m_fnumber))
+            if (e.Position == m_lastSelectItem && !m_groupKey.Contains(((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fnumber))
             //if (m_listview.IsItemChecked(e.Position))
             {
                 Intent intent = new Intent();
-                intent.PutExtra("FNumber", m_ItemList[e.Position].m_fnumber);
-                intent.PutExtra("FName", m_ItemList[e.Position].m_fname);
-                intent.PutExtra("FExtend", m_ItemList[e.Position].m_fextend);
+                intent.PutExtra("FNumber", ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fnumber);
+                intent.PutExtra("FName", ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fname);
+                intent.PutExtra("FExtend", ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fextend);
                 SetResult(0, intent);
                 this.Finish();
             }

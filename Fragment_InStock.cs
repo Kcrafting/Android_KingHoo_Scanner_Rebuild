@@ -18,6 +18,7 @@ using Android.App;
 using System.Threading;
 using System.Data;
 using System.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 
 namespace Android_KingHoo_Scanner_Rebuild
 {
@@ -25,7 +26,7 @@ namespace Android_KingHoo_Scanner_Rebuild
     {
         private static Fragment_InStock m_instance = null;
         TextView m_date_picker = null,m_supply_select = null;
-        EditText m_date_picker_edittext = null, m_billno = null, m_supply_select_edit = null,m_fnote = null;
+        EditText m_date_picker_edittext = null, m_billno = null, m_supply_select_edit = null,m_fnote = null,m_operator=null;
         public string m_currentType = "";
         public ListView m_itemlist = null;
         public Scroller m_scroller = null;
@@ -78,6 +79,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             //m_supply_select.Click += M_supply_select_Click;
 
             m_billno = v.FindViewById<EditText>(Resource.Id.activity_main_instock_layout_fbillno);
+            m_operator = v.FindViewById<EditText>(Resource.Id.activity_main_instock_layout_operator);
+            m_operator.Click += M_operator_Click;
 
             m_itemlist = v.FindViewById<ListView>(Resource.Id.activity_main_instock_layout_entry);
             m_fnote = v.FindViewById<EditText>(Resource.Id.activity_main_instock_layout_note);
@@ -128,6 +131,14 @@ namespace Android_KingHoo_Scanner_Rebuild
             
         }
 
+        private void M_operator_Click(object sender, EventArgs e)
+        {
+            m_currentType = Tools_Tables_Adapter_Class.ItemType.User;
+            var intent = new Intent(Application.Context, typeof(Activity_ItemSelect_Class));
+            intent.PutExtra("Type", m_currentType);
+            StartActivityForResult(intent, 0);
+        }
+
         private void M_fnote_AfterTextChanged(object sender, Android.Text.AfterTextChangedEventArgs e)
         {
             m_Stock_Header.m_FNote = ((EditText)(sender)).Text;
@@ -172,6 +183,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 break;
                             case Tools_Tables_Adapter_Class.ItemType.User:
                                 {
+                                    m_operator.Text = ret_FName;
+                                    m_Stock_Header.m_Foperator = ret_FNumber;
+                                    m_Stock_Header.m_FoperatorName = ret_FName;
                                     //var ret = data.GetStringExtra("FNumber");
                                 }
                                 
@@ -204,6 +218,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_date_picker_edittext.Text = "";
             m_supply_select_edit.Text = "";
             m_fnote.Text = "";
+            m_operator.Text = "";
             m_Stock_Header.Clear();
             new Thread(new ThreadStart(() =>
             {
@@ -294,6 +309,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                 if (m_fnote != null)
                 {
                     m_fnote.Text = m_Stock_Header.m_FNote;
+                }
+            }
+            if (m_Stock_Header.m_FoperatorName != "")
+            {
+                if (m_operator != null)
+                {
+                    m_operator.Text = m_Stock_Header.m_FoperatorName;
                 }
             }
             if (m_EntryList_list != null && m_EntryList_list.Count > 0)

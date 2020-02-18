@@ -26,6 +26,11 @@ namespace Android_KingHoo_Scanner_Rebuild
             base.OnResume();
             m_Tes = new Tools_Extend_Storage(this);
 
+            //var sqlite = new Tools_SQLite_Class();
+            //sqlite.InitializeDatabase();
+            //sqlite.AddData("hello world hello world");
+            //sqlite.GetData();
+
             Tools_SQL_Class.m_Host = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseAddress);
             Tools_SQL_Class.m_UserName = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseUserName);
             Tools_SQL_Class.m_UserPassword = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseUserPassword);
@@ -147,6 +152,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             if (Tools_Tables_Adapter_Class.m_AccountListed && m_AccountSelect.SelectedItem!=null)
             {
                 var UserID = ((Tools_Tables_Adapter_Class.Login_Account)m_AccountSelect.SelectedItem).UserID;
+                MainActivity.m_CurrentUserID = UserID;
                 var password = FindViewById<AutoCompleteTextView>(Resource.Id.acticity_login_account_password).Text;
                 var userProfile = Tools_SQL_Class.getTable("select B.FName,B.FUserID,B.FDescription from t_user_pda_password A join t_Base_User B  on  A.FUserFitemID=B.FUserID where A.FUserFitemID=" + UserID.ToString() + " and A.FPassword='" +
                     password + "'");

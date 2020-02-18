@@ -86,6 +86,7 @@
 
   <string name ="activity_main_instock_layout_save_label">保存</string>
   <string name ="activity_main_instock_layout_cancel_label">取消</string>
+  <string name ="activity_main_instock_layout_operator_label">操作人</string>
 
   <string name ="activity_main_instock_layout_Entry_edit_button">编辑</string>
   <string name ="activity_main_instock_layout_Entry_delete_button">删除</string>

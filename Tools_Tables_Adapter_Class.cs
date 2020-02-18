@@ -480,6 +480,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             public string m_FCustomer { set; get; }
             public string m_FCustomerName { set; get; }
             public string m_Fbillno { get; set; }
+            public string m_Foperator { get; set; }
+            public string m_FoperatorName { get; set; }
             public void Clear()
             {
                 m_FInterID = 0;
@@ -488,6 +490,8 @@ namespace Android_KingHoo_Scanner_Rebuild
                 m_FNote = "";
                 m_FCustomer = "";
                 m_Fbillno = "";
+                m_Foperator = "";
+                m_FoperatorName = "";
             }
         }
         public class Stock_Entry : Java.Lang.Object
@@ -711,7 +715,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 public string fname { get; set; }
             }
             _Unit _m_unit = null;_StockPlace _m_stockplace = null;_Stock _m_stock = null;_Item _m_Item = null;
-            public TypeEntry(Context context, Android.Support.V4.App.Fragment fragment,string Type) : base(context)
+            public TypeEntry(Context context, Android.Support.V4.App.Fragment fragment,string Type) : base(context,Resource.Style.mdialog)
             {
                 m_context = context;
                 m_fragment = fragment;
@@ -1151,6 +1155,24 @@ namespace Android_KingHoo_Scanner_Rebuild
             Canvas canvas = new Canvas(image);
             canvas.DrawText(text, 0, baseline, paint);
             return image;
+        }
+
+
+
+        public class ShowPrograss: Dialog
+        {
+            Context m_context = null;
+            ShowPrograss(Context context):base(context, Resource.Style.mdialog)
+            {
+                m_context = context;
+            }
+            protected override void OnCreate(Bundle savedInstanceState)
+            {
+                base.OnCreate(savedInstanceState);
+                LayoutInflater layoutInflater = LayoutInflater.From(m_context);
+                View view = layoutInflater.Inflate(Resource.Layout.dialog_entry_add, null);
+                SetContentView(view);
+            }
         }
         //not end
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Android;
 using Android.App;
 using Android.Content;
@@ -15,7 +16,7 @@ using Android.Widget;
 
 namespace Android_KingHoo_Scanner_Rebuild
 {
-    
+
     [Activity(Label = "@string/company_main_title", Theme = "@style/AppTheme.NoActionBar", MainLauncher = false)]
     public class MainActivity : AppCompatActivity, NavigationView.IOnNavigationItemSelectedListener
     {
@@ -35,6 +36,7 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         public static MainActivity ms_thisPointer = null;
         private FloatingActionButton m_fab = null;
+        public static string m_CurrentUserID = "";
 
         private Android.Support.V4.App.Fragment m_current_fragment = null;
         Scanner_Receiver m_sr = new Scanner_Receiver();
@@ -62,7 +64,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
-            
+
             Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
 
@@ -78,8 +80,8 @@ namespace Android_KingHoo_Scanner_Rebuild
 
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
             navigationView.SetNavigationItemSelectedListener(this);
-            
-           
+
+
             //checkinventory
 
             ms_thisPointer = this;
@@ -88,7 +90,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         public override void OnBackPressed()
         {
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
-            if(drawer.IsDrawerOpen(GravityCompat.Start))
+            if (drawer.IsDrawerOpen(GravityCompat.Start))
             {
                 drawer.CloseDrawer(GravityCompat.Start);
             }
@@ -109,7 +111,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_save_menu = menu.FindItem(Resource.Id.action_menu_save);
             m_check_menu = menu.FindItem(Resource.Id.action_menu_check);
             m_delete_menu = menu.FindItem(Resource.Id.action_menu_delete);
-            
+
 
             Tools_Extend_Storage tes = new Tools_Extend_Storage(this);
             var _name = FindViewById<TextView>(Resource.Id.menu_userprofile_name);
@@ -142,7 +144,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 default:
                     break;
             }
-           
+
 
             return base.OnOptionsItemSelected(item);
         }
@@ -157,12 +159,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                     if (Fragment_OutStock.Instance().m_Stock_Header.m_FDate != "" &&
                         Fragment_OutStock.Instance().m_Stock_Header.m_FSupply != "" &&
                         Fragment_OutStock.Instance().m_Stock_Header.m_FInterID == 0 &&
-                         Fragment_OutStock.Instance().m_Stock_Header.m_Fbillno!="")
+                         Fragment_OutStock.Instance().m_Stock_Header.m_Fbillno != "")
                     {
-                        var ret = Tools_SQL_Class.getTable("SELECT 1 FROM dbo.ICInventory A JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID " +
-                                "JOIN dbo.t_Stock C ON A.FStockID = C.FItemID" +
-                                "JOIN dbo.t_StockPlace D ON A.FStockPlaceID = D.FSPID WHERE A.FBatchNo = '' AND B.FNumber = '' AND D.FNumber = '' AND C.FNumber = ''"
-                                );
+         
+
                         Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "单据头没有填写完整！");
                         return;
                     }
@@ -193,14 +193,65 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
                 if (Fragment_InStock.Instance().m_EntryList_list.Count > 0)
                 {
-                    if(Fragment_InStock.Instance().m_Stock_Header.m_FDate!="" &&
-                        Fragment_InStock.Instance().m_Stock_Header.m_FSupply!="" &&
-                        Fragment_InStock.Instance().m_Stock_Header.m_FInterID == 0)
+                    if (Fragment_InStock.Instance().m_Stock_Header.m_FDate != "" &&
+                        Fragment_InStock.Instance().m_Stock_Header.m_FSupply != "" &&
+                        Fragment_InStock.Instance().m_Stock_Header.m_FInterID != 0 &&
+                         Fragment_InStock.Instance().m_Stock_Header.m_Foperator != "" &&
+                        Fragment_OutStock.Instance().m_Stock_Header.m_Fbillno != "")
+                    {
+                        var T = new Thread(new ThreadStart(()=> {
+                            string[] sql_list = new string[Fragment_InStock.Instance().m_EntryList_list.Count + 1];
+                            //校验库存
+                            for (int i = 0; i < Fragment_InStock.Instance().m_EntryList_list.Count; i++)
+                            {
+                                var item = Fragment_InStock.Instance().m_EntryList_list[i];
+                                //var sql__ = "SELECT 1 FROM dbo.ICInventory A JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID " +
+                                //    "JOIN dbo.t_Stock C ON A.FStockID = C.FItemID" +
+                                //    "JOIN dbo.t_StockPlace D ON A.FStockPlaceID = D.FSPID WHERE A.FBatchNo = " + (item.m_fbatchno == "" ? "A.FBatchNo" : "'" + item.m_fbatchno + "'") + " AND B.FNumber = '" + item.m_fnumber + "' AND D.FNumber = " + (item.m_fbatchno == "" ? "D.FNumber" : "'" + item.m_fbatchno + "'") + " AND C.FNumber = '" + item.m_fstock + "'";
+                                //var ret = Tools_SQL_Class.getTable(sql__);
+                                //if (ret != null && ret.Rows.Count > 0)
+                                //{
+                                //    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "库存不足，无法出库");
+                                //    return;
+                                //}
+
+                                sql_list[i] = "INSERT INTO dbo.ICStockBillEntry( FBrNo ,FInterID ,FEntryID ,FItemID ,FQtyMust ,FQty ,FPrice ,FBatchNo ,FAmount ,FNote ,FUnitID ,FAuxPrice ,FAuxQty ,FAuxQtyMust ,FSCStockID ,FDCStockID ,FPlanMode ,FChkPassItem,FDCSPID)" + "VALUES('0'," + Fragment_InStock.Instance().m_Stock_Header.m_FInterID + "," + i.ToString() + "," + "(select FItemID from t_ICItem where FNumber = '" + item.m_fnumber + "')," + item.m_fqty.ToString() + "," + item.m_fqty.ToString() + ", 0,'" + item.m_fbatchno + "', 0,'" + item.m_fnote + "', (select FUnitID from t_ICItem where FNumber = '" + item.m_fnumber + "'), 0, " + item.m_fqty.ToString() + ", " + item.m_fqty.ToString() + ", " + "0, (select FItemID from t_Stock where FNumber = '" + item.m_fstock + "' ), 14036, 1058, (select FSPID from t_StockPlace where FNumber = '" + (item.m_fstockplace==""|| item.m_fstockplace == null? "*": item.m_fstockplace) + "'))";
+                            }
+                            var ___sql = "INSERT INTO dbo.ICStockBill( FBrNo ,FInterID ,FTranType ,FDate ,FBillNo ,FNote ,FDCStockID ,FSCStockID ,FDeptID ,FSupplyID,FEmpID ,FFManagerID ,FSManagerID ,FBillerID ,FROB ,FUpStockWhenSave ,FUUID , FMarketingStyle ,FSourceType ,FPOStyle) VALUES ('0'," +
+                     Fragment_InStock.Instance().m_Stock_Header.m_FInterID + ", 1, GETDATE(),'" + Fragment_InStock.Instance().m_Stock_Header.m_Fbillno + "', '" + Fragment_InStock.Instance().m_Stock_Header.m_FNote + "', 0, 0, 0,(select FItemID from t_Supplier where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_FSupply + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'),(select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'), (select FUserID from t_user where FUserID = " + m_CurrentUserID + "), 1, 1,NEWID(),12530,37521,251);";
+                            sql_list[Fragment_InStock.Instance().m_EntryList_list.Count] = ___sql;
+
+                            var __ret = Tools_SQL_Class.TransationAutoCommit(sql_list);
+                            if (__ret != "")
+                            {
+                                RunOnUiThread(()=> {
+                                    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", __ret);
+                                });
+                               
+                                return;
+                            }
+                            else
+                            {
+                                RunOnUiThread(() => {
+                                    Fragment_InStock.Instance().clear();
+                                    Tools_Tables_Adapter_Class.ShowMsg(this, "提示", "单据保存成功！");
+                                    return;
+                                });
+                               
+                            }
+
+                        }));
+                        T.IsBackground = true;
+                        T.Start();
+
+                    }
+                    else
                     {
                         Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "单据头没有填写完整！");
                         return;
                     }
-                    Fragment_InStock.Instance().clear();
+                   
+                   
                 }
                 else
                 {
@@ -222,10 +273,10 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         private void FabOnClick(object sender, EventArgs eventArgs)
         {
-            View view = (View) sender;
+            View view = (View)sender;
             if (m_current_fragment != null)
             {
-                Tools_Tables_Adapter_Class.TypeEntry dia = m_current_fragment == Fragment_InStock.Instance()? new Tools_Tables_Adapter_Class.TypeEntry(this, (Fragment_InStock)m_current_fragment, "IN"): new Tools_Tables_Adapter_Class.TypeEntry(this, (Fragment_OutStock)m_current_fragment, "OUT");             
+                Tools_Tables_Adapter_Class.TypeEntry dia = m_current_fragment == Fragment_InStock.Instance() ? new Tools_Tables_Adapter_Class.TypeEntry(this, (Fragment_InStock)m_current_fragment, "IN") : new Tools_Tables_Adapter_Class.TypeEntry(this, (Fragment_OutStock)m_current_fragment, "OUT");
                 dia.Show();
             }
         }
@@ -240,8 +291,8 @@ namespace Android_KingHoo_Scanner_Rebuild
                 Fragment_Welcome.Instance().View.Visibility = ViewStates.Invisible;
                 m_welcomUIShow = false;
             }
-            
-            if (id == Resource.Id.menu_side_bar_checkInventory && m_lastSelectedFragment!= Resource.Id.menu_side_bar_checkInventory)
+
+            if (id == Resource.Id.menu_side_bar_checkInventory && m_lastSelectedFragment != Resource.Id.menu_side_bar_checkInventory)
             {
                 m_save_menu.SetVisible(false);
                 m_check_menu.SetVisible(false);
@@ -341,7 +392,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
                 g_ProcessReciveData(data);
             }
-            
+
             if (m_selectedItem == Resource.Id.menu_side_bar_checkInventory)
             {
                 // Handle the camera action

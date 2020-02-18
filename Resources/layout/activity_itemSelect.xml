@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp">
             <TextView
+                android:id="@+id/activity_item_select_search_tv"
                 android:gravity="center"
                 android:text="@string/activity_item_select_search_label"
                 android:layout_weight="1"

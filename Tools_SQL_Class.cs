@@ -48,13 +48,15 @@ namespace Android_KingHoo_Scanner_Rebuild
         //    m_UserName = username;
         //    m_UserPassword = userpassword;
         //}
+        private static Mutex g_mut = new Mutex();
         public static bool connect()
         {
             //string constr = "Data Source=" + m_Host + ";instanceName=MSSQLSERVER;Initial Catalog=master;User ID=" + m_UserName + ";pwd=" + m_UserPassword;
-            
+            g_mut.WaitOne();
             if (m_Host == "" || m_UserName == "")
             {
                 m_errorString = "连接字符串未设置！";
+                g_mut.ReleaseMutex();
                 return false;
             }
             string constr = "Data Source=" + m_Host + ";Initial Catalog=master;User ID=" + m_UserName + ";pwd=" + m_UserPassword + ";Connect Timeout =" + m_timeOut.ToString() + ";MultipleActiveResultSets=true;";
@@ -67,16 +69,18 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     m_Connect.Open();
                     Log.Debug(TAG, "Sql_Finish " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                }
+                }   
             }
             catch (SqlException sex)
             {
                 Log.Debug(TAG, "Sql_Error " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + sex.Message);
                 m_errorString = sex.Message;
                 connStatus = false;
+                g_mut.ReleaseMutex();
                 return false;
             }
             connStatus = true;
+            g_mut.ReleaseMutex();
             return true;
 
         }
@@ -288,7 +292,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         }
 
         //
-        public static string TransationAutoCommit(string sqlTxt)
+        public static string TransationAutoCommit(string [] sqlTxt)
         {
             if (!Status())
             {
@@ -304,10 +308,14 @@ namespace Android_KingHoo_Scanner_Rebuild
             command.Connection = m_Connect;
             command.Transaction = transaction;
 
-
+            string _sql = "use " + m_DbName + ";";
+            foreach(var i in sqlTxt)
+            {
+                _sql += i;
+            }
             try
             {
-                command.CommandText = "use " + m_DbName + ";" + sqlTxt;
+                command.CommandText = _sql;
                 command.ExecuteNonQuery();
                 // Attempt to commit the transaction.
                 transaction.Commit();
