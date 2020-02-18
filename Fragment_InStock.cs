@@ -35,7 +35,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         public List<Tools_Tables_Adapter_Class.Stock_Entry> m_EntryList_list = new List<Tools_Tables_Adapter_Class.Stock_Entry>();
         public Tools_Tables_Adapter_Class.Stock_Header m_Stock_Header = new Tools_Tables_Adapter_Class.Stock_Header();
 
-        public delegate void onActivityRecive_instock_(string Type,string fnumber,string fname,string fextend);
+        public delegate void onActivityRecive_instock_(string Type,string fnumber,string fname,string fextend,string fitemid);
         public event onActivityRecive_instock_ inStock_FunRecivieData;
         public static Fragment_InStock Instance()
         {
@@ -151,9 +151,10 @@ namespace Android_KingHoo_Scanner_Rebuild
             var ret_FNumber = data.GetStringExtra("FNumber");
             var ret_FName = data.GetStringExtra("FName");
             var ret_FExtend = data.GetStringExtra("FExtend");
+            var ret_FItemID = data.GetStringExtra("FItemID");
             if (inStock_FunRecivieData != null)
             {
-                inStock_FunRecivieData(m_currentType, ret_FNumber, ret_FName, ret_FExtend);
+                inStock_FunRecivieData(m_currentType, ret_FNumber, ret_FName, ret_FExtend, ret_FItemID);
             }
             if (requestCode == 0)
             {
@@ -178,6 +179,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             case Tools_Tables_Adapter_Class.ItemType.ICStockPlace:
                                 {
                                     //var ret = data.GetStringExtra("FNumber");
+
                                 }
                                 
                                 break;

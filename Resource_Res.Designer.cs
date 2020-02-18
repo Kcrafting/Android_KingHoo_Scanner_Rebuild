@@ -61,6 +61,16 @@ namespace Android_KingHoo_Scanner_Rebuild {
         }
         
         /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] wait {
+            get {
+                object obj = ResourceManager.GetObject("wait", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 CREATE PROCEDURE [dbo].[ZZ_KIngHoo_LookUpInventory]
         ///@FNumber NVARCHAR(80)
         ///AS

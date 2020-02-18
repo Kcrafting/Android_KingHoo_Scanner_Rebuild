@@ -6,12 +6,12 @@ using Android.App;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Android_KingHoo_Scanner_Rebuild")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("金宏扫码")]
+[assembly: AssemblyDescription("沧州金宏瑞杰项目定制")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Android_KingHoo_Scanner_Rebuild")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCompany("KingHoo")]
+[assembly: AssemblyProduct("CangZhou_KingHoo")]
+[assembly: AssemblyCopyright("Copyright ©CANGZHOUKINGHOO 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

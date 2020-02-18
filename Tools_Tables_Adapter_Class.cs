@@ -324,6 +324,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         //基础资料 adapter
         public class Item : Java.Lang.Object
         {
+            public string m_fitemid;
             public string m_fnumber;
             public string m_fname;
             public string m_fextend;
@@ -496,13 +497,17 @@ namespace Android_KingHoo_Scanner_Rebuild
         }
         public class Stock_Entry : Java.Lang.Object
         {
+            public string m_fnumber_fitemid { get; set; }
             public string m_fnumber { get; set; }
             public string m_fnumber_name { get; set; }
             public string m_fnumber_model { get; set; }
+            public string m_fstock_fitemid { get; set; }
             public string m_fstock { get; set; }
             public string m_fstock_name { get; set; }
+            public string m_fstockplace_fitemid { get; set; }
             public string m_fstockplace { get; set; }
             public string m_fstockplace_name { get; set; }
+            public string m_fuint_fitemid { get; set; }
             public string m_fuint { get; set; }
             public string m_fuint_name { get; set; }
             public string m_fqty { get; set; }
@@ -695,12 +700,14 @@ namespace Android_KingHoo_Scanner_Rebuild
             Spinner m_batchSelector = null;
 
             class _Item{
+                public string fitemid { get; set; }
                 public string fnumber { get; set; }
                 public string fname { get; set; }
                 public string fmodel { get; set; }
             }
             class _Stock
             {
+                public string fitemid { get; set; }
                 public string fnumber { get; set; }
                 public string fname { get; set; }
             }
@@ -708,9 +715,11 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
                 public string fnumber { get; set; }
                 public string fname { get; set; }
+                public string fitemid { get; set; }
             }
             class _Unit
             {
+                public string fitemid { get; set; }
                 public string fnumber { get; set; }
                 public string fname { get; set; }
             }
@@ -824,7 +833,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     if (_m_Item!=null && _m_stock!=null&& _m_Item.fnumber != "" && _m_stock.fnumber != "")
                     {
-                        if (StockPlace_Enable && _m_stockplace.fnumber != "")
+                        if (StockPlace_Enable && _m_stockplace != null && _m_stockplace.fnumber != "")
                         {
                             getBatchNo(_m_Item.fnumber, _m_stock.fnumber, _m_stockplace.fnumber);
                         }
@@ -835,7 +844,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     }
                 } 
             }
-            private void Fragment_inStock_FunRecivieData(string Type, string fnumber,string fname,string fextend)
+            private void Fragment_inStock_FunRecivieData(string Type, string fnumber,string fname,string fextend,string fitemid)
             {
                switch (Type)
                 {
@@ -846,12 +855,14 @@ namespace Android_KingHoo_Scanner_Rebuild
                             _m_Item.fnumber = fnumber;
                             _m_Item.fname = fname;
                             _m_Item.fmodel = fextend;
-                            var ret = Tools_SQL_Class.getTable("select FNumber,FName from t_Item where FItemClassID=7 and FItemID = (select top 1 FUnitID from t_ICItem where FNumber='" + fnumber + "')");
+                            _m_Item.fitemid = fitemid;
+                            var ret = Tools_SQL_Class.getTable("select FNumber,FName,FItemID from t_Item where FItemClassID=7 and FItemID = (select top 1 FUnitID from t_ICItem where FNumber='" + fnumber + "')");
                             if(ret!=null && ret.Rows.Count > 0)
                             {
                                 _m_unit = new _Unit();
                                 _m_unit.fname = ret.Rows[0]["FName"].ToString();
                                 _m_unit.fnumber = ret.Rows[0]["FNumber"].ToString();
+                                _m_unit.fitemid = ret.Rows[0]["FItemID"].ToString();
                                 m_mainuint.Text = ret.Rows[0]["FName"].ToString();
                             }
                             var _ret = Tools_SQL_Class.getTable("select 1 from t_ICItem where FBatchManager=1 and FNumber='" + fnumber + "'");
@@ -874,10 +885,11 @@ namespace Android_KingHoo_Scanner_Rebuild
                         break;
                     case ItemType.ICStock:
                         {
-                            m_fstock.Text = fnumber;
+                            m_fstock.Text = fname;
                             _m_stock = new _Stock();
                             _m_stock.fnumber = fnumber;
                             _m_stock.fname = fname;
+                            _m_stock.fitemid = fitemid;
                             var ret = Tools_SQL_Class.getTable("select 1 from t_Stock where FNumber='" + fnumber + "' and FIsStockMgr=1");
                             if (ret != null && ret.Rows.Count > 0)
                             {
@@ -901,8 +913,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                             _m_stockplace = new _StockPlace();
                             _m_stockplace.fnumber = fnumber;
                             _m_stockplace.fname = fname;
+                            _m_stockplace.fitemid = fitemid;
 
-                            m_stockplace.Text = fnumber;
+                            m_stockplace.Text = fname;
                             getStock();
                         }
                         break;
@@ -949,6 +962,22 @@ namespace Android_KingHoo_Scanner_Rebuild
                 m_save.Click += M_save_Click;
                 m_fnumber.Click += M_fnumber_Click;
                 m_fstock.Click += M_fstock_Click;
+                m_stockplace.Click += M_stockplace_Click;
+            }
+
+            private void M_stockplace_Click(object sender, EventArgs e)
+            {
+                var intent = new Intent(Application.Context, typeof(Activity_ItemSelect_Class));
+                if (m_ClassType == "IN")
+                {
+                    ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStockPlace;
+                }
+                else
+                {
+                    ((Fragment_OutStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStockPlace;
+                }
+                intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.ICStockPlace);
+                m_fragment.StartActivityForResult(intent, 0);
             }
 
             private void M_fqty_outStock_AfterTextChanged(object sender, Android.Text.AfterTextChangedEventArgs e)
@@ -1032,21 +1061,25 @@ namespace Android_KingHoo_Scanner_Rebuild
                     entry.m_fnumber = _m_Item.fnumber;
                     entry.m_fnumber_name = _m_Item.fname;
                     entry.m_fnumber_model = _m_Item.fmodel;
+                    entry.m_fnumber_fitemid = _m_Item.fitemid;
                 }
                 if (_m_stock != null)
                 {
                     entry.m_fstock = _m_stock.fnumber;
                     entry.m_fstock_name = _m_stock.fname;
+                    entry.m_fstock_fitemid = _m_stock.fitemid;
                 }
                 if (_m_stockplace != null)
                 {
                     entry.m_fstockplace = _m_stockplace.fnumber;
                     entry.m_fstockplace_name = _m_stockplace.fname;
+                    entry.m_fstockplace_fitemid = _m_stockplace.fitemid;
                 }
                 if (_m_unit != null)
                 {
                     entry.m_fuint = _m_unit.fnumber;
                     entry.m_fuint_name = _m_unit.fname;
+                    entry.m_fuint_fitemid = _m_unit.fitemid;
                 }
 
                
@@ -1162,7 +1195,8 @@ namespace Android_KingHoo_Scanner_Rebuild
         public class ShowPrograss: Dialog
         {
             Context m_context = null;
-            ShowPrograss(Context context):base(context, Resource.Style.mdialog)
+            //VideoView m_videoView = null;
+            public ShowPrograss(Context context):base(context, Resource.Style.mdialog)
             {
                 m_context = context;
             }
@@ -1170,9 +1204,20 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
                 base.OnCreate(savedInstanceState);
                 LayoutInflater layoutInflater = LayoutInflater.From(m_context);
-                View view = layoutInflater.Inflate(Resource.Layout.dialog_entry_add, null);
+                View view = layoutInflater.Inflate(Resource.Layout.dialog_Prograss_layout, null);
                 SetContentView(view);
+                //m_videoView = view.FindViewById<VideoView>(Resource.Id.dialog_Prograss_layout_videoView);
+                //
+                //string package = m_context.PackageName;
+                //string path = (Element.Source as ResourceVideoSource).Path;
+                //string uri = "android.resource://" + package + "/raw/" + Resource.Raw.wait;
+
+                //m_videoView.SetVideoURI(Android.Net.Uri.Parse(uri));
+                //m_videoView.Start();
+                SetCancelable(false);
             }
+
+
         }
         //not end
     }

@@ -154,23 +154,73 @@ namespace Android_KingHoo_Scanner_Rebuild
 
             if (id == Resource.Id.action_menu_save)
             {
+                var progrss = new Tools_Tables_Adapter_Class.ShowPrograss(this);
+                progrss.Show();
                 if (Fragment_OutStock.Instance().m_EntryList_list.Count > 0)
                 {
                     if (Fragment_OutStock.Instance().m_Stock_Header.m_FDate != "" &&
-                        Fragment_OutStock.Instance().m_Stock_Header.m_FSupply != "" &&
-                        Fragment_OutStock.Instance().m_Stock_Header.m_FInterID == 0 &&
+                        Fragment_OutStock.Instance().m_Stock_Header.m_FCustomer != "" &&
+                        Fragment_OutStock.Instance().m_Stock_Header.m_FInterID != 0 &&
+                        Fragment_OutStock.Instance().m_Stock_Header.m_Foperator != "" &&
                          Fragment_OutStock.Instance().m_Stock_Header.m_Fbillno != "")
                     {
-         
+                        var T = new Thread(new ThreadStart(()=> {
+                            string[] sql_list = new string[Fragment_OutStock.Instance().m_EntryList_list.Count + 1];
+                            for (int i = 0; i < Fragment_OutStock.Instance().m_EntryList_list.Count; i++)
+                            {
+                                var item = Fragment_OutStock.Instance().m_EntryList_list[i];
+                                var sql__ = "SELECT 1 FROM dbo.ICInventory A JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID " +
+                                    "JOIN dbo.t_Stock C ON A.FStockID = C.FItemID" +
+                                    "JOIN dbo.t_StockPlace D ON A.FStockPlaceID = D.FSPID WHERE A.FBatchNo = " + (item.m_fbatchno == "" ? "A.FBatchNo" : "'" + item.m_fbatchno + "'") + " AND B.FNumber = '" + item.m_fnumber + "' AND D.FNumber = " + (item.m_fbatchno == "" ? "D.FNumber" : "'" + item.m_fbatchno + "'") + " AND C.FNumber = '" + item.m_fstock + "'";
+                                var ret = Tools_SQL_Class.getTable(sql__);
+                                if (ret != null && ret.Rows.Count > 0)
+                                {
+                                    progrss.Dismiss();
+                                    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "库存不足，无法出库");
+                                    return;
+                                }
+                                sql_list[i] = "INSERT INTO dbo.ICStockBillEntry( FBrNo ,FInterID ,FEntryID ,FItemID ,FQtyMust ,FQty ,FPrice ,FBatchNo ,FAmount ,FNote ,FUnitID ,FAuxPrice ,FAuxQty ,FAuxQtyMust ,FSCStockID ,FDCStockID ,FPlanMode ,FChkPassItem,FDCSPID)" + "VALUES('0'," + Fragment_OutStock.Instance().m_Stock_Header.m_FInterID + "," + i.ToString() + "," + "(select FItemID from t_ICItem where FNumber = '" + item.m_fnumber + "')," + item.m_fqty.ToString() + "," + item.m_fqty.ToString() + ", 0,'" + item.m_fbatchno + "', 0,'" + item.m_fnote + "', (select FUnitID from t_ICItem where FNumber = '" + item.m_fnumber + "'), 0, " + item.m_fqty.ToString() + ", " + item.m_fqty.ToString() + ", " + "0, (select FItemID from t_Stock where FNumber = '" + item.m_fstock + "' ), 14036, 1058, (select FSPID from t_StockPlace where FSPID = " + (item.m_fstockplace_fitemid == "" || item.m_fstockplace == null ? "0" : item.m_fstockplace_fitemid) + "))";
+                            }
+                            var ___sql = "INSERT INTO dbo.ICStockBill( FBrNo ,FInterID ,FTranType ,FDate ,FBillNo ,FNote ,FDCStockID ,FSCStockID ,FDeptID ,FSupplyID,FEmpID ,FFManagerID ,FSManagerID ,FBillerID ,FROB ,FUpStockWhenSave ,FUUID , FMarketingStyle ,FSourceType ,FPOStyle) VALUES ('0'," + Fragment_OutStock.Instance().m_Stock_Header.m_FInterID + ", 21, GETDATE(),'" + Fragment_OutStock.Instance().m_Stock_Header.m_Fbillno + "', '" + Fragment_OutStock.Instance().m_Stock_Header.m_FNote + "', 0, 0, 0,(select FItemID from t_Organization where FNumber = '" + Fragment_OutStock.Instance().m_Stock_Header.m_FCustomer + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_OutStock.Instance().m_Stock_Header.m_Foperator + "'),(select FItemID from t_Emp where FNumber = '" + Fragment_OutStock.Instance().m_Stock_Header.m_Foperator + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_OutStock.Instance().m_Stock_Header.m_Foperator + "'), (select FUserID from t_user where FUserID = " + m_CurrentUserID + "), 1, 1,NEWID(),12530,37521,251);";
+                            sql_list[Fragment_OutStock.Instance().m_EntryList_list.Count] = ___sql;
 
+                            var __ret = Tools_SQL_Class.TransationAutoCommit(sql_list);
+                            if (__ret != "")
+                            {
+                                RunOnUiThread(() => {
+                                    progrss.Dismiss();
+                                    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", __ret);
+                                });
+
+                                return;
+                            }
+                            else
+                            {
+                                RunOnUiThread(() => {
+                                    progrss.Dismiss();
+                                    Fragment_OutStock.Instance().clear();
+                                    Tools_Tables_Adapter_Class.ShowMsg(this, "提示", "单据保存成功！");
+
+                                    return;
+                                });
+
+                            }
+                        }));
+                        T.IsBackground = true;
+                        T.Start();
+                        
+                    }
+                    else
+                    {
+                        progrss.Dismiss();
                         Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "单据头没有填写完整！");
                         return;
                     }
-
-                    Fragment_OutStock.Instance().clear();
+                   
                 }
                 else
                 {
+                    progrss.Dismiss();
                     Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "您还没有插入任何分录！");
                     return;
                 }
@@ -188,9 +238,12 @@ namespace Android_KingHoo_Scanner_Rebuild
         }
         void ProcessMenuItemClick_instock(int id)
         {
-
+            
+            
             if (id == Resource.Id.action_menu_save)
             {
+                var progrss = new Tools_Tables_Adapter_Class.ShowPrograss(this);
+                progrss.Show();
                 if (Fragment_InStock.Instance().m_EntryList_list.Count > 0)
                 {
                     if (Fragment_InStock.Instance().m_Stock_Header.m_FDate != "" &&
@@ -205,26 +258,17 @@ namespace Android_KingHoo_Scanner_Rebuild
                             for (int i = 0; i < Fragment_InStock.Instance().m_EntryList_list.Count; i++)
                             {
                                 var item = Fragment_InStock.Instance().m_EntryList_list[i];
-                                //var sql__ = "SELECT 1 FROM dbo.ICInventory A JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID " +
-                                //    "JOIN dbo.t_Stock C ON A.FStockID = C.FItemID" +
-                                //    "JOIN dbo.t_StockPlace D ON A.FStockPlaceID = D.FSPID WHERE A.FBatchNo = " + (item.m_fbatchno == "" ? "A.FBatchNo" : "'" + item.m_fbatchno + "'") + " AND B.FNumber = '" + item.m_fnumber + "' AND D.FNumber = " + (item.m_fbatchno == "" ? "D.FNumber" : "'" + item.m_fbatchno + "'") + " AND C.FNumber = '" + item.m_fstock + "'";
-                                //var ret = Tools_SQL_Class.getTable(sql__);
-                                //if (ret != null && ret.Rows.Count > 0)
-                                //{
-                                //    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "库存不足，无法出库");
-                                //    return;
-                                //}
 
-                                sql_list[i] = "INSERT INTO dbo.ICStockBillEntry( FBrNo ,FInterID ,FEntryID ,FItemID ,FQtyMust ,FQty ,FPrice ,FBatchNo ,FAmount ,FNote ,FUnitID ,FAuxPrice ,FAuxQty ,FAuxQtyMust ,FSCStockID ,FDCStockID ,FPlanMode ,FChkPassItem,FDCSPID)" + "VALUES('0'," + Fragment_InStock.Instance().m_Stock_Header.m_FInterID + "," + i.ToString() + "," + "(select FItemID from t_ICItem where FNumber = '" + item.m_fnumber + "')," + item.m_fqty.ToString() + "," + item.m_fqty.ToString() + ", 0,'" + item.m_fbatchno + "', 0,'" + item.m_fnote + "', (select FUnitID from t_ICItem where FNumber = '" + item.m_fnumber + "'), 0, " + item.m_fqty.ToString() + ", " + item.m_fqty.ToString() + ", " + "0, (select FItemID from t_Stock where FNumber = '" + item.m_fstock + "' ), 14036, 1058, (select FSPID from t_StockPlace where FNumber = '" + (item.m_fstockplace==""|| item.m_fstockplace == null? "*": item.m_fstockplace) + "'))";
+                                sql_list[i] = "INSERT INTO dbo.ICStockBillEntry( FBrNo ,FInterID ,FEntryID ,FItemID ,FQtyMust ,FQty ,FPrice ,FBatchNo ,FAmount ,FNote ,FUnitID ,FAuxPrice ,FAuxQty ,FAuxQtyMust ,FSCStockID ,FDCStockID ,FPlanMode ,FChkPassItem,FDCSPID)" + "VALUES('0'," + Fragment_InStock.Instance().m_Stock_Header.m_FInterID + "," + i.ToString() + "," + "(select FItemID from t_ICItem where FNumber = '" + item.m_fnumber + "')," + item.m_fqty.ToString() + "," + item.m_fqty.ToString() + ", 0,'" + item.m_fbatchno + "', 0,'" + item.m_fnote + "', (select FUnitID from t_ICItem where FNumber = '" + item.m_fnumber + "'), 0, " + item.m_fqty.ToString() + ", " + item.m_fqty.ToString() + ", " + "0, (select FItemID from t_Stock where FNumber = '" + item.m_fstock + "' ), 14036, 1058, (select FSPID from t_StockPlace where FSPID = " + (item.m_fstockplace==""|| item.m_fstockplace == null? "0": item.m_fstockplace) + "))";
                             }
-                            var ___sql = "INSERT INTO dbo.ICStockBill( FBrNo ,FInterID ,FTranType ,FDate ,FBillNo ,FNote ,FDCStockID ,FSCStockID ,FDeptID ,FSupplyID,FEmpID ,FFManagerID ,FSManagerID ,FBillerID ,FROB ,FUpStockWhenSave ,FUUID , FMarketingStyle ,FSourceType ,FPOStyle) VALUES ('0'," +
-                     Fragment_InStock.Instance().m_Stock_Header.m_FInterID + ", 1, GETDATE(),'" + Fragment_InStock.Instance().m_Stock_Header.m_Fbillno + "', '" + Fragment_InStock.Instance().m_Stock_Header.m_FNote + "', 0, 0, 0,(select FItemID from t_Supplier where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_FSupply + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'),(select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'), (select FUserID from t_user where FUserID = " + m_CurrentUserID + "), 1, 1,NEWID(),12530,37521,251);";
+                            var ___sql = "INSERT INTO dbo.ICStockBill( FBrNo ,FInterID ,FTranType ,FDate ,FBillNo ,FNote ,FDCStockID ,FSCStockID ,FDeptID ,FSupplyID,FEmpID ,FFManagerID ,FSManagerID ,FBillerID ,FROB ,FUpStockWhenSave ,FUUID , FMarketingStyle ,FSourceType ,FPOStyle) VALUES ('0'," + Fragment_InStock.Instance().m_Stock_Header.m_FInterID + ", 1, GETDATE(),'" + Fragment_InStock.Instance().m_Stock_Header.m_Fbillno + "', '" + Fragment_InStock.Instance().m_Stock_Header.m_FNote + "', 0, 0, 0,(select FItemID from t_Supplier where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_FSupply + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'),(select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'), (select FItemID from t_Emp where FNumber = '" + Fragment_InStock.Instance().m_Stock_Header.m_Foperator + "'), (select FUserID from t_user where FUserID = " + m_CurrentUserID + "), 1, 1,NEWID(),12530,37521,251);";
                             sql_list[Fragment_InStock.Instance().m_EntryList_list.Count] = ___sql;
 
                             var __ret = Tools_SQL_Class.TransationAutoCommit(sql_list);
                             if (__ret != "")
                             {
                                 RunOnUiThread(()=> {
+                                    progrss.Dismiss();
                                     Tools_Tables_Adapter_Class.ShowMsg(this, "错误", __ret);
                                 });
                                
@@ -233,8 +277,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                             else
                             {
                                 RunOnUiThread(() => {
+                                    progrss.Dismiss();
                                     Fragment_InStock.Instance().clear();
                                     Tools_Tables_Adapter_Class.ShowMsg(this, "提示", "单据保存成功！");
+                                    
                                     return;
                                 });
                                
@@ -247,6 +293,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     }
                     else
                     {
+                        progrss.Dismiss();
                         Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "单据头没有填写完整！");
                         return;
                     }
@@ -255,6 +302,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
                 else
                 {
+                    progrss.Dismiss();
                     Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "您还没有插入任何分录！");
                     return;
                 }

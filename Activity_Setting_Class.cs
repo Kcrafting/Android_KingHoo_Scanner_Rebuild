@@ -109,12 +109,15 @@ namespace Android_KingHoo_Scanner_Rebuild
                     var ret = m_AccountList.ElementAt<Tools_Tables_Adapter_Class.Account_Detail>(m_DatabaseList.SelectedItemPosition).FDBName;
                     m_Tes.saveValue(Tools_Extend_Storage.ValueType.login_databaseName, ret);
                 }
+                Tools_Tables_Adapter_Class.ShowMsg(this,"错误","设置成功！返回后将再次尝试登录！");
             }
         }
 
         private void Connect_Click(object sender, EventArgs e)
         {
-           if(m_HostIP.Text != "" &&
+            var prograss = new Tools_Tables_Adapter_Class.ShowPrograss(this);
+            prograss.Show();
+           if (m_HostIP.Text != "" &&
               m_UserName.Text != "")
             {
                 Tools_SQL_Class.m_Host = m_HostIP.Text;
@@ -146,6 +149,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                                     {
                                         m_DatabaseList.Adapter = adapter;
                                         m_DatabaseList.SetSelection(m_AccountList.FindIndex(a => a.FDBName == m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseName)));
+                                        prograss.Dismiss();
                                     });
                                 }
                             }
@@ -155,6 +159,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
                         RunOnUiThread(()=> {
                             Tools_Tables_Adapter_Class.ShowMsg(this,"错误",Tools_SQL_Class.ErrorString());
+                            prograss.Dismiss();
                         });
                     }
                 })).Start();

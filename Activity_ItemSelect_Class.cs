@@ -74,37 +74,37 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
                         this.Title = "物料选择";
                         //ProcessItemInAnotherThread();
-                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=4 and FDetail = 0", "select B.FNumber,B.FName,A.FModel from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4", "FNumber", "FName", "FModel");
+                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=4 and FDetail = 0", "select B.FNumber,B.FName,A.FModel,A.FitemID from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4", "FNumber", "FName", "FModel");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.ICStock:
                     {
                         this.Title = "仓库选择";
-                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=5 and FDetail = 0", "select B.FNumber,B.FName,B.FFullName from t_Stock A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=5", "FNumber", "FName", "FFullName");
+                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=5 and FDetail = 0", "select B.FNumber,B.FName,B.FFullName,B.FitemID from t_Stock A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=5", "FNumber", "FName", "FFullName");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.ICStockPlace:
                     {
                         this.Title = "仓位选择";
-                        ProcessItemsInAnotherThread("select FNumber,FName from t_StockPlace where FDetail=0 and FSPID!=0", "select FNumber,FName,FFullName from t_StockPlace where FSPID!=0", "FNumber", "FName", "FFullName");
+                        ProcessItemsInAnotherThread("select fnumber,FName,FSPID FItemID from t_StockPlace where FDetail=0 and FSPID!=0", "select fnumber,FName,FFullName,FSPID FItemID from t_StockPlace where FSPID!=0", "FNumber", "FName", "FFullName");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.User:
                     {
                         this.Title = "用户选择";
-                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=3 and FDetail = 0", "select FNumber,FName,FFullName from t_Item where FItemClassID=3", "FNumber", "FName", "FFullName");
+                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=3 and FDetail = 0", "select FNumber,FName,FFullName,FitemID from t_Item where FItemClassID=3", "FNumber", "FName", "FFullName");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.Supply:
                     {
                         this.Title = "选择供应商";
-                        ProcessItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=8 and FDetail=0", "select FNumber,FName,ffullname from t_Item where FItemClassID=8", "FNumber", "FName", "ffullname");
+                        ProcessItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=8 and FDetail=0", "select FNumber,FName,ffullname,FItemID from t_Item where FItemClassID=8", "FNumber", "FName", "ffullname");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.Customer:
                     {
                         this.Title = "选择客户";
-                        ProcessItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=1 and FDetail=0", "select FNumber,FName,ffullname from t_Item where FItemClassID=1", "FNumber", "FName", "ffullname");
+                        ProcessItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=1 and FDetail=0", "select FNumber,FName,ffullname,FItemID from t_Item where FItemClassID=1", "FNumber", "FName", "ffullname");
                     }
                     break;
                 default:
@@ -172,7 +172,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     break;
             }
         }
-        private void ProcessItemsInAnotherThread(string getGroupSql, string getItemsSql, string fnumber, string fname, string fextend)
+        private void ProcessItemsInAnotherThread(string getGroupSql, string getItemsSql, string fnumber, string fname, string fextend,string fitemid = "FItemID")
         {
             var T = new Thread(new ThreadStart(() =>
             {
@@ -186,6 +186,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                         for (int i = 0; i < m_dataTable_Items.Rows.Count; i++)
                         {
                             var it = new Tools_Tables_Adapter_Class.Item();
+                            it.m_fitemid = m_dataTable_Items.Rows[i][fitemid] == null ? "" : m_dataTable_Items.Rows[i][fitemid].ToString();
                             it.m_fnumber = m_dataTable_Items.Rows[i][fnumber].ToString();
                             it.m_fname = m_dataTable_Items.Rows[i][fname].ToString();
                             it.m_fextend = m_dataTable_Items.Rows[i][fextend].ToString();
@@ -254,7 +255,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         //Thread m_Last_Running_Thread = null;
         //Thread m_Current_Running_Thread = null;
         //string _Tag = "----------------------->";
-        private void updateItemsInAnotherThread(string words, string fnumber, string fname, string fextend)
+        private void updateItemsInAnotherThread(string words, string fnumber, string fname, string fextend,string fitemid = "FItemID")
         {
             //Log.Error(_Tag, "enter updateItemsInAnotherThread ");
             var T = new Thread(new ThreadStart(() =>
@@ -273,7 +274,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count > 0)
                 {
                     var items = m_dataTable_Items.AsEnumerable();
-                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fnumber).Contains(words) || t.Field<string>(fnumber).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend) }).ToList<Tools_Tables_Adapter_Class.Item>();
+                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fname).Contains(words) || t.Field<string>(fextend).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend),m_fitemid = i.Field<int>(fitemid).ToString() }).ToList<Tools_Tables_Adapter_Class.Item>();
                     //DataTable _ret = items.OrderByDescending(t => t.Field<string>(fnumber).Contains(words));
                     //List<Tools_Tables_Adapter_Class.Item> _ret_List = items.Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend) }).ToList<Tools_Tables_Adapter_Class.Item>();
                     var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, ret, m_groupKey);
@@ -344,9 +345,12 @@ namespace Android_KingHoo_Scanner_Rebuild
             //if (m_listview.IsItemChecked(e.Position))
             {
                 Intent intent = new Intent();
+                //int index_ = Convert.ToInt32(((ListView)sender).SelectedItemId);
                 intent.PutExtra("FNumber", ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fnumber);
                 intent.PutExtra("FName", ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fname);
                 intent.PutExtra("FExtend", ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fextend);
+                var temp = ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fitemid;
+                intent.PutExtra("FItemID", temp );
                 SetResult(0, intent);
                 this.Finish();
             }

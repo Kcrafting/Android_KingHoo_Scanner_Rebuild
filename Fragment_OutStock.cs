@@ -18,7 +18,7 @@ namespace Android_KingHoo_Scanner_Rebuild
     {
         private static Fragment_OutStock m_instance = null;
         TextView m_date_picker = null, m_supply_select = null;
-        EditText m_date_picker_edittext = null, m_billno = null, m_customer_select_edit = null, m_fnote = null;
+        EditText m_date_picker_edittext = null, m_billno = null, m_customer_select_edit = null, m_fnote = null,m_operator = null;
         public string m_currentType = "";
         public ListView m_itemlist = null;
         public Scroller m_scroller = null;
@@ -27,7 +27,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         public List<Tools_Tables_Adapter_Class.Stock_Entry> m_EntryList_list = new List<Tools_Tables_Adapter_Class.Stock_Entry>();
         public Tools_Tables_Adapter_Class.Stock_Header m_Stock_Header = new Tools_Tables_Adapter_Class.Stock_Header();
 
-        public delegate void onActivityRecive_outstock_(string Type, string fnumber, string fname, string fextend);
+        public delegate void onActivityRecive_outstock_(string Type, string fnumber, string fname, string fextend,string fitemid);
         public event onActivityRecive_outstock_ outStock_FunRecivieData;
 
         public static Fragment_OutStock Instance()
@@ -60,6 +60,12 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_fnote = v.FindViewById<EditText>(Resource.Id.activity_main_outstock_layout_note);
             m_fnote.AfterTextChanged += M_fnote_AfterTextChanged;
 
+
+            m_operator = v.FindViewById<EditText>(Resource.Id.activity_main_outstock_layout_operator);
+            m_operator.Click += M_operator_Click;
+
+            //var stockplace_ = 
+
             var T = new Thread(new ThreadStart(() => {
                 var para = new SqlParameter[] {
                 new SqlParameter("@IsSave","1"),
@@ -90,6 +96,14 @@ namespace Android_KingHoo_Scanner_Rebuild
             T.Start();
 
             return v;
+        }
+
+        private void M_operator_Click(object sender, EventArgs e)
+        {
+            m_currentType = Tools_Tables_Adapter_Class.ItemType.User;
+            var intent = new Intent(Application.Context, typeof(Activity_ItemSelect_Class));
+            intent.PutExtra("Type", m_currentType);
+            StartActivityForResult(intent, 0);
         }
 
         public void clear()
@@ -141,9 +155,10 @@ namespace Android_KingHoo_Scanner_Rebuild
             var ret_FNumber = data.GetStringExtra("FNumber");
             var ret_FName = data.GetStringExtra("FName");
             var ret_FExtend = data.GetStringExtra("FExtend");
+            var ret_FItemID = data.GetStringExtra("FItemID");
             if (outStock_FunRecivieData != null)
             {
-                outStock_FunRecivieData(m_currentType, ret_FNumber, ret_FName, ret_FExtend);
+                outStock_FunRecivieData(m_currentType, ret_FNumber, ret_FName, ret_FExtend, ret_FItemID);
             }
             if (requestCode == 0)
             {
@@ -174,6 +189,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                             case Tools_Tables_Adapter_Class.ItemType.User:
                                 {
                                     //var ret = data.GetStringExtra("FNumber");
+                                    m_operator.Text = ret_FName;
+                                    m_Stock_Header.m_Foperator = ret_FNumber;
+                                    m_Stock_Header.m_FoperatorName = ret_FName;
                                 }
 
                                 break;
