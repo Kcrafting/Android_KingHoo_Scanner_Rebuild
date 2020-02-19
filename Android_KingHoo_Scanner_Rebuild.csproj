@@ -74,7 +74,6 @@
     <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Activity_ItemSelect_SideBar_Class.cs" />
     <Compile Include="Activity_Login_Class.cs" />
     <Compile Include="Activity_Setting_ChangePassword_Class.cs" />
     <Compile Include="Activity_Setting_Class.cs" />

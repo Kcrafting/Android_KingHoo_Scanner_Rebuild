@@ -7,10 +7,19 @@
     <string name="action_menu_check">审核</string>
     <string name="action_menu_delete">删除</string>
   <string name="welcome_h1">注意事项：</string>
-  <string name="welcome_body">1.请确认您的PDA处于WiFi覆盖范围内，且保持足够的信号强度\n
-  2.请确保您的服务器和PDA处于可通信状态\n
-  3.网络速度将会影响PDA的响应速度，如果PDA卡顿那么请稍等片刻\n
-  4.PDA的出入库相对简略，只建议做紧急情况的简单出入库，不紧急的单据建议使用电脑端客户端建立\n</string>
+  <string name="welcome_body">
+    1.请确认您的PDA处于WiFi覆盖范围内，且保持足够的信号强度\n
+    2.请确保您的服务器和PDA处于可通信状态\n
+    3.网络速度将会影响PDA的响应速度，如果PDA卡顿那么请稍等片刻\n
+    4.PDA的出入库相对简略，只建议做紧急情况的简单出入库，不紧急的单据建议使用电脑端客户端建立\n
+    * PDA出入库的物料需要注意以下几点\n
+    * 1.不要启用辅助属性管理（未实现\n
+    * 2.不要启用双计量单位（未实现）\n
+    * 3.不要启用用sn管理 (未实现)\n
+    * 4.不要启用保质期管理 (未实现)\n
+    * 5.不要启用辅助计量（浮动换算）管理(未实现)\n
+
+  </string>
 
     <string name="activity_splash_title">登录</string>
 

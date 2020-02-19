@@ -31,7 +31,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             var origin = FindViewById<EditText>(Resource.Id.acticity_setting_changepassword_origin_password);
             var newPassword = FindViewById<EditText>(Resource.Id.acticity_setting_changepassword_new_password);
             var confirmPassword = FindViewById<EditText>(Resource.Id.acticity_setting_changepassword_repeat_password);
-            var saveChange = FindViewById<EditText>(Resource.Id.acticity_setting_changepassword_save_change);
+            var saveChange = FindViewById<Android.Support.V7.Widget.AppCompatButton>(Resource.Id.acticity_setting_changepassword_save_change);
             var account = FindViewById<TextView>(Resource.Id.acticity_setting_changepassword_account);
 
             var userId = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_selectedUserID);
@@ -56,6 +56,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "新还没有选择任何的账户！");
                                 return;
                             }
+                            var orginDB = Tools_SQL_Class.m_DbName;
+                            Tools_Extend_Storage tes = new Tools_Extend_Storage(this);
+                            Tools_SQL_Class.m_DbName = tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseName);
                             var ret = Tools_SQL_Class.getTable("select 1 from t_user_pda_password where FUserFitemID = " + userId + " and FPassword = '" + origin.Text + "'");
                             if (ret != null)
                             {
@@ -64,11 +67,25 @@ namespace Android_KingHoo_Scanner_Rebuild
                                     var _ret = Tools_SQL_Class.getTable("update t_user_pda_password set FPassword = '" + confirmPassword.Text + "' where FUserFitemID=" + userId);
                                     if( _ret != null && _ret.Rows.Count > 0)
                                     {
+                                        Tools_Tables_Adapter_Class.ShowMsg(this, "提示", "密码已修改，下次登录请使用新密码！");
                                         //var __ret = Tools_SQL_Class.getTable("");
                                         //Tools_Tables_Adapter_Class.ShowMsg
                                     }
+                                    else
+                                    {
+                                        Tools_Tables_Adapter_Class.ShowMsg(this, "错误", Tools_SQL_Class.m_errorString);
+                                    }
+                                }
+                                else
+                                {
+                                    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "原密码填写错误，请重新填写！");
                                 }
                             }
+                            else
+                            {
+                                Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "读取数据发生错误\n" + Tools_SQL_Class.m_errorString);
+                            }
+                            Tools_SQL_Class.m_DbName = orginDB;
                         }
                     }
                 });
