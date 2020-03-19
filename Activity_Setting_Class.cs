@@ -21,9 +21,12 @@ namespace Android_KingHoo_Scanner_Rebuild
     {
         AutoCompleteTextView m_HostIP = null;
         EditText m_UserName = null,m_UserPassword = null,m_Port = null;
-        Spinner m_DatabaseList = null;
+        Spinner m_DatabaseList = null,m_software_select;
         List<Tools_Tables_Adapter_Class.Account_Detail> m_AccountList = new List<Tools_Tables_Adapter_Class.Account_Detail>();
+        List<Tools_Tables_Adapter_Class.Software_Version> software_VersionsList = new List<Tools_Tables_Adapter_Class.Software_Version>();
         Tools_Extend_Storage m_Tes = null;
+        //是否第一次启动
+        bool m_first_start = false;
         public override void OnCreate(Bundle savedInstanceState, PersistableBundle persistentState)
         {
             base.OnCreate(savedInstanceState, persistentState);
@@ -50,6 +53,18 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_UserName.Text = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseUserName);
             m_UserPassword.Text = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseUserPassword);
             Connect_Click(null, null);
+            m_software_select = FindViewById<Spinner>(Resource.Id.activity_setting_server_software_version_select);
+            m_software_select.ItemSelected += M_software_select_ItemSelected;
+
+            software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(0, ""));
+            software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(1, "Kis旗舰版6.0+"));
+            software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(2, "K3 Wise 14.0+"));
+            m_software_select.Adapter = new Tools_Tables_Adapter_Class.Software_Version_List(this,  software_VersionsList);
+            if (m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version) != 0)
+            {
+                m_software_select.SetSelection(m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version));
+            }
+
             //new Thread(new ThreadStart(()=> {
             //    if (!Tools_SQL_Class.Status())
             //    {
@@ -70,6 +85,11 @@ namespace Android_KingHoo_Scanner_Rebuild
             cancelAutoLogin.Click += CancelAutoLogin_Click;
 
 
+        }
+
+        private void M_software_select_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
+        {
+            m_Tes.saveValue(Tools_Extend_Storage.ValueType.login_software_version, ((Spinner)sender).SelectedItemPosition);
         }
 
         public override void OnBackPressed()
@@ -116,6 +136,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         private void Connect_Click(object sender, EventArgs e)
         {
             var prograss = new Tools_Tables_Adapter_Class.ShowPrograss(this);
+            int t_i = m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version);
             prograss.Show();
            if (m_HostIP.Text != "" &&
               m_UserName.Text != "")
@@ -128,9 +149,17 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     if (Tools_SQL_Class.connect())
                     {
-                        if (Tools_SQL_Class.DatabaseExist("KDAcctDB"))
+                        if ((t_i==2 && Tools_SQL_Class.DatabaseExist("KDAcctDB")) || (t_i==1 && Tools_SQL_Class.DatabaseExist("AcctCtl_KEE")))
                         {
-                            Tools_SQL_Class.m_DbName = "KDAcctDB";
+                            if(t_i == 1)
+                            {
+                                Tools_SQL_Class.m_DbName = "AcctCtl_KEE";
+                            }
+                            if(t_i == 2)
+                            {
+                                Tools_SQL_Class.m_DbName = "KDAcctDB";
+                            }
+                            
                             if (Tools_SQL_Class.connect())
                             {
                                 if (Tools_SQL_Class.ifObjectExists("dbo.t_ad_kdAccount_gl"))
@@ -148,7 +177,11 @@ namespace Android_KingHoo_Scanner_Rebuild
                                     RunOnUiThread(() =>
                                     {
                                         m_DatabaseList.Adapter = adapter;
-                                        m_DatabaseList.SetSelection(m_AccountList.FindIndex(a => a.FDBName == m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseName)));
+                                        if (!m_first_start)
+                                        {
+                                            m_DatabaseList.SetSelection(m_AccountList.FindIndex(a => a.FDBName == m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseName)));
+                                            m_first_start = true;
+                                        }
                                         prograss.Dismiss();
                                     });
                                 }
@@ -162,7 +195,8 @@ namespace Android_KingHoo_Scanner_Rebuild
                             prograss.Dismiss();
                         });
                     }
-                })).Start();
+                }
+                )).Start();
             }
         }
     }

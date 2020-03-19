@@ -38,7 +38,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             login_databaseUserName = 12, 
             login_databaseUserPassword =13,
             login_selectedUserID = 14,
-            login_selectedUserName = 15
+            login_selectedUserName = 15,
+            login_software_version =16
         }
         //private static ISharedPreferences m_shareData = PreferenceManager.GetDefaultSharedPreferences(this);
         public void saveValue( ValueType type, string value) {

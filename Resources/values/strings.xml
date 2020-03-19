@@ -35,6 +35,7 @@
   <string name="acticity_login_auto_loin_label">自动登录</string>
   <string name="acticity_login_setting_label">设置</string>
 
+  <string name="acticity_setting_server_software_version_label">金蝶版本</string>
   <string name="acticity_setting_connect_label">连接</string>
   <string name="acticity_setting_serverip_label">服务器</string>
   <string name="acticity_setting_serverip_label_description">请设置数据库服务器地址\n可以设置服务器名称或者IP地址</string>
@@ -66,6 +67,11 @@
   <string name="activity_main_check_inventory_layout_item_fnumber_label">物料代码</string>
   <string name="activity_main_check_inventory_layout_item_fname_label">物料名称</string>
   <string name="activity_main_check_inventory_layout_item_fmodel_label">规格型号</string>
+  <string name="activity_main_check_inventory_layout_item_inventroytotle_label">库存合计</string>
+  <string name="activity_main_check_inventory_layout_item_willinstocktotle_label">预计入库合计</string>
+  <string name="activity_main_check_inventory_layout_item_willoutstocktotle_label">预计出库合计</string>
+  <string name="activity_main_check_inventory_layout_item_lookpicture_label_withunderline"><u>查看图片</u></string>
+  <string name="activity_main_check_inventory_layout_item_lookpicture_label_withoutunderline">查看图片</string>
 
   <string name="activity_main_check_inventory_layout_stock_label">仓库</string>
   <string name="activity_main_check_inventory_layout_bill_or_stock_label">单据/仓库</string>

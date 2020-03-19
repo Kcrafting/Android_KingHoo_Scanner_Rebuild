@@ -127,49 +127,130 @@
 AS
 BEGIN
 EXEC dbo.CheckInventory
-SELECT C.FName [仓库/单据],D.FName 仓位,CAST(CAST(A.FQty AS DECIMAL(20,2)) AS NVARCHAR(20))+ E.FName 主计量,
-CAST(CAST(A.FSecQty AS DECIMAL(20,2)) AS nvarchar(20)) +F.FName 辅助计量,A.FBatchNo 批号
-  FROM dbo.ICInventory A 
+--declare @FQtyDecimal int
+--set @FQtyDecimal = 
+
+SELECT C.FName [仓库/单据],D.FName 仓位,
+STR(A.FQty,LEN(A.FQty),B.FQtyDecimal)+ E.FName 主计量,
+STR(A.FSecQty,LEN(A.FSecQty),B.FQtyDecimal) +F.FName 辅助计量,A.FBatchNo 批号
+  FROM ICInventory A 
 JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID 
 JOIN dbo.t_Stock C ON A.FStockID=C.FItemID
 LEFT JOIN dbo.t_StockPlace D ON A.FStockPlaceID=D.FSPID
 LEFT JOIN dbo.t_MeasureUnit E ON B.FUnitID=E.FItemID
 LEFT JOIN dbo.t_MeasureUnit F ON B.FSecUnitID=F.FItemID
-WHERE B.FNumber = @FNumber
+WHERE B.FNumber = @FNumber and (FQty!=0 and FQty is not null) 
 UNION
 --预计出库量
 --预计出库 条件：任务单未完结 减去已下推的领料数量
-SELECT '投料单' [仓库/单据],'' 仓位,CAST(CAST((B.FQtyMust - B.FQty) AS DECIMAL(20,2)) AS NVARCHAR(20))+E.FName 主计量,'' 辅助计量,B.FBatchNo 批号
+SELECT '投料单 - ' + A.FBillNo [仓库/单据],'' 仓位,
+STR ((B.FQtyMust - B.FQty),LEN(B.FQtyMust - B.FQty),D.FQtyDecimal) + E.FName 主计量,
+'' 辅助计量,B.FBatchNo 批号
 FROM dbo.PPBOM A 
 JOIN dbo.PPBOMEntry B ON A.FInterID=B.FInterID 
 JOIN dbo.ICMO C ON A.FICMOInterID=C.FInterID 
 JOIN dbo.t_ICItem D ON B.FItemID = D.FItemID
 JOIN dbo.t_MeasureUnit E ON B.FUnitID=E.FItemID
-WHERE C.FStatus!=3 AND D.FNumber=@FNumber
+WHERE C.FStatus!=3 AND D.FNumber=@FNumber and (B.FQtyMust - B.FQty)&gt;0
 UNION
-SELECT '销售订单' [仓库/单据],'' 仓位,CAST(CAST((B.FQty-B.FCommitQty) AS DECIMAL(20,2)) AS NVARCHAR(20)) + D.FName 主计量,
-CAST(CAST((B.FSecQty-B.FSecCommitQty) AS DECIMAL(20,2)) AS NVARCHAR(20)) 辅助计量,B.FBatchNo  批号
+SELECT '销售订单 - ' + A.FBillNo [仓库/单据],'' 仓位,
+STR((B.FQty-B.FCommitQty),LEN(B.FQty-B.FCommitQty),C.FQtyDecimal) + D.FName 主计量,
+STR((B.FSecQty-B.FSecCommitQty),LEN(B.FSecQty-B.FSecCommitQty),C.FQtyDecimal) 辅助计量,B.FBatchNo  批号
 FROM dbo.SEOrder A JOIN dbo.SEOrderEntry B ON A.FInterID=B.FInterID
 JOIN dbo.t_ICItem C ON B.FItemID=C.FItemID
 JOIN dbo.t_MeasureUnit D ON B.FUnitID=D.FItemID
 LEFT JOIN dbo.t_MeasureUnit E ON C.FSecUnitID=E.FItemID
-WHERE A.FClosed!=1 AND C.FNumber=@FNumber
+WHERE A.FClosed!=1 AND C.FNumber=@FNumber and (B.FQty-B.FCommitQty)&gt;0
 UNION
 --预计入库量
-SELECT '采购订单' [仓库/单据],'' 仓位, CAST(CAST((B.FQty-B.FCommitQty) AS DECIMAL(20,2)) AS NVARCHAR(20)) +  D.FName 主计量,
+SELECT '采购订单 - ' + A.FBillNo [仓库/单据],'' 仓位, 
+STR((B.FQty-B.FCommitQty),LEN(B.FQty-B.FCommitQty),C.FQtyDecimal) +  D.FName 主计量,
 '' 辅助计量,'' 批号
 FROM dbo.POOrder A JOIN dbo.POOrderEntry B ON A.FInterID=B.FInterID 
 JOIN dbo.t_ICItem C ON B.FItemID=C.FItemID 
 JOIN dbo.t_MeasureUnit D ON B.FUnitID=D.FItemID
-WHERE A.FClosed!=1 AND B.FMrpClosed!=1 AND C.FNumber=@FNumber
+WHERE A.FClosed!=1 AND B.FMrpClosed!=1 AND C.FNumber=@FNumber and (B.FQty-B.FCommitQty)&gt;0
 UNION
 --采购申请
-SELECT '采购申请' [仓库/单据],'' 仓位,CAST(CAST((B.FQty-B.FCommitQty) AS DECIMAL(20,2)) AS NVARCHAR(20)) + D.FName 主计量,
-CAST(CAST((B.FSecQty-B.FSecCommitQty) AS DECIMAL(20,2)) AS NVARCHAR(20)) 辅助计量,'' 批号 FROM dbo.PORequest A 
+SELECT '采购申请 - ' + A.FBillNo [仓库/单据],'' 仓位,
+STR((B.FQty-B.FCommitQty),LEN(B.FQty-B.FCommitQty),C.FQtyDecimal) + D.FName 主计量,
+STR((B.FSecQty-B.FSecCommitQty),LEN(B.FSecQty-B.FSecCommitQty),C.FQtyDecimal) 辅助计量,'' 批号 
+FROM dbo.PORequest A 
 JOIN dbo.PORequestEntry B ON A.FInterID=B.FInterID
 JOIN dbo.t_ICItem C ON B.FItemID=C.FItemID
 JOIN dbo.t_MeasureUnit D ON B.FUnitID=D.FItemID
-WHERE A.FClosed!=1 AND C.FNumber=@FNumber
+WHERE A.FClosed!=1 AND C.FNumber=@FNumber and (B.FQty-B.FCommitQty)&gt;0
+END
+go</value>
+  </data>
+  <data name="ZZ_KIngHoo_LookUpInventory_Summary" xml:space="preserve">
+    <value>CREATE PROCEDURE [dbo].[ZZ_KIngHoo_LookUpInventory_Summary]
+@FNumber NVARCHAR(80)
+AS
+BEGIN
+EXEC dbo.CheckInventory
+--declare @FQtyDecimal int
+--set @FQtyDecimal = 
+SELECT '库存' 名称,
+isnull(SUM(isnull(A.FQty,0)),0) 主计量,
+isnull(SUM(isnull(A.FSecQty,0)),0) 辅助计量
+into #Ret__
+FROM ICInventory A 
+JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID 
+JOIN dbo.t_Stock C ON A.FStockID=C.FItemID
+LEFT JOIN dbo.t_StockPlace D ON A.FStockPlaceID=D.FSPID
+LEFT JOIN dbo.t_MeasureUnit E ON B.FUnitID=E.FItemID
+LEFT JOIN dbo.t_MeasureUnit F ON B.FSecUnitID=F.FItemID
+WHERE B.FNumber = @FNumber and (FQty!=0 and FQty is not null) 
+UNION
+--预计出库量
+--预计出库 条件：任务单未完结 减去已下推的领料数量
+SELECT '预计出库量' 名称,
+isnull(SUM (isnull(B.FQtyMust,0) - isnull(B.FQty,0)),0) 主计量,
+0.0 辅助计量
+FROM dbo.PPBOM A 
+JOIN dbo.PPBOMEntry B ON A.FInterID=B.FInterID 
+JOIN dbo.ICMO C ON A.FICMOInterID=C.FInterID 
+JOIN dbo.t_ICItem D ON B.FItemID = D.FItemID
+JOIN dbo.t_MeasureUnit E ON B.FUnitID=E.FItemID
+WHERE C.FStatus!=3 AND D.FNumber=@FNumber and (B.FQtyMust - B.FQty)&gt;0
+UNION
+SELECT '预计出库量' 名称,
+isnull(SUM(isnull(B.FQty,0)-isnull(B.FCommitQty,0)),0) 主计量,
+isnull(SUM(isnull(B.FSecQty,0)-isnull(B.FSecCommitQty,0)),0) 辅助计量
+FROM dbo.SEOrder A JOIN dbo.SEOrderEntry B ON A.FInterID=B.FInterID
+JOIN dbo.t_ICItem C ON B.FItemID=C.FItemID
+JOIN dbo.t_MeasureUnit D ON B.FUnitID=D.FItemID
+LEFT JOIN dbo.t_MeasureUnit E ON C.FSecUnitID=E.FItemID
+WHERE A.FClosed!=1 AND C.FNumber=@FNumber and (B.FQty-B.FCommitQty)&gt;0
+UNION
+--预计入库量
+SELECT '预计入库量' 名称,
+isnull(SUM(isnull(B.FQty,0)-isnull(B.FCommitQty,0)),0) 主计量,
+0.0 辅助计量
+FROM dbo.POOrder A JOIN dbo.POOrderEntry B ON A.FInterID=B.FInterID 
+JOIN dbo.t_ICItem C ON B.FItemID=C.FItemID 
+JOIN dbo.t_MeasureUnit D ON B.FUnitID=D.FItemID
+WHERE A.FClosed!=1 AND B.FMrpClosed!=1 AND C.FNumber=@FNumber and (B.FQty-B.FCommitQty)&gt;0
+UNION
+--采购申请
+SELECT  '预计入库量' 名称,
+isnull(SUM(isnull(B.FQty,0)-isnull(B.FCommitQty,0)),0) 主计量,
+isnull(SUM(isnull(B.FSecQty,0)-isnull(B.FSecCommitQty,0)),0) 辅助计量
+FROM dbo.PORequest A 
+JOIN dbo.PORequestEntry B ON A.FInterID=B.FInterID
+JOIN dbo.t_ICItem C ON B.FItemID=C.FItemID
+JOIN dbo.t_MeasureUnit D ON B.FUnitID=D.FItemID
+WHERE A.FClosed!=1 AND C.FNumber=@FNumber and (B.FQty-B.FCommitQty)&gt;0
+
+--select * from #Ret__
+select 名称,SUM(主计量) 主计量,SUM(辅助计量) 辅助计量 into #Ret___ from #Ret__ group by 名称
+select 
+名称,STR(主计量,LEN(主计量),(select FQtyDecimal from t_ICItem where FNumber=@FNumber)) 主计量,
+STR(辅助计量,LEN(辅助计量),(select FQtyDecimal from t_ICItem where FNumber=@FNumber)) 辅助计量 ,
+ISNULL((select FName from t_MeasureUnit where FItemID=(select FUnitID from t_ICItem where FNumber=@FNumber)),'') 主计量单位名称,
+ISNULL((select FName from t_MeasureUnit where FItemID=(select FSecUnitID from t_ICItem where FNumber=@FNumber)),'') 辅助计量单位名称
+from #Ret___ where 主计量&gt;0
 END</value>
   </data>
 </root>

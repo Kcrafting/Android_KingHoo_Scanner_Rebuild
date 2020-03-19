@@ -21,7 +21,8 @@ namespace Android_KingHoo_Scanner_Rebuild
         bool m_ThreadRunning = false;
         TextView m_selectitem_button = null;
         LinearLayout m_sub_main_layout = null;
-        
+        TextView m_summary_stock = null, m_summary_instock = null, m_summary_outstock = null;
+        TextView m_viewPicture = null;
         public static Fragment_CheckInventory Instance()
         {
             if(m_instance == null)
@@ -36,6 +37,13 @@ namespace Android_KingHoo_Scanner_Rebuild
         }
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
         {
+            //先清空 所有的信息
+            m_summary_stock.Text = "";
+            m_summary_instock.Text = "";
+            m_summary_outstock.Text = "";
+            m_FNumber.Text = "";
+            m_FName.Text = "";
+            m_FModel.Text = "";
             base.OnActivityResult(requestCode, resultCode, data);
             if (requestCode == 0)
             {
@@ -63,10 +71,21 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_sub_main_layout = v.FindViewById<LinearLayout>(Resource.Id.activity_main_check_inventory_layout_sub_main);
             //m_sub_main_layout.SetMinimumHeight(0);
             m_scancode.Click += M_selectitem_button_Click;
+
+            m_summary_stock = v.FindViewById<TextView>(Resource.Id.activity_main_check_inventory_layout_item_inventroytotle);
+            m_summary_instock = v.FindViewById<TextView>(Resource.Id.activity_main_check_inventory_layout_item_willinstocktotle);
+            m_summary_outstock = v.FindViewById<TextView>(Resource.Id.activity_main_check_inventory_layout_item_willoutstocktotle);
             //m_scancode.FocusChange += M_scancode_FocusChange;
             //new Thread(new ThreadStart(() => { 
             //})).Start();
+            m_viewPicture = v.FindViewById<TextView>(Resource.Id.activity_main_check_inventory_layout_item_lookpicture);
+            m_viewPicture.Click += M_viewPicture_Click;
             return v;
+        }
+
+        private void M_viewPicture_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void M_scancode_FocusChange(object sender, View.FocusChangeEventArgs e)
@@ -79,8 +98,15 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
         }
 
+        //private Tools_Tables_Adapter_Class.CheckInventory_Adapter m_Adapter = null;
+
         private void M_selectitem_button_Click(object sender, EventArgs e)
         {
+            //if (m_Adapter != null)
+            //{
+            //    m_Adapter.Clear();
+            //}
+            m_container.SetAdapter(null);
             var intent = new Intent(Application.Context, typeof(Activity_ItemSelect_Class));
             intent.PutExtra("Type",Tools_Tables_Adapter_Class.ItemType.ICItem);
             StartActivityForResult(intent, 0);
@@ -101,6 +127,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
                         if (Tools_SQL_Class.getTable("select 1 from t_item where fnumber = '" + data + "'").Rows.Count > 0)
                         {
+                            
                             var ret1 = Tools_SQL_Class.getTable("select FNumber,FName,FModel from t_ICItem where FNumber='" + data + "'");
                             if (ret1 != null && ret1.Rows.Count>=1)
                             {
@@ -124,11 +151,47 @@ namespace Android_KingHoo_Scanner_Rebuild
                                     row.m_Batch = ret.Rows[i]["批号"].ToString();
                                     m_List_Inventroy_Detail_Row.Add(row);
                                 }
-                                var adapter = new Tools_Tables_Adapter_Class.CheckInventory_Adapter(Activity, m_List_Inventroy_Detail_Row);
+                                var Adapter = new Tools_Tables_Adapter_Class.CheckInventory_Adapter(Activity, m_List_Inventroy_Detail_Row);
                                 Activity.RunOnUiThread(()=> {
                                     m_container.SetLayoutManager(new LinearLayoutManager(Activity));
-                                    m_container.SetAdapter(adapter);
+                                    m_container.SetAdapter(Adapter);
                                 });
+                                //先取得汇总数
+                                var summary_ret = Tools_SQL_Class.getTable("exec ZZ_KIngHoo_LookUpInventory_Summary '" + data + "'");
+                                if(summary_ret!=null && summary_ret.Rows.Count >= 1)
+                                {
+                                    Activity.RunOnUiThread(()=> {
+                                        for (int i = 0; i < summary_ret.Rows.Count; i++)
+                                        {
+                                            switch (summary_ret.Rows[i]["名称"].ToString())
+                                            {
+                                                case "库存":
+                                                    {
+                               
+                                                        var Txt = summary_ret.Rows[i]["主计量"].ToString() + " " + summary_ret.Rows[i]["主计量单位名称"].ToString() +
+                                                        (summary_ret.Rows[i]["辅助计量"].ToString() == "0" ? "" : summary_ret.Rows[i]["辅助计量"].ToString()) + summary_ret.Rows[i]["辅助计量单位名称"].ToString();
+                                                        m_summary_stock.Text = Txt;
+                                                    }
+                                                    break;
+                                                case "预计入库量":
+                                                    {
+                                                        m_summary_instock.Text = summary_ret.Rows[i]["主计量"].ToString() + " " + summary_ret.Rows[i]["主计量单位名称"].ToString() +
+                                                       ( summary_ret.Rows[i]["辅助计量"].ToString() == "0" ? "" : summary_ret.Rows[i]["辅助计量"].ToString()) + summary_ret.Rows[i]["辅助计量单位名称"].ToString();
+                                                    }
+                                                    break;
+                                                case "预计出库量":
+                                                    {
+                                                        m_summary_outstock.Text = summary_ret.Rows[i]["主计量"].ToString() + " " + summary_ret.Rows[i]["主计量单位名称"].ToString() +
+                                                        (summary_ret.Rows[i]["辅助计量"].ToString() == "0" ? "" : summary_ret.Rows[i]["辅助计量"].ToString()) + summary_ret.Rows[i]["辅助计量单位名称"].ToString();
+                                                    }
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                        }
+                                    });
+
+                                }
                             }
                         }
                     }

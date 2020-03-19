@@ -273,7 +273,18 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 Log.Debug("Ms", Tools_SQL_Class.m_errorString);
                             }
                         }
-                        
+                    }
+                    if (!Tools_SQL_Class.ifObjectExists("ZZ_KIngHoo_LookUpInventory_Summary"))
+                    {
+                        var sqlTxt = Resource_Res.ZZ_KIngHoo_LookUpInventory_Summary;
+                        if (Tools_SQL_Class.directconnect())
+                        {
+                            var ret = Tools_SQL_Class.directGetTable(sqlTxt);
+                            if (ret == null)
+                            {
+                                Log.Debug("Ms", Tools_SQL_Class.m_errorString);
+                            }
+                        }
                     }
                     return true;
                 }

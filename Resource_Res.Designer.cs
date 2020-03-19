@@ -76,17 +76,46 @@ namespace Android_KingHoo_Scanner_Rebuild {
         ///AS
         ///BEGIN
         ///EXEC dbo.CheckInventory
-        ///SELECT C.FName [仓库/单据],D.FName 仓位,CAST(CAST(A.FQty AS DECIMAL(20,2)) AS NVARCHAR(20))+ E.FName 主计量,
-        ///CAST(CAST(A.FSecQty AS DECIMAL(20,2)) AS nvarchar(20)) +F.FName 辅助计量,A.FBatchNo 批号
-        ///  FROM dbo.ICInventory A 
+        ///--declare @FQtyDecimal int
+        ///--set @FQtyDecimal = 
+        ///
+        ///SELECT C.FName [仓库/单据],D.FName 仓位,
+        ///STR(A.FQty,LEN(A.FQty),B.FQtyDecimal)+ E.FName 主计量,
+        ///STR(A.FSecQty,LEN(A.FSecQty),B.FQtyDecimal) +F.FName 辅助计量,A.FBatchNo 批号
+        ///  FROM ICInventory A 
         ///JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID 
         ///JOIN dbo.t_Stock C ON A.FStockID=C.FItemID
         ///LEFT JOIN dbo.t_StockPlace D ON A.FStockPlaceID=D.FSPID
-        ///LEFT JOIN dbo.t_MeasureUnit E ON B.FUnitID [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///LEFT JOIN dbo.t_ [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string ZZ_KIngHoo_LookUpInventory {
             get {
                 return ResourceManager.GetString("ZZ_KIngHoo_LookUpInventory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 CREATE PROCEDURE [dbo].[ZZ_KIngHoo_LookUpInventory_Summary]
+        ///@FNumber NVARCHAR(80)
+        ///AS
+        ///BEGIN
+        ///EXEC dbo.CheckInventory
+        ///--declare @FQtyDecimal int
+        ///--set @FQtyDecimal = 
+        ///SELECT &apos;库存&apos; 名称,
+        ///isnull(SUM(isnull(A.FQty,0)),0) 主计量,
+        ///isnull(SUM(isnull(A.FSecQty,0)),0) 辅助计量
+        ///into #Ret__
+        ///FROM ICInventory A 
+        ///JOIN dbo.t_ICItem B ON A.FItemID=B.FItemID 
+        ///JOIN dbo.t_Stock C ON A.FStockID=C.FItemID
+        ///LEFT JOIN dbo.t_StockPlace D ON A.FStockPlaceID=D.FSPID
+        ///LEFT JOIN dbo.t_MeasureUnit E ON B.FUnitID=E.FItemID
+        ///LEFT JOIN d [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string ZZ_KIngHoo_LookUpInventory_Summary {
+            get {
+                return ResourceManager.GetString("ZZ_KIngHoo_LookUpInventory_Summary", resourceCulture);
             }
         }
     }

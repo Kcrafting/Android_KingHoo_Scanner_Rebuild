@@ -276,6 +276,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
             }
 
+            public void Clear()
+            {
+                m_list.Clear();
+            }
             public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
             {
                 BillViewHolder bh = holder as BillViewHolder;
@@ -328,17 +332,21 @@ namespace Android_KingHoo_Scanner_Rebuild
             public string m_fnumber;
             public string m_fname;
             public string m_fextend;
+            public bool m_IfDetail;
         }
         //public class ItemViewHolder : ViewHolder
         public class ItemAdapter : BaseAdapter
         {
             public override int Count { get { return m_list.Count; } }
-            List<Item> m_list = null; List<string> m_groupKey = null; Context m_context = null;
-            public ItemAdapter(Context context, List<Item> list, List<string> groupkey)
+            List<Item> m_list = null; 
+            //根本不需要 组分组，组内容应该包含在列表当中
+            //List<string> m_groupKey = null; 
+            Context m_context = null;
+            public ItemAdapter(Context context, List<Item> list/*, List<string> groupkey*/)
             {
                 m_context = context;
                 m_list = list;
-                m_groupKey = groupkey;
+                //m_groupKey = groupkey;
             }
             public override Java.Lang.Object GetItem(int position)
             {
@@ -354,7 +362,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
 
                 View view = groupkey;
-                if (m_groupKey != null && m_groupKey.Contains(((Item)GetItem(position)).m_fnumber))
+                if (!m_list[position].m_IfDetail)
                 {
                     view = LayoutInflater.From(m_context).Inflate(Resource.Layout.activity_itemSelect_entry_tag_layout, null);
 
@@ -362,7 +370,6 @@ namespace Android_KingHoo_Scanner_Rebuild
                 else
                 {
                     view = LayoutInflater.From(m_context).Inflate(Resource.Layout.activity_itemSelect_entry_layout, null);
-
                 }
                 var tag_fnumber = view.FindViewById<TextView>(Resource.Id.activity_itemSelect_entry_tag_layout_tag_fnumber);
                 var tag_fname = view.FindViewById<TextView>(Resource.Id.activity_itemSelect_entry_tag_layout_tag_fname);
@@ -454,7 +461,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             public override Android.App.Dialog OnCreateDialog(Bundle savedInstanceState)
             {
                 DateTime currently = DateTime.Now;
-                Android.App.DatePickerDialog dialog = new Android.App.DatePickerDialog(Activity,
+                Android.App.DatePickerDialog dialog = new Android.App.DatePickerDialog(
+                                                               Activity,
                                                                this,
                                                                currently.Year,
                                                                currently.Month - 1,
@@ -1219,6 +1227,52 @@ namespace Android_KingHoo_Scanner_Rebuild
 
 
         }
+
+
+        public class Software_Version : Java.Lang.Object
+        {
+            public int Id { get; set; }
+            public string m_Software_Version { get; set; }
+            public Software_Version(int id,string label)
+            {
+                Id = id;
+                m_Software_Version = label;
+            }
+        }
+        public class Software_Version_List : BaseAdapter
+        {
+            private List<Software_Version> m_list;
+            private Context context;
+            //private int ResourceID = 0;
+            public Software_Version_List(Context pContext, List<Software_Version> pList/*,int resourceId*/)
+            {
+                context = pContext;
+                m_list = pList;
+                //ResourceID = resourceId;
+            }
+            public override View GetView(int position, View convertView, ViewGroup parent)
+            {
+                LayoutInflater _LayoutInflater = LayoutInflater.From(context);
+                convertView = _LayoutInflater.Inflate(Resource.Layout.activity_login_account_list_layout, null);
+                if (convertView != null)
+                {
+                    TextView _TextView1 = (TextView)convertView.FindViewById<TextView>(Resource.Id.activity_login_account_list_layout_label);
+                    _TextView1.Text = m_list.ElementAt<Software_Version>(position).m_Software_Version;
+
+                }
+                return convertView;
+            }
+            public override Java.Lang.Object GetItem(int position)
+            {
+                return m_list.ElementAt(position);
+            }
+            public override long GetItemId(int position)
+            {
+                return position;
+            }
+            public override int Count { get { return m_list.Count; } }
+        }
+
         //not end
     }
 }

@@ -101,6 +101,91 @@
                 android:gravity="center_vertical"
                     android:layout_height="wrap_content"/>
                 </LinearLayout>
+
+
+                        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_weight="1"
+                    android:text="@string/activity_main_check_inventory_layout_item_inventroytotle_label"
+                    android:layout_width="0dp"
+                android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                 <TextView
+                    android:textColor="#000080"
+                    android:layout_weight="4"
+                    android:id="@+id/activity_main_check_inventory_layout_item_inventroytotle"
+                    android:text="@string/activity_main_check_inventory_layout_item_inventroytotle_label"
+                    android:layout_width="0dp"
+                android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+
+             <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_weight="1"
+                    android:text="@string/activity_main_check_inventory_layout_item_willinstocktotle_label"
+                    android:layout_width="wrap_content"
+                android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                 <TextView
+                    android:textColor="#000080"
+                    android:layout_weight="4"
+                    android:id="@+id/activity_main_check_inventory_layout_item_willinstocktotle"
+                    android:text="@string/activity_main_check_inventory_layout_item_willinstocktotle_label"
+                    android:layout_width="wrap_content"
+                android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_weight="1"
+                    android:text="@string/activity_main_check_inventory_layout_item_willoutstocktotle_label"
+                    android:layout_width="wrap_content"
+                android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                 <TextView
+                    android:textColor="#000080"
+                    android:layout_weight="4"
+                    android:id="@+id/activity_main_check_inventory_layout_item_willoutstocktotle"
+                    android:text="@string/activity_main_check_inventory_layout_item_willoutstocktotle_label"
+                    android:layout_width="wrap_content"
+                android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_weight="1"
+                    android:text="@string/activity_main_check_inventory_layout_item_lookpicture_label_withoutunderline"
+                    android:layout_width="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                 <TextView
+                    android:textColor="#FF1493"
+                    android:layout_weight="4"
+                    android:textStyle="bold"
+                    android:id="@+id/activity_main_check_inventory_layout_item_lookpicture"
+                    android:text="@string/activity_main_check_inventory_layout_item_lookpicture_label_withunderline"
+                    android:layout_width="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"/>
+                </LinearLayout>
+
             <View
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="4dp"

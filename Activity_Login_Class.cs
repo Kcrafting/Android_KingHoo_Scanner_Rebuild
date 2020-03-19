@@ -149,6 +149,11 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         private void Button_login_Click(object sender, EventArgs e)
         {
+            if (m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version) == 0)
+            {
+                Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "还没设置软件版本");
+                return;
+            }
             if (Tools_Tables_Adapter_Class.m_AccountListed && m_AccountSelect.SelectedItem!=null)
             {
                 var UserID = ((Tools_Tables_Adapter_Class.Login_Account)m_AccountSelect.SelectedItem).UserID;

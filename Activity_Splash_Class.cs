@@ -39,7 +39,8 @@ namespace Android_KingHoo_Scanner_Rebuild
                 var host = tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseAddress);
                 var dbname = tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseName);
                 var dbuser = tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseUserName);
-                    if (host != "" && dbname != "" && dbuser != "")
+                var software = tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version);
+                    if (host != "" && dbname != "" && dbuser != "" && software !=0 )
                 {
                     Tools_SQL_Class.m_Host = host;
                     Tools_SQL_Class.m_DbName = dbname;

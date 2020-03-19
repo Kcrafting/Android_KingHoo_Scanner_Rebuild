@@ -25,8 +25,10 @@ namespace Android_KingHoo_Scanner_Rebuild
 
     class Activity_ItemSelect_Class : AppCompatActivity
     {
-        RecyclerView m_litemlist = null;
+        //RecyclerView m_litemlist = null;
+        //索引
         LinearLayout m_indexContainer = null;
+        //基础资料列表
         ListView m_listview = null;
         EditText m_search = null;
         string m_ItemType = "";
@@ -40,10 +42,10 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_ItemType = savedInstanceState.GetString("Type");
         }
         List<TextView> m_TextView_list = new List<TextView>();
-        List<string> m_groupKey = new List<string>();
+        //List<string> m_groupKey = new List<string>();
         List<Tools_Tables_Adapter_Class.Item> m_ItemList = new List<Tools_Tables_Adapter_Class.Item>();
         List<TextView> m_indexItem = new List<TextView>();
-        bool m_AdapterInitFinsh = false;
+        //bool m_AdapterInitFinsh = false;
         TextView m_search_textview = null;
         protected override void OnResume()
         {
@@ -61,7 +63,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_search.AfterTextChanged += M_search_AfterTextChanged;
             m_search_textview.Click += M_search_textview_Click; ;
             //m_listview.Scroll += M_listview_Scroll;
-            m_AdapterInitFinsh = false;
+            //m_AdapterInitFinsh = false;
             //m_listview.Adapter
 
             //m_timer.Enabled = true;
@@ -74,37 +76,37 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
                         this.Title = "物料选择";
                         //ProcessItemInAnotherThread();
-                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=4 and FDetail = 0", "select B.FNumber,B.FName,A.FModel,A.FitemID from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4", "FNumber", "FName", "FModel");
+                        ProcessItemsInAnotherThread(/*"select FNumber,FName from t_Item where FItemClassID=4 and FDetail = 0", */"select B.FNumber,B.FDetail,B.FName,isnull(A.FModel,'') FModel ,isnull(A.FitemID,0) FitemID from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4 order by FNumber", "FNumber", "FName", "FModel");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.ICStock:
                     {
                         this.Title = "仓库选择";
-                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=5 and FDetail = 0", "select B.FNumber,B.FName,B.FFullName,B.FitemID from t_Stock A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=5", "FNumber", "FName", "FFullName");
+                        ProcessItemsInAnotherThread(/*"select FNumber,FName from t_Item where FItemClassID=5 and FDetail = 0", */"select B.FNumber,B.FDetail,B.FName,B.FFullName,B.FitemID from t_Item B where B.FItemClassID=5", "FNumber", "FName", "FFullName");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.ICStockPlace:
                     {
                         this.Title = "仓位选择";
-                        ProcessItemsInAnotherThread("select fnumber,FName,FSPID FItemID from t_StockPlace where FDetail=0 and FSPID!=0", "select fnumber,FName,FFullName,FSPID FItemID from t_StockPlace where FSPID!=0", "FNumber", "FName", "FFullName");
+                        ProcessItemsInAnotherThread(/*"select fnumber,FName,FSPID FItemID from t_StockPlace where FDetail=0 and FSPID!=0", */"select fnumber,FDetail,FName,FFullName,FSPID FItemID from t_StockPlace where FSPID!=0", "FNumber", "FName", "FFullName");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.User:
                     {
                         this.Title = "用户选择";
-                        ProcessItemsInAnotherThread("select FNumber,FName from t_Item where FItemClassID=3 and FDetail = 0", "select FNumber,FName,FFullName,FitemID from t_Item where FItemClassID=3", "FNumber", "FName", "FFullName");
+                        ProcessItemsInAnotherThread(/*"select FNumber,FName from t_Item where FItemClassID=3 and FDetail = 0",*/ "select FNumber,FName,FDetail,FFullName,FitemID from t_Item where FItemClassID=3", "FNumber", "FName", "FFullName");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.Supply:
                     {
                         this.Title = "选择供应商";
-                        ProcessItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=8 and FDetail=0", "select FNumber,FName,ffullname,FItemID from t_Item where FItemClassID=8", "FNumber", "FName", "ffullname");
+                        ProcessItemsInAnotherThread(/*"select FNumber,FName,ffullname from t_Item where FItemClassID=8 and FDetail=0",*/ "select FNumber,FDetail,FName,ffullname,FItemID from t_Item where FItemClassID=8", "FNumber", "FName", "ffullname");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.Customer:
                     {
                         this.Title = "选择客户";
-                        ProcessItemsInAnotherThread("select FNumber,FName,ffullname from t_Item where FItemClassID=1 and FDetail=0", "select FNumber,FName,ffullname,FItemID from t_Item where FItemClassID=1", "FNumber", "FName", "ffullname");
+                        ProcessItemsInAnotherThread(/*"select FNumber,FName,ffullname from t_Item where FItemClassID=1 and FDetail=0",*/ "select FNumber,FDetail,FName,ffullname,FItemID from t_Item where FItemClassID=1", "FNumber", "FName", "ffullname");
                     }
                     break;
                 default:
@@ -117,7 +119,7 @@ namespace Android_KingHoo_Scanner_Rebuild
            
         }
 
-        private DataTable m_dataTable_Group = null;
+        //private DataTable m_dataTable_Group = null;
         private DataTable m_dataTable_Items = null;
 
 
@@ -172,13 +174,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                     break;
             }
         }
-        private void ProcessItemsInAnotherThread(string getGroupSql, string getItemsSql, string fnumber, string fname, string fextend,string fitemid = "FItemID")
+        private void ProcessItemsInAnotherThread(/*string getGroupSql,*/ string getItemsSql, string fnumber, string fname, string fextend,string fitemid = "FItemID")
         {
             var T = new Thread(new ThreadStart(() =>
             {
                 if (Tools_SQL_Class.Status())
                 {
-                    m_dataTable_Group = Tools_SQL_Class.getTable(getGroupSql);
+                    //m_dataTable_Group = Tools_SQL_Class.getTable(getGroupSql);
                     m_dataTable_Items = Tools_SQL_Class.getTable(getItemsSql);
                     m_ItemList.Clear();
                     if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count >= 1)
@@ -190,25 +192,31 @@ namespace Android_KingHoo_Scanner_Rebuild
                             it.m_fnumber = m_dataTable_Items.Rows[i][fnumber].ToString();
                             it.m_fname = m_dataTable_Items.Rows[i][fname].ToString();
                             it.m_fextend = m_dataTable_Items.Rows[i][fextend].ToString();
+                            //string Txt = m_dataTable_Items.Rows[i]["FDetail"].ToString();
+                            //System.Diagnostics.Debug.WriteLine(" 文本为 :" + Txt);
+                            it.m_IfDetail = m_dataTable_Items.Rows[i]["FDetail"].ToString()=="True"?true:false;
+                            //it.m_IfDetail = Convert.ToInt32(m_dataTable_Items.Rows[i]["FDetail"].ToString());
+
                             m_ItemList.Add(it);
                         }
                     }
-                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList, m_groupKey);
+                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList/*, m_groupKey*/);
                     RunOnUiThread(() =>
                     {
-
+                        //设置索引项
                         m_listview.Adapter = adapter;
                         m_search.Enabled = true;
                     });
                     m_indexItem.Clear();
-                    m_groupKey.Clear();
-                    if (m_dataTable_Group != null && m_dataTable_Group.Rows.Count >= 1)
+                    //m_groupKey.Clear();
+                    var m_dataTable_Group = m_ItemList.Where(item => item.m_IfDetail == false).ToList();
+                    if (m_dataTable_Group.Count >= 1)
                     {
-                        for (int i = 0; i < m_dataTable_Group.Rows.Count; i++)
+                        for (int i = 0; i < m_dataTable_Group.Count; i++)
                         {
-                            m_groupKey.Add(m_dataTable_Group.Rows[i][fnumber].ToString());
+                            //m_groupKey.Add(m_dataTable_Group.Rows[i][fnumber].ToString());
                             var tv = new TextView(this);
-                            tv.Text = m_dataTable_Group.Rows[i][fname].ToString() + "  " + m_dataTable_Group.Rows[i][fnumber].ToString();
+                            tv.Text = m_dataTable_Group[i].m_fname + "  " + m_dataTable_Group[i].m_fnumber;
                             tv.Click += Tv_Click;
                             tv.Gravity = GravityFlags.Right;
                             tv.TextAlignment = TextAlignment.Gravity;
@@ -223,7 +231,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                         }
                     }
 
-                    m_AdapterInitFinsh = true;
+                    //m_AdapterInitFinsh = true;
                 }
             }));
             T.IsBackground = true;
@@ -274,10 +282,12 @@ namespace Android_KingHoo_Scanner_Rebuild
                 if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count > 0)
                 {
                     var items = m_dataTable_Items.AsEnumerable();
-                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fname).Contains(words) || t.Field<string>(fextend).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend),m_fitemid = i.Field<int>(fitemid).ToString() }).ToList<Tools_Tables_Adapter_Class.Item>();
+                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fname).Contains(words) || t.Field<string>(fextend).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend), m_fitemid = i.Field<int>(fitemid).ToString() }).ToList<Tools_Tables_Adapter_Class.Item>();
+                  
+
                     //DataTable _ret = items.OrderByDescending(t => t.Field<string>(fnumber).Contains(words));
                     //List<Tools_Tables_Adapter_Class.Item> _ret_List = items.Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend) }).ToList<Tools_Tables_Adapter_Class.Item>();
-                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, ret, m_groupKey);
+                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, ret/*, m_groupKey*/);
                     //Log.Error(_Tag + m_Current_Running_Thread.ManagedThreadId.ToString(), "开始更新Adapter");
                     RunOnUiThread(() =>
                     {
@@ -312,10 +322,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                         it.m_fnumber = ret_table.Rows[i][fnumber].ToString();
                         it.m_fname = ret_table.Rows[i][fname].ToString();
                         it.m_fextend = ret_table.Rows[i][fextend].ToString();
+                        //string Txt = ret_table.Rows[i]["FDetail"].ToString();
+                        //System.Diagnostics.Debug.WriteLine(" 文本为 :"+Txt);
+                        it.m_IfDetail = ret_table.Rows[i]["FDetail"].ToString()=="True"?true:false;
                         m_ItemList.Add(it);
                     }
                     //搜索时，不再显示索引
-                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList, m_groupKey);
+                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList/*, m_groupKey*/);
                     RunOnUiThread(() =>
                     {
                         m_listview.Adapter = adapter;
@@ -341,7 +354,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         int m_lastSelectItem = -1;
         private void M_listview_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            if (e.Position == m_lastSelectItem && !m_groupKey.Contains(((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_fnumber))
+            if (e.Position == m_lastSelectItem && ((Tools_Tables_Adapter_Class.Item)m_listview.Adapter.GetItem(e.Position)).m_IfDetail)
             //if (m_listview.IsItemChecked(e.Position))
             {
                 Intent intent = new Intent();
