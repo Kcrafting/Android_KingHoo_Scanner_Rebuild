@@ -26,6 +26,13 @@
     <item name="android:windowActionBar">true</item>
   </style>
 
+  <style name="KingHooTheme.ShowPicture" parent ="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowActionBar">true</item>
+  </style>
+
   <style name="KingHooTheme.NoTitle" parent ="Theme.AppCompat.Light.NoActionBar">
   </style>
 
@@ -70,6 +77,7 @@
     <!--背景昏暗-->
     <item name="android:backgroundDimEnabled">true</item>
   </style>
+  
   
 
   </resources>

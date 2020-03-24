@@ -6,6 +6,9 @@
     <string name="action_menu_save">提交</string>
     <string name="action_menu_check">审核</string>
     <string name="action_menu_delete">删除</string>
+  <string name="OK">确定</string>
+  <string name="CANCEL">取消</string>
+  <string name="QUIT">退出</string>
   <string name="welcome_h1">注意事项：</string>
   <string name="welcome_body">
     1.请确认您的PDA处于WiFi覆盖范围内，且保持足够的信号强度\n

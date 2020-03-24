@@ -34,6 +34,15 @@ namespace Android_KingHoo_Scanner_Rebuild
             dialog.Show();
         }
 
+        public static void ShowDialog(Context context, string title, string content)
+        {
+            var dialog = new Android.Support.V7.App.AlertDialog.Builder(context);
+            dialog.SetTitle(title);
+            dialog.SetMessage(content);
+            dialog.SetPositiveButton(Resource.String.CANCEL, new EventHandler<DialogClickEventArgs>((__sender, __event) => { ; } )) ;
+            dialog.SetNegativeButton(Resource.String.QUIT, new EventHandler<DialogClickEventArgs>((__sender, __event) => { Process.KillProcess(Android.OS.Process.MyPid()); }));
+            dialog.Show();
+        }
 
         public class Login_Account : Java.Lang.Object
         {

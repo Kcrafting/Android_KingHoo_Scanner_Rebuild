@@ -3,11 +3,13 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
      <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/activity_itemSelect_lookpicture_imageView"
         android:adjustViewBounds="true"
-        android:background="@android:color/black"
-        android:scaleType="fitCenter" />
+        android:background="@color/cardview_dark_background"
+        android:scaleType="fitCenter" >
+        </ImageView>
 </LinearLayout>

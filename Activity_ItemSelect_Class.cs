@@ -76,7 +76,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
                         this.Title = "物料选择";
                         //ProcessItemInAnotherThread();
-                        ProcessItemsInAnotherThread(/*"select FNumber,FName from t_Item where FItemClassID=4 and FDetail = 0", */"select B.FNumber,B.FDetail,B.FName,isnull(A.FModel,'') FModel ,isnull(A.FitemID,0) FitemID from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4 order by FNumber", "FNumber", "FName", "FModel");
+                        ProcessItemsInAnotherThread(/*"select FNumber,FName from t_Item where FItemClassID=4 and FDetail = 0", */"select B.FNumber,B.FDetail,B.FName,isnull(A.FModel,'') FModel ,isnull(A.FitemID,0) FitemID from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4 order by B.FNumber", "FNumber", "FName", "FModel");
                     }
                     break;
                 case Tools_Tables_Adapter_Class.ItemType.ICStock:
@@ -282,7 +282,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count > 0)
                 {
                     var items = m_dataTable_Items.AsEnumerable();
-                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fname).Contains(words) || t.Field<string>(fextend).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend), m_fitemid = i.Field<int>(fitemid).ToString() }).ToList<Tools_Tables_Adapter_Class.Item>();
+                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fname).Contains(words) || t.Field<string>(fextend).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend), m_fitemid = i.Field<int>(fitemid).ToString(), m_IfDetail = i.Field<bool>("FDetail") }).ToList<Tools_Tables_Adapter_Class.Item>();
                   
 
                     //DataTable _ret = items.OrderByDescending(t => t.Field<string>(fnumber).Contains(words));

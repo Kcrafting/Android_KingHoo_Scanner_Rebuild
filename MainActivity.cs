@@ -96,7 +96,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
             else
             {
-                base.OnBackPressed();
+                Tools_Tables_Adapter_Class.ShowDialog(this, "注意", "您是否要退出程序？");
+                    //base.OnBackPressed();
             }
         }
 

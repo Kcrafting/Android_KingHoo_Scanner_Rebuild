@@ -180,8 +180,7 @@ JOIN dbo.PORequestEntry B ON A.FInterID=B.FInterID
 JOIN dbo.t_ICItem C ON B.FItemID=C.FItemID
 JOIN dbo.t_MeasureUnit D ON B.FUnitID=D.FItemID
 WHERE A.FClosed!=1 AND C.FNumber=@FNumber and (B.FQty-B.FCommitQty)&gt;0
-END
-go</value>
+END</value>
   </data>
   <data name="ZZ_KIngHoo_LookUpInventory_Summary" xml:space="preserve">
     <value>CREATE PROCEDURE [dbo].[ZZ_KIngHoo_LookUpInventory_Summary]

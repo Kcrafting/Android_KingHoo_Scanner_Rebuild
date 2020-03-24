@@ -270,7 +270,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                             var ret = Tools_SQL_Class.directGetTable(sqlTxt);
                             if (ret == null)
                             {
+                                
                                 Log.Debug("Ms", Tools_SQL_Class.m_errorString);
+                                return false;
                             }
                         }
                     }
@@ -283,6 +285,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             if (ret == null)
                             {
                                 Log.Debug("Ms", Tools_SQL_Class.m_errorString);
+                                return false;
                             }
                         }
                     }

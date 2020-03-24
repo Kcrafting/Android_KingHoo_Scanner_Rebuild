@@ -82,10 +82,13 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_viewPicture.Click += M_viewPicture_Click;
             return v;
         }
-
+        private int g_click_times = 0;
         private void M_viewPicture_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            g_click_times++;
+            m_viewPicture.Text = "查看图片 <打开>";
+            this.Activity.StartActivity(new Intent(Application.Context, typeof(Activity_Picture)));
+            m_viewPicture.Text = "查看图片";
         }
 
         private void M_scancode_FocusChange(object sender, View.FocusChangeEventArgs e)
