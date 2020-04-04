@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
+using Android.Telephony;
 using Android.Widget;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Android_KingHoo_Scanner_Rebuild
     [Activity(Label = "@string/activity_splash_title", Theme = "@style/KingHooTheme.NoTitle", NoHistory = true)]
     class Activity_Login_Class : AppCompatActivity
     {
+        public static string encryptKey = "3D4A858E6C4544F";
         private Spinner m_AccountSelect = null;
         Tools_Extend_Storage m_Tes = null;
         bool m_autoLogin = false, m_recordPassword = false;
@@ -20,6 +22,12 @@ namespace Android_KingHoo_Scanner_Rebuild
         {
             base.OnCreate(savedInstanceState);
 
+        }
+        private string getsn()
+        {
+            TelephonyManager telephonyMgr = this.GetSystemService(Context.TelephonyService) as TelephonyManager;
+            string deviceId = telephonyMgr.DeviceId == null ? "" : telephonyMgr.DeviceId;
+            return deviceId;
         }
         protected override void OnResume()
         {
@@ -149,6 +157,12 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         private void Button_login_Click(object sender, EventArgs e)
         {
+            if (!m_Tes.getValueBoolean(Tools_Extend_Storage.ValueType.CertifiedFinish))
+            {
+                Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "您还没有激活软件，请先进入设置激活软件后再进行登录");
+                return;
+            }
+
             if (m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version) == 0)
             {
                 Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "还没设置软件版本");
@@ -182,6 +196,21 @@ namespace Android_KingHoo_Scanner_Rebuild
                            
                         }
                         m_Tes.saveValue(Tools_Extend_Storage.ValueType.login_autoLogin_Name, userProfile.Rows[0]["FUserID"].ToString());
+                        var ret = Tools_SQL_Class.getTable("select top 1 object_id from sys.tables where getdate() >'" +m_Tes.getValueString(Tools_Extend_Storage.ValueType.CertifiedUseDate) + "'");
+                        if (ret == null)
+                        {
+                            Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "比较使用期间失败！");
+                            return;
+                        }
+                        else
+                        {
+                            if (ret.Rows.Count >= 1)
+                            {
+                                Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "版本已过期！");
+                                return;
+                            }
+                        }
+
                         StartActivity(new Intent(Application.Context, typeof(MainActivity)));
                     }
                     else

@@ -39,7 +39,16 @@ namespace Android_KingHoo_Scanner_Rebuild
             login_databaseUserPassword =13,
             login_selectedUserID = 14,
             login_selectedUserName = 15,
-            login_software_version =16
+            login_software_version =16,
+            CertifiedDevice = 17,
+            CertifiedUUID = 18,
+            CertifiedServiceDate = 19,
+            CertifiedUseDate =20,
+            CertifiedProjectName = 21,
+            CertifiedFinish = 22,
+            CertifiedAuthPath = 23,
+            CertifiedDescriptPath = 24,
+            CertifiedNoticePath = 25
         }
         //private static ISharedPreferences m_shareData = PreferenceManager.GetDefaultSharedPreferences(this);
         public void saveValue( ValueType type, string value) {

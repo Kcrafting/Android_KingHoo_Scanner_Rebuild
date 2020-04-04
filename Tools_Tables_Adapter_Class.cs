@@ -17,6 +17,7 @@ using Android.Support.V7.Widget;
 using Java.Util;
 using Android.Text.Format;
 using System.Threading;
+using System.Linq.Expressions;
 
 namespace Android_KingHoo_Scanner_Rebuild
 {
@@ -34,13 +35,23 @@ namespace Android_KingHoo_Scanner_Rebuild
             dialog.Show();
         }
 
-        public static void ShowDialog(Context context, string title, string content)
+        //public static void ShowDialog(Context context, string title, string content, Action ok, Action cancel)
+        //{
+        //    var dialog = new Android.Support.V7.App.AlertDialog.Builder(context);
+        //    dialog.SetTitle(title);
+        //    dialog.SetMessage(content);
+        //    dialog.SetPositiveButton(Resource.String.CANCEL, new EventHandler<DialogClickEventArgs>((__sender, __event) => {; }));
+        //    dialog.SetNegativeButton(Resource.String.QUIT, new EventHandler<DialogClickEventArgs>((__sender, __event) => { Process.KillProcess(Android.OS.Process.MyPid()); }));
+        //    dialog.Show();
+        //}
+
+        public static void ShowDialog(Context context, string title, string content, Action ok,Action cancel)
         {
             var dialog = new Android.Support.V7.App.AlertDialog.Builder(context);
             dialog.SetTitle(title);
             dialog.SetMessage(content);
-            dialog.SetPositiveButton(Resource.String.CANCEL, new EventHandler<DialogClickEventArgs>((__sender, __event) => { ; } )) ;
-            dialog.SetNegativeButton(Resource.String.QUIT, new EventHandler<DialogClickEventArgs>((__sender, __event) => { Process.KillProcess(Android.OS.Process.MyPid()); }));
+            dialog.SetPositiveButton(Resource.String.CANCEL, new EventHandler<DialogClickEventArgs>((__sender, __event) => { cancel(); } )) ;
+            dialog.SetNegativeButton(Resource.String.QUIT, new EventHandler<DialogClickEventArgs>((__sender, __event) => { ok(); /* Process.KillProcess(Android.OS.Process.MyPid());*/ }));
             dialog.Show();
         }
 
@@ -428,6 +439,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             public const string User = "4";
             public const string Supply = "5";
             public const string Customer = "6";
+            public const string Dep = "7";
         }
 
         public class MDFDatePickerDialog : DatePickerDialog
@@ -741,19 +753,42 @@ namespace Android_KingHoo_Scanner_Rebuild
                 public string fname { get; set; }
             }
             _Unit _m_unit = null;_StockPlace _m_stockplace = null;_Stock _m_stock = null;_Item _m_Item = null;
-            public TypeEntry(Context context, Android.Support.V4.App.Fragment fragment,string Type) : base(context,Resource.Style.mdialog)
+            MainActivity m_g_mainActivivty = null;//接收扫描头数据
+            public TypeEntry(Context context, Android.Support.V4.App.Fragment fragment,string Type,MainActivity main) : base(context,Resource.Style.mdialog)
             {
+                m_g_mainActivivty = main;
+                m_g_mainActivivty.g_ProcessReciveData += M_g_mainActivivty_g_ProcessReciveData;
                 m_context = context;
                 m_fragment = fragment;
                 m_ClassType = Type;
                 if (Type == "IN")
                 {
                     ((Fragment_InStock)fragment).inStock_FunRecivieData += Fragment_inStock_FunRecivieData;
-                }else if(Type == "OUT")
+                } else if (Type == "OUT")
                 {
                     ((Fragment_OutStock)fragment).outStock_FunRecivieData += Fragment_inStock_FunRecivieData;
-                }            
+                } else if (Type == "XOUT") 
+                {
+                    ((Fragment_OutStockX)fragment).outStock_FunRecivieData += Fragment_inStock_FunRecivieData;
+                }    
             }
+
+            private void M_g_mainActivivty_g_ProcessReciveData(string data)
+            {
+                if(data!=null && data != "")
+                {
+                    var ret = Tools_SQL_Class.getTable("select 1 from t_ICItem where FNumber='" + data + "'");
+                    if(ret!=null && ret.Rows.Count > 0)
+                    {
+                        m_fnumber.Text = data;
+                    }
+                    else
+                    {
+                        ShowMsg(this.Context, "错误", "不存在该物料！");
+                    }
+                }
+            }
+
             List<FBatch_Msg> m_batchNo_list = new List<FBatch_Msg>();
             private void getBatchNo(string FItemID,string FStock,string FStockPlace)
             {
@@ -970,7 +1005,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     m_fqty_outStock.Visibility = ViewStates.Invisible;
                     m_stock_fqty.Visibility = ViewStates.Invisible;
                 }
-                else
+                else if (m_ClassType == "OUT" || m_ClassType == "XOUT")
                 {
                     m_batchno.Visibility = ViewStates.Invisible;
                     m_fqty.Visibility = ViewStates.Invisible;
@@ -989,9 +1024,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStockPlace;
                 }
-                else
+                else if (m_ClassType == "OUT")
                 {
                     ((Fragment_OutStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStockPlace;
+                }
+                else if (m_ClassType == "XOUT")
+                {
+                    ((Fragment_OutStockX)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStockPlace;
                 }
                 intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.ICStockPlace);
                 m_fragment.StartActivityForResult(intent, 0);
@@ -1032,9 +1071,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStock;
                 }
-                else
+                else if (m_ClassType == "OUT")
                 {
                     ((Fragment_OutStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStock;
+                }
+                else if (m_ClassType == "XOUT")
+                {
+                    ((Fragment_OutStockX)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStock;
                 }
                 intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.ICStock);
                 m_fragment.StartActivityForResult(intent, 0);
@@ -1049,9 +1092,12 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
                 }
-                else
+                else if(m_ClassType == "OUT")
                 {
                     ((Fragment_OutStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
+                } else if(m_ClassType == "XOUT")
+                {
+                    ((Fragment_OutStockX)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
                 }
                 //m_fragment.m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
                 intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.ICItem);
@@ -1067,9 +1113,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     ((Fragment_InStock)m_fragment).m_itemlist.Adapter = null;
                 }
-                else
+                else if (m_ClassType == "OUT")
                 {
                     ((Fragment_OutStock)m_fragment).m_itemlist.Adapter = null;
+                }
+                else if (m_ClassType == "XOUT")
+                {
+                    ((Fragment_OutStockX)m_fragment).m_itemlist.Adapter = null;
                 }
                 //m_fragment.m_itemlist.Adapter = null;
                 var entry = new Stock_Entry();
@@ -1105,7 +1155,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     entry.m_fqty = m_fqty.Text;
                     entry.m_fbatchno = m_batchno.Text;
                 }
-                else
+                else if (m_ClassType == "OUT" || m_ClassType == "XOUT")
                 {
                     entry.m_fqty = m_fqty_outStock.Text;
                     entry.m_fbatchno = m_batchNo_list[((int)m_batchSelector.SelectedItemId)].m_FBatchNo;
@@ -1152,17 +1202,24 @@ namespace Android_KingHoo_Scanner_Rebuild
                     ((Fragment_InStock)m_fragment).m_itemlist.Adapter = ada;
                     getListViewHeigth(((Fragment_InStock)m_fragment).m_itemlist);
                 }
-                else
+                else if(m_ClassType == "OUT")
                 {
                     ((Fragment_OutStock)m_fragment).m_EntryList_list.Add(entry);
                     var ada = new Entry_Adapter(m_fragment.Activity, ((Fragment_OutStock)m_fragment).m_EntryList_list);
                     ((Fragment_OutStock)m_fragment).m_itemlist.Adapter = ada;
                     getListViewHeigth(((Fragment_OutStock)m_fragment).m_itemlist);
+                }else if(m_ClassType == "XOUT")
+                {
+                    ((Fragment_OutStockX)m_fragment).m_EntryList_list.Add(entry);
+                    var ada = new Entry_Adapter(m_fragment.Activity, ((Fragment_OutStockX)m_fragment).m_EntryList_list);
+                    ((Fragment_OutStockX)m_fragment).m_itemlist.Adapter = ada;
+                    getListViewHeigth(((Fragment_OutStockX)m_fragment).m_itemlist);
                 }
                 //m_fragment.m_EntryList_list.Add(entry);
                 //var ada = new Entry_Adapter(m_fragment.Activity, m_fragment.m_EntryList_list);
                 //m_fragment.m_itemlist.Adapter = ada;
                 //getListViewHeigth(m_fragment.m_itemlist);
+                m_g_mainActivivty.g_ProcessReciveData -= M_g_mainActivivty_g_ProcessReciveData;
                 this.Dismiss();
             }
             private void getListViewHeigth(ListView listview)
@@ -1184,6 +1241,7 @@ namespace Android_KingHoo_Scanner_Rebuild
 
             private void M_cancel_Click(object sender, EventArgs e)
             {
+                m_g_mainActivivty.g_ProcessReciveData -= M_g_mainActivivty_g_ProcessReciveData;
                 this.Dismiss();
             }
         }
@@ -1228,13 +1286,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                 //string package = m_context.PackageName;
                 //string path = (Element.Source as ResourceVideoSource).Path;
                 //string uri = "android.resource://" + package + "/raw/" + Resource.Raw.wait;
-
                 //m_videoView.SetVideoURI(Android.Net.Uri.Parse(uri));
                 //m_videoView.Start();
                 SetCancelable(false);
             }
-
-
         }
 
 
@@ -1281,7 +1336,24 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
             public override int Count { get { return m_list.Count; } }
         }
+        public class SourceStockBill : Java.Lang.Object
+        {
+            public string m_FBillNo = "";
+            public int m_FInterID = 0;
+            public int m_FEntryID = 0;
+            public int m_Sup = 0;
+            public int m_Dep = 0;
+            public int m_Cust = 0;
+            public int m_FitemID = 0;
+            public decimal m_Qty = 0;
+            public int m_Unit = 0;
+            public string m_BatchNo = "";
+            public int m_FStock = 0;
+            public int m_FStockPlace = 0;
+            public string m_FNote = "";
+            public decimal m_CommitQty = 0;
 
+        }
         //not end
     }
 }

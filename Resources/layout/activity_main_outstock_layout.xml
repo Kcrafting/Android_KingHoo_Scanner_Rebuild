@@ -30,6 +30,7 @@
         <EditText
             android:editable="false"
             android:text="@string/activity_main_outstock_layout_billType_xiaoshouchuku_label"
+            android:id="@+id/_main_outstock_layout_billType"
             android:layout_weight="2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"/>
@@ -113,12 +114,13 @@
         android:layout_height="wrap_content">
         <TextView
             android:text="@string/activity_main_outstock_layout_saleSrtle_label"
+           android:id="@+id/activity_main_outstock_layout_buystyle_shexiao_label"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"/>
         <EditText
                     android:text="@string/activity_main_outstock_layout_shexiao_label"
-                    android:id="@+id/activity_main_outstock_layout_buystyle_shexiao_label"
+                    android:id="@+id/activity_main_outstock_layout_buystyle_shexiao"
                     android:editable="false"
             android:layout_weight="2"
             android:layout_width="0dp"

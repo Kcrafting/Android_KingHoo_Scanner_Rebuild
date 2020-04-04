@@ -25,6 +25,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         List<Tools_Tables_Adapter_Class.Account_Detail> m_AccountList = new List<Tools_Tables_Adapter_Class.Account_Detail>();
         List<Tools_Tables_Adapter_Class.Software_Version> software_VersionsList = new List<Tools_Tables_Adapter_Class.Software_Version>();
         Tools_Extend_Storage m_Tes = null;
+        Button m_auth = null;
         //是否第一次启动
         bool m_first_start = false;
         public override void OnCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -55,6 +56,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             Connect_Click(null, null);
             m_software_select = FindViewById<Spinner>(Resource.Id.activity_setting_server_software_version_select);
             m_software_select.ItemSelected += M_software_select_ItemSelected;
+            m_auth = FindViewById<Button>(Resource.Id.CertifieDevice);
+            m_auth.Click += M_auth_Click;
 
             software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(0, ""));
             software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(1, "Kis旗舰版6.0+"));
@@ -85,6 +88,11 @@ namespace Android_KingHoo_Scanner_Rebuild
             cancelAutoLogin.Click += CancelAutoLogin_Click;
 
 
+        }
+
+        private void M_auth_Click(object sender, EventArgs e)
+        {
+            StartActivity(new Intent(Application.Context, typeof(Activity_Authentication)));
         }
 
         private void M_software_select_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
@@ -197,6 +205,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                     }
                 }
                 )).Start();
+            }
+            else
+            {
+                prograss.Dismiss();
             }
         }
     }

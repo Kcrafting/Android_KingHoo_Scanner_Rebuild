@@ -23,6 +23,14 @@
     * 5.不要启用辅助计量（浮动换算）管理(未实现)\n
 
   </string>
+  <string name="auth_attention">
+    在当前界面，您可以激活您的设备\n
+    如果您的设备已激活，则无需重复激活\n
+    如果提示没有授权，则请首先联系\n
+    沧州金宏软件有限公司\n
+    电话:0317-3588578\n
+    公司地址:沧州市运河区颐和大厦1306室\n
+  </string>
 
     <string name="activity_splash_title">登录</string>
 
@@ -55,8 +63,9 @@
   <string name="acticity_setting_cancelautologin_label">取消自动登录</string>
 
   <string name="menu_checkInventory">扫码盘点</string>
-  <string name="menu_insock">扫码入库</string>
-  <string name="menu_outsock">扫码出库</string>
+  <string name="menu_insock">外购入库</string>
+  <string name="menu_outsock">销售出库</string>
+  <string name="menu_llstockout">领料出库</string>
   <string name="menu_subTitle">扫码出库</string>
 
   <string name="acticity_setting_changepassword_title">修改密码</string>
@@ -115,4 +124,9 @@
   <string name ="activity_main_outstock_layout_customer_label">客户</string>
   <string name ="activity_main_outstock_layout_shexiao_label">赊销</string>
   <string name ="activity_main_outstock_layout_saleSrtle_label">销售方式</string>
+
+  <string name ="CertifieDevice_label">激活设备</string>
+  <string name ="CertifieUpdateUseDate_label">延长使用日期</string>
+  <string name ="CertifieUpdateServiceDate_label">延长服务日期</string>
+  <string name ="ProjectName_label">项目名称</string>
 </resources>

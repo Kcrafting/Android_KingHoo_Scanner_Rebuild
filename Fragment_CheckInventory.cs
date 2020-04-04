@@ -86,9 +86,30 @@ namespace Android_KingHoo_Scanner_Rebuild
         private void M_viewPicture_Click(object sender, EventArgs e)
         {
             g_click_times++;
-            m_viewPicture.Text = "查看图片 <打开>";
-            this.Activity.StartActivity(new Intent(Application.Context, typeof(Activity_Picture)));
-            m_viewPicture.Text = "查看图片";
+            if (m_FNumber.Text == "")
+            {
+                return;
+            }
+            var ret = Tools_SQL_Class.getTable("select 1 from sysobjects where id=OBJECT_ID('t_Accessory_Decrypt')");
+            if (ret!=null && ret.Rows.Count > 0)
+            {
+                //m_viewPicture.Text = "查看图片 <打开>";
+                var ret2 = Tools_SQL_Class.getTable("select 1 from t_Accessory_Decrypt where FNumber='" + m_FNumber.Text + "'");
+                if(ret2!=null && ret2.Rows.Count>0)
+                {
+                    Activity_Picture.m_Fnumber = m_FNumber.Text;
+                    this.Activity.StartActivity(new Intent(Application.Context, typeof(Activity_Picture)));
+                }
+                else
+                {
+                    Tools_Tables_Adapter_Class.ShowMsg(this.Activity, "错误", "该物料没有上传图片！");
+                }
+            }
+            else
+            {
+                Tools_Tables_Adapter_Class.ShowMsg(this.Activity, "错误", "您还没有同步物料图片！");
+            }
+           
         }
 
         private void M_scancode_FocusChange(object sender, View.FocusChangeEventArgs e)

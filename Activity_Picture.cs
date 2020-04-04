@@ -48,49 +48,17 @@ namespace Android_KingHoo_Scanner_Rebuild
             //m_image.SetImageURI(Android.Net.Uri.Parse("dss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top-e3b63a0b1b.png"));
             //setPicture(@"https://dss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top-e3b63a0b1b.png");
             var t = new Thread(()=> {
-                var table = Tools_SQL_Class.getTable("SELECT * FROM t_Accessory");
-                if (table == null || table.Rows.Count <= 0)
+                var table = Tools_SQL_Class.getTable("SELECT top 1 FImageData FROM t_Accessory_Decrypt where FNumber='" + m_Fnumber + "'");
+                if (table != null && table.Rows.Count > 0)
                 {
-                    return;
-                }
-                byte[] sqlbuffer = (byte[])table.Rows[0]["FData"];
-
-                //InputStream inputStream = (FileInputStream)buffer;
-                //ZipInputStream zipInputStream = new ZipInputStream(buffer);
-
-                //GZIPInputStream aaa = new GZIPInputStream();
-                //for(int i = 0;i< buffer.Length; i++)
-                //{
-                //    var gzBuffer = byte.Parse(buffer.ToString());
-                //}
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    var msgLength = BitConverter.ToUInt32(sqlbuffer.Reverse<byte>().ToArray(), 0);
-                    ms.Write(sqlbuffer, 4, sqlbuffer.Length-4);
-                    byte[] buffer = new byte[msgLength];
-                    ms.Position = 0;
-                    using (GZipStream zip = new GZipStream(ms, CompressionMode.Decompress))
-                    {
-                        //存入buffer
-                        zip.Read(buffer, 4, buffer.Length - 4);
-
-                    }
-                    MemoryStream ms2 = new MemoryStream(buffer);
-                    //Bitmap d = new Bitmap(ms2);
-                    //Image image = Image. (ms2);
-                    //var bitmap = new Android.Graphics.Bitmap(image);
-                    Android.Graphics.Bitmap bitmap = BitmapFactory.DecodeStream(ms2);
-                    RunOnUiThread(()=> {
+                    var image = (byte[])table.Rows[0]["FImageData"];
+                    MemoryStream ms = new MemoryStream(image);
+                    //Bitmap bmpt = new Bitmap(ms);
+                    Android.Graphics.Bitmap bitmap = BitmapFactory.DecodeStream(ms);
+                    RunOnUiThread(() => {
                         m_image.SetImageBitmap(bitmap);
                     });
                 }
-
-                    //System.Text.Encoding chs = System.Text.Encoding.GetEncoding("gb2312");
-                //byte[] bytesbuffer = new byte[buffer.Length / 2];
-                //for(int i = 0;i < buffer.Length; i++)
-                //{
-                  //var  bytesbuffer = byte.Parse(buffer);
-                //}
             });
             t.IsBackground = true;
             t.Start();

@@ -86,7 +86,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                     StartActivity(new Intent(Application.Context, typeof(Activity_Login_Class)));
                 });
             })).Start();
-            
+            //await Tools_Github.GetServerMsg();
+
+            //var t = new Thread(async () => {
+            // await   Tools_Github.GetServerMsg();
+            //});
+            //t.IsBackground = false;
+            //t.Start();
 
         }
         public override void OnBackPressed() { }

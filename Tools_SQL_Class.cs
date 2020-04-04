@@ -52,182 +52,199 @@ namespace Android_KingHoo_Scanner_Rebuild
         public static bool connect()
         {
             //string constr = "Data Source=" + m_Host + ";instanceName=MSSQLSERVER;Initial Catalog=master;User ID=" + m_UserName + ";pwd=" + m_UserPassword;
-            g_mut.WaitOne();
-            if (m_Host == "" || m_UserName == "")
-            {
-                m_errorString = "连接字符串未设置！";
-                g_mut.ReleaseMutex();
-                return false;
-            }
-            string constr = "Data Source=" + m_Host + ";Initial Catalog=master;User ID=" + m_UserName + ";pwd=" + m_UserPassword + ";Connect Timeout =" + m_timeOut.ToString() + ";MultipleActiveResultSets=true;";
-            Log.Debug(TAG,"Sql_Ready " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            m_Connect = new SqlConnection(constr);
-            
             try
             {
-                if (m_Connect.State != ConnectionState.Connecting && m_Connect.State == ConnectionState.Closed)
+                g_mut.WaitOne();
+                if (m_Host == "" || m_UserName == "")
                 {
-                    m_Connect.Open();
-                    Log.Debug(TAG, "Sql_Finish " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                }   
-            }
-            catch (SqlException sex)
-            {
-                Log.Debug(TAG, "Sql_Error " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + sex.Message);
-                m_errorString = sex.Message;
-                connStatus = false;
+                    m_errorString = "连接字符串未设置！";
+                    g_mut.ReleaseMutex();
+                    return false;
+                }
+                string constr = "Data Source=" + m_Host + ";Initial Catalog=master;User ID=" + m_UserName + ";pwd=" + m_UserPassword + ";Connect Timeout =" + m_timeOut.ToString() + ";MultipleActiveResultSets=true;";
+                Log.Debug(TAG, "Sql_Ready " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                m_Connect = new SqlConnection(constr);
+
+                try
+                {
+                    if (m_Connect.State != ConnectionState.Connecting && m_Connect.State == ConnectionState.Closed)
+                    {
+                        m_Connect.Open();
+                        Log.Debug(TAG, "Sql_Finish " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                }
+                catch (SqlException sex)
+                {
+                    Log.Debug(TAG, "Sql_Error " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + sex.Message);
+                    m_errorString = sex.Message;
+                    connStatus = false;
+                    g_mut.ReleaseMutex();
+                    return false;
+                }
+                connStatus = true;
                 g_mut.ReleaseMutex();
+                return true;
+            }
+            catch
+            {
                 return false;
             }
-            connStatus = true;
-            g_mut.ReleaseMutex();
-            return true;
-
         }
 
         public static bool directconnect()
         {
             //string constr = "Data Source=" + m_Host + ";instanceName=MSSQLSERVER;Initial Catalog=master;User ID=" + m_UserName + ";pwd=" + m_UserPassword;
-
-            if (m_Host == "" || m_UserName == "")
-            {
-                m_errorString = "连接字符串未设置！";
-                return false;
-            }
-            string constr = "Data Source=" + m_Host + ";Initial Catalog= " + m_DbName + ";User ID=" + m_UserName + ";pwd=" + m_UserPassword + ";Connect Timeout =" + m_timeOut.ToString() + ";MultipleActiveResultSets=true;";
-            Log.Debug(TAG, "Sql_Ready " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            m_Connect = new SqlConnection(constr);
-
             try
             {
-                if (m_Connect.State != ConnectionState.Connecting && m_Connect.State == ConnectionState.Closed)
+                if (m_Host == "" || m_UserName == "")
                 {
-                    m_Connect.Open();
-                    Log.Debug(TAG, "Sql_Finish " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    m_errorString = "连接字符串未设置！";
+                    return false;
                 }
+                string constr = "Data Source=" + m_Host + ";Initial Catalog= " + m_DbName + ";User ID=" + m_UserName + ";pwd=" + m_UserPassword + ";Connect Timeout =" + m_timeOut.ToString() + ";MultipleActiveResultSets=true;";
+                Log.Debug(TAG, "Sql_Ready " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                m_Connect = new SqlConnection(constr);
+
+                try
+                {
+                    if (m_Connect.State != ConnectionState.Connecting && m_Connect.State == ConnectionState.Closed)
+                    {
+                        m_Connect.Open();
+                        Log.Debug(TAG, "Sql_Finish " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                }
+                catch (SqlException sex)
+                {
+                    Log.Debug(TAG, "Sql_Error " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + sex.Message);
+                    m_errorString = sex.Message;
+                    connStatus = false;
+                    return false;
+                }
+                connStatus = true;
+                return true;
             }
-            catch (SqlException sex)
+            catch
             {
-                Log.Debug(TAG, "Sql_Error " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + sex.Message);
-                m_errorString = sex.Message;
-                connStatus = false;
                 return false;
             }
-            connStatus = true;
-            return true;
+            
 
         }
         public static DataTable getTable(string sqlTxt)
         {
-            m_errorString = "";
-            if (!connStatus)
-            {
-                //int timeLimit = 3;
-                //int timeTry = 0;
-                if (!connect())
-                {
-                    //Thread.Sleep(sleep)
-                    //timeTry++;
-                    //if(timeTry >= timeLimit)
-                    //{
-                    //    if(m_errorString != "")
-                    //    {
-                    //        return null;
-                    //    }
-                    //}
-                    //return null;
-                    return null;
-                }
-            }
-            SqlDataReader reader;
-            DataTable dt = new DataTable();
             try
             {
-                SqlCommand cmd = new SqlCommand();
-                cmd.CommandTimeout = m_timeOut;
-                cmd.Connection = m_Connect;
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "use " + m_DbName + ";" + sqlTxt;
-                if (m_Connect.State == ConnectionState.Closed)
+                m_errorString = "";
+                if (!connStatus)
                 {
-                    m_Connect = null;
-                    connStatus = false;
+                    //int timeLimit = 3;
+                    //int timeTry = 0;
+                    if (!connect())
+                    {
+                        //Thread.Sleep(sleep)
+                        //timeTry++;
+                        //if(timeTry >= timeLimit)
+                        //{
+                        //    if(m_errorString != "")
+                        //    {
+                        //        return null;
+                        //    }
+                        //}
+                        //return null;
+                        return null;
+                    }
+                }
+                SqlDataReader reader;
+                DataTable dt = new DataTable();
+                try
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.CommandTimeout = m_timeOut;
+                    cmd.Connection = m_Connect;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "use " + m_DbName + ";" + sqlTxt;
+                    if (m_Connect.State == ConnectionState.Closed)
+                    {
+                        m_Connect = null;
+                        connStatus = false;
+                        return null;
+                    }
+                    reader = cmd.ExecuteReader(CommandBehavior.Default);
+                    dt.Load(reader);
+                    reader.Close();
+                }
+                catch (SqlException sqlex)
+                {
+
+                    if (m_Connect.State == ConnectionState.Broken || m_Connect.State == ConnectionState.Closed)
+                    {
+                        connStatus = false;
+                        m_Connect = null;
+                    }
+                    m_errorString = "执行错误!" + sqlex.Message;
                     return null;
                 }
-                reader = cmd.ExecuteReader(CommandBehavior.Default);
-                dt.Load(reader);
-                reader.Close();
+                m_errorString = "";
+                return dt;
             }
-            catch (SqlException sqlex)
+            catch
             {
-
-                if (m_Connect.State == ConnectionState.Broken || m_Connect.State == ConnectionState.Closed)
-                {
-                    connStatus = false;
-                    m_Connect = null;
-                }
-                m_errorString = "执行错误!" + sqlex.Message;
                 return null;
             }
-            m_errorString = "";
-            return dt;
+            
         }
         public static DataTable directGetTable(string sqlTxt)
         {
-            m_errorString = "";
-            if (!connStatus)
-            {
-                //int timeLimit = 3;
-                //int timeTry = 0;
-                if (!connect())
-                {
-                    //Thread.Sleep(sleep)
-                    //timeTry++;
-                    //if(timeTry >= timeLimit)
-                    //{
-                    //    if(m_errorString != "")
-                    //    {
-                    //        return null;
-                    //    }
-                    //}
-                    //return null;
-                    return null;
-                }
-            }
-            SqlDataReader reader;
-            DataTable dt = new DataTable();
-            
             try
             {
-                SqlCommand cmd = new SqlCommand();
-                
-                cmd.CommandTimeout = m_timeOut;
-                cmd.Connection = m_Connect;
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = sqlTxt;
-                if (m_Connect.State == ConnectionState.Closed)
+                m_errorString = "";
+                if (!connStatus)
                 {
-                    m_Connect = null;
-                    connStatus = false;
+                    if (!connect())
+                    {
+                        return null;
+                    }
+                }
+                SqlDataReader reader;
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    SqlCommand cmd = new SqlCommand();
+
+                    cmd.CommandTimeout = m_timeOut;
+                    cmd.Connection = m_Connect;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = sqlTxt;
+                    if (m_Connect.State == ConnectionState.Closed)
+                    {
+                        m_Connect = null;
+                        connStatus = false;
+                        return null;
+                    }
+                    reader = cmd.ExecuteReader(CommandBehavior.Default);
+                    dt.Load(reader);
+                    reader.Close();
+                }
+                catch (SqlException sqlex)
+                {
+
+                    if (m_Connect.State == ConnectionState.Broken || m_Connect.State == ConnectionState.Closed)
+                    {
+                        connStatus = false;
+                        m_Connect = null;
+                    }
+                    m_errorString = "执行错误!" + sqlex.Message;
                     return null;
                 }
-                reader = cmd.ExecuteReader(CommandBehavior.Default);
-                dt.Load(reader);
-                reader.Close();
+                m_errorString = "";
+                return dt;
             }
-            catch (SqlException sqlex)
+            catch
             {
-
-                if (m_Connect.State == ConnectionState.Broken || m_Connect.State == ConnectionState.Closed)
-                {
-                    connStatus = false;
-                    m_Connect = null;
-                }
-                m_errorString = "执行错误!" + sqlex.Message;
                 return null;
             }
-            m_errorString = "";
-            return dt;
+            
         }
         public static bool ifObjectExists(string objectName)
         {
@@ -253,10 +270,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                         getTable(
                             "create table t_user_pda_password" +
                             "(" +
-                            "fid  int identity(0, 1)," +
+                            "fid  int identity(0, 1) unique," +
                             "FUserFitemID int not null unique," +
-                            "FPassword nvarchar(255) default('')," +
-                            "foreign key(FUserFitemID)  references t_Base_User(FUserID)" +
+                            "FPassword nvarchar(255) default('')" +
+                            //",foreign key(FUserFitemID)  references t_Base_User(FUserID)" +
                             ");");
                         getTable(
                             "insert into t_user_pda_password(FUserFitemID)" +
@@ -295,67 +312,71 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     return false;
                 }
-                return false;
             }
             catch
             {
                 return false;
             }
-            
-
         }
 
         //
         public static string TransationAutoCommit(string [] sqlTxt)
         {
-            if (!Status())
-            {
-                connect();
-            }
-            if (!Status()) return "not connected";
-
-            SqlCommand command = m_Connect.CreateCommand();
-            SqlTransaction transaction;
-
-            transaction = m_Connect.BeginTransaction("_Transaction");
-
-            command.Connection = m_Connect;
-            command.Transaction = transaction;
-
-            string _sql = "use " + m_DbName + ";";
-            foreach(var i in sqlTxt)
-            {
-                _sql += i;
-            }
             try
             {
-                command.CommandText = _sql;
-                command.ExecuteNonQuery();
-                // Attempt to commit the transaction.
-                transaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                //Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
-                m_errorString = ex.Message;
+                if (!Status())
+                {
+                    connect();
+                }
+                if (!Status()) return "not connected";
 
-                // Attempt to roll back the transaction.
+                SqlCommand command = m_Connect.CreateCommand();
+                SqlTransaction transaction;
+
+                transaction = m_Connect.BeginTransaction("_Transaction");
+
+                command.Connection = m_Connect;
+                command.Transaction = transaction;
+
+                string _sql = "use " + m_DbName + ";";
+                foreach (var i in sqlTxt)
+                {
+                    _sql += i;
+                }
                 try
                 {
-                    transaction.Rollback();
+                    command.CommandText = _sql;
+                    command.ExecuteNonQuery();
+                    // Attempt to commit the transaction.
+                    transaction.Commit();
                 }
-                catch (Exception ex2)
+                catch (Exception ex)
                 {
-                    // This catch block will handle any errors that may have occurred
-                    // on the server that would cause the rollback to fail, such as
-                    // a closed connection.
-                    //Console.WriteLine("Rollback Exception Type: {0}", ex2.GetType());
-                    m_errorString = ex2.Message;
-                    return ex2.Message;
+                    //Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                    m_errorString = ex.Message;
+
+                    // Attempt to roll back the transaction.
+                    try
+                    {
+                        transaction.Rollback();
+                    }
+                    catch (Exception ex2)
+                    {
+                        // This catch block will handle any errors that may have occurred
+                        // on the server that would cause the rollback to fail, such as
+                        // a closed connection.
+                        //Console.WriteLine("Rollback Exception Type: {0}", ex2.GetType());
+                        m_errorString = ex2.Message;
+                        return ex2.Message;
+                    }
+                    return ex.Message;
                 }
-                return ex.Message;
+                return "";
             }
-            return "";
+            catch
+            {
+                return "";
+            }
         }
 
         private static void SetCommand(SqlCommand cmd, string cmdText, CommandType cmdType, SqlParameter[] cmdParms)
@@ -370,23 +391,31 @@ namespace Android_KingHoo_Scanner_Rebuild
         }
         public static object ExecutProcedure(string cmdText, CommandType cmdType, SqlParameter[] cmdParms) 
         {
-            if (!Status())
-            {
-                connect();
-            }
-            if (!Status()) return null;
-            object Ret;
             try
             {
-                var cmd = new SqlCommand();
-                SetCommand(cmd, cmdText, cmdType, cmdParms);
-                Ret = cmd.ExecuteScalar();
+                if (!Status())
+                {
+                    connect();
+                }
+                if (!Status()) return null;
+                object Ret;
+                try
+                {
+                    var cmd = new SqlCommand();
+                    SetCommand(cmd, cmdText, cmdType, cmdParms);
+                    Ret = cmd.ExecuteScalar();
+                }
+                catch
+                {
+                    return null;
+                }
+                return Ret;
             }
-            catch(SqlException sex)
+            catch
             {
                 return null;
             }
-            return Ret;
+           
         }
         //
     }
