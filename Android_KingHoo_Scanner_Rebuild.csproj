@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity_Authentication.cs" />
+    <Compile Include="Activity_BillSelect_Class.cs" />
     <Compile Include="Activity_Login_Class.cs" />
     <Compile Include="Activity_Picture.cs" />
     <Compile Include="Activity_Setting_ChangePassword_Class.cs" />
@@ -352,6 +353,9 @@
     <AndroidResource Include="Resources\layout\activity_rightSidebar.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\splash_log2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -18,6 +18,7 @@ using Java.Util;
 using Android.Text.Format;
 using System.Threading;
 using System.Linq.Expressions;
+using Android.Support.V4.View;
 
 namespace Android_KingHoo_Scanner_Rebuild
 {
@@ -45,13 +46,13 @@ namespace Android_KingHoo_Scanner_Rebuild
         //    dialog.Show();
         //}
 
-        public static void ShowDialog(Context context, string title, string content, Action ok,Action cancel)
+        public static void ShowDialog(Context context, string title, string content,string okText = "",string cancelText = "", Action ok = null,Action cancel = null)
         {
             var dialog = new Android.Support.V7.App.AlertDialog.Builder(context);
             dialog.SetTitle(title);
             dialog.SetMessage(content);
-            dialog.SetPositiveButton(Resource.String.CANCEL, new EventHandler<DialogClickEventArgs>((__sender, __event) => { cancel(); } )) ;
-            dialog.SetNegativeButton(Resource.String.QUIT, new EventHandler<DialogClickEventArgs>((__sender, __event) => { ok(); /* Process.KillProcess(Android.OS.Process.MyPid());*/ }));
+            dialog.SetPositiveButton(cancelText, new EventHandler<DialogClickEventArgs>((__sender, __event) => { cancel(); } )) ;
+            dialog.SetNegativeButton(okText, new EventHandler<DialogClickEventArgs>((__sender, __event) => { ok(); /* Process.KillProcess(Android.OS.Process.MyPid());*/ }));
             dialog.Show();
         }
 
@@ -440,6 +441,10 @@ namespace Android_KingHoo_Scanner_Rebuild
             public const string Supply = "5";
             public const string Customer = "6";
             public const string Dep = "7";
+            //添加原单、
+            public const string SourceBill_POORDER = "8";
+            public const string SourceBill_PPBOM = "9";
+            public const string SourceBill_SEORDER = "10";
         }
 
         public class MDFDatePickerDialog : DatePickerDialog
@@ -543,6 +548,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             public string m_fbatchno { get; set; }
             public string m_fnote { get; set; }
             public Guid m_uuid { get; set; }
+            public int m_fsource_interid { get; set; } = 0;
+            public int m_fsource_entryid { get; set; } = 0;
             public void Clear()
             {
                 m_fnumber = "";
@@ -670,7 +677,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
                 return view;
             }
-
+            //删除分录
             private void Button_delete_Click(object sender, EventArgs e)
             {
                 m_list.RemoveAt(m_list.FindIndex(a => a.m_uuid == ((UIDTag)((Button)sender).GetTag(Resource.Id.activity_main_instock_entry_layout_delete)).m_UUID));
@@ -715,6 +722,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 return view;
             }
         }
+        //添加分录对话
         public class TypeEntry : Dialog
         {
 
@@ -724,36 +732,49 @@ namespace Android_KingHoo_Scanner_Rebuild
             string m_ClassType = "";
             Button m_cancel = null, m_save = null;
             EditText m_fnumber = null, m_fstock = null, m_stockplace = null, m_mainuint = null, m_fqty = null, m_fnote = null, m_fqty_outStock = null,m_stock_fqty = null;
-            EditText m_batchno = null;
+            EditText m_batchno = null,m_uncommitqty;
             bool StockPlace_Enable = false, BatchNo_Enable = false;
             Spinner m_batchSelector = null;
-
+            EditText m_chooseBill = null;
+            TextView m_stockplace_label = null, m_batch_label = null;
+            //物料
             class _Item{
-                public string fitemid { get; set; }
-                public string fnumber { get; set; }
-                public string fname { get; set; }
-                public string fmodel { get; set; }
+                public string fitemid { get; set; } = "";
+                public string fnumber { get; set; } = "";
+                public string fname { get; set; } = "";
+                public string fmodel { get; set; } = "";
             }
+            //仓库
             class _Stock
             {
-                public string fitemid { get; set; }
-                public string fnumber { get; set; }
-                public string fname { get; set; }
+                public string fitemid { get; set; } = "";
+                public string fnumber { get; set; } = "";
+                public string fname { get; set; } = "";
             }
+            //仓位
             class _StockPlace
             {
-                public string fnumber { get; set; }
-                public string fname { get; set; }
-                public string fitemid { get; set; }
+                public string fnumber { get; set; } = "";
+                public string fname { get; set; } = "";
+                public string fitemid { get; set; } = "";
             }
+            //单位
             class _Unit
             {
-                public string fitemid { get; set; }
-                public string fnumber { get; set; }
-                public string fname { get; set; }
+                public string fitemid { get; set; } = "";
+                public string fnumber { get; set; } = "";
+                public string fname { get; set; } = "";
             }
-            _Unit _m_unit = null;_StockPlace _m_stockplace = null;_Stock _m_stock = null;_Item _m_Item = null;
+            //原单
+            class _SourceBill
+            {
+                public int fsourceinterid { get; set; } = 0;
+                public int fsourceentryid { get; set; } = 0;
+                public decimal funcommitqty { get; set; } = 0.0M;
+            }
+            _Unit _m_unit = null;_StockPlace _m_stockplace = null;_Stock _m_stock = null;_Item _m_Item = null;_SourceBill _m_Sourcebill = null;
             MainActivity m_g_mainActivivty = null;//接收扫描头数据
+            List<Source_Bill> m_SouBillList = new List<Source_Bill>();
             public TypeEntry(Context context, Android.Support.V4.App.Fragment fragment,string Type,MainActivity main) : base(context,Resource.Style.mdialog)
             {
                 m_g_mainActivivty = main;
@@ -772,7 +793,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     ((Fragment_OutStockX)fragment).outStock_FunRecivieData += Fragment_inStock_FunRecivieData;
                 }    
             }
-
+            //处理物料选择
             private void M_g_mainActivivty_g_ProcessReciveData(string data)
             {
                 if(data!=null && data != "")
@@ -790,6 +811,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
 
             List<FBatch_Msg> m_batchNo_list = new List<FBatch_Msg>();
+            //获取选择的物料的批号
             private void getBatchNo(string FItemID,string FStock,string FStockPlace)
             {
                 if(FItemID!="" && FStock != "")
@@ -808,7 +830,6 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 m_fragment.Activity.RunOnUiThread(()=> {
                                     m_stock_fqty.Text = _ret.Rows[0]["FQty"].ToString();
                                 });
-                                
                             }
                             else
                             {
@@ -868,17 +889,15 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 m_fragment.Activity.RunOnUiThread(() => {
                                     m_stock_fqty.Text = "";
                                 });
-                               
                             }
                         };
-
-
                     }));
                     T.IsBackground = true;
                     T.Start();
                 }
                 
             }
+            //获取仓库
             void getStock()
             {
                 if (m_ClassType == "OUT")
@@ -896,6 +915,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     }
                 } 
             }
+            //获取物料信息回调
             private void Fragment_inStock_FunRecivieData(string Type, string fnumber,string fname,string fextend,string fitemid)
             {
                switch (Type)
@@ -921,12 +941,16 @@ namespace Android_KingHoo_Scanner_Rebuild
                             if (_ret != null && _ret.Rows.Count > 0)
                             {
                                 //m_mainuint.Text = ret.Rows[0]["FName"].ToString();
+                                m_batch_label.Visibility = ViewStates.Visible;
+                                m_batchno.Visibility = ViewStates.Visible;
                                 m_batchno.Enabled = true;
                                 BatchNo_Enable = true;
                                 m_batchSelector.Enabled = false;
                             }
                             else
                             {
+                                m_batch_label.Visibility = ViewStates.Gone;
+                                m_batchno.Visibility = ViewStates.Gone;
                                 m_batchno.Text = "";
                                 m_batchno.Enabled = false;
                                 BatchNo_Enable = false;
@@ -947,12 +971,16 @@ namespace Android_KingHoo_Scanner_Rebuild
                             {
                                 //m_stockplace.SetFocusable(ViewFocusability.Focusable);
                                 //m_stockplace.RequestFocus();
+                                m_stockplace_label.Visibility = ViewStates.Visible;
+                                m_stockplace.Visibility = ViewStates.Visible;
                                 m_stockplace.Enabled = true;
                                 StockPlace_Enable = true;
                             }
                             else
                             {
                                 //m_stockplace.SetFocusable(ViewFocusability.NotFocusable);
+                                m_stockplace_label.Visibility = ViewStates.Gone;
+                                m_stockplace.Visibility = ViewStates.Gone;
                                 m_stockplace.Enabled = false;
                                 StockPlace_Enable = false;
                                // m_stockplace.RequestFocus();
@@ -969,6 +997,42 @@ namespace Android_KingHoo_Scanner_Rebuild
 
                             m_stockplace.Text = fname;
                             getStock();
+                        }
+                        break;
+                    case ItemType.SourceBill_POORDER:
+                        {
+                            _m_Sourcebill = new _SourceBill();
+                            _m_Sourcebill.fsourceinterid = Convert.ToInt32(fnumber);
+                            _m_Sourcebill.fsourceentryid = Convert.ToInt32(fname);
+                            m_chooseBill.Text = fextend + " - " + fitemid;
+                            var t = new Thread(()=> {
+                                var ret = Tools_SQL_Class.getTable("select str(B.FQty-B.FCommitQty,len(B.FQty-B.FCommitQty),C.FQtyDecimal) FQty from POOrder A join POOrderEntry B on A.FInterID=B.FInterID join t_ICItem C on B.FItemID=C.FItemID where A.FInterID=" + fnumber + " and B.FEntryID=" + fname);
+                                if(ret!=null && ret.Rows.Count > 0)
+                                {
+                                    m_fragment.Activity.RunOnUiThread(()=> {
+                                        var quantity = ret.Rows[0]["FQty"].ToString();
+                                        _m_Sourcebill.funcommitqty = Convert.ToDecimal(quantity);
+                                        m_uncommitqty.Text = quantity;
+                                    });
+                                }
+                            }) { IsBackground=true};
+                            t.Start();
+                        }
+                        break;
+                    case ItemType.SourceBill_PPBOM:
+                        {
+                            _m_Sourcebill = new _SourceBill();
+                            _m_Sourcebill.fsourceinterid = Convert.ToInt32(fnumber);
+                            _m_Sourcebill.fsourceentryid = Convert.ToInt32(fname);
+                            m_chooseBill.Text = fextend + " - " + fitemid;
+                        }
+                        break;
+                    case ItemType.SourceBill_SEORDER:
+                        {
+                            _m_Sourcebill = new _SourceBill();
+                            _m_Sourcebill.fsourceinterid = Convert.ToInt32(fnumber);
+                            _m_Sourcebill.fsourceentryid = Convert.ToInt32(fname);
+                            m_chooseBill.Text = fextend + " - " + fitemid;
                         }
                         break;
                     default:
@@ -993,11 +1057,17 @@ namespace Android_KingHoo_Scanner_Rebuild
                 m_save = view.FindViewById<Button>(Resource.Id.dialog_entry_add_save);
                 m_batchSelector = view.FindViewById<Spinner>(Resource.Id.dialog_entry_add_fbatchno_selector);
                 m_batchSelector.ItemSelected += M_batchSelector_ItemSelected;
+                m_uncommitqty = view.FindViewById<EditText>(Resource.Id.dialog_entry_source_bill_qty);
 
                 m_fqty_outStock = view.FindViewById<EditText>(Resource.Id.dialog_entry_add_fqty_outstock);
                 m_fqty_outStock.AfterTextChanged += M_fqty_outStock_AfterTextChanged;
                 m_stock_fqty = view.FindViewById<EditText>(Resource.Id.dialog_entry_add_stock_fqty);
+                //添加选单
+                m_chooseBill = view.FindViewById<EditText>(Resource.Id.dialog_entry_source_bill);
+                m_chooseBill.Click += M_chooseBill_Click;
 
+                m_stockplace_label = FindViewById<TextView>(Resource.Id.dialog_entry_add_fstockplace_label);
+                m_batch_label = FindViewById<TextView>(Resource.Id.dialog_entry_add_fbatchno_label);
 
                 if (m_ClassType == "IN")
                 {
@@ -1015,6 +1085,37 @@ namespace Android_KingHoo_Scanner_Rebuild
                 m_fnumber.Click += M_fnumber_Click;
                 m_fstock.Click += M_fstock_Click;
                 m_stockplace.Click += M_stockplace_Click;
+            }
+            //处理原单选择
+            private void M_chooseBill_Click(object sender, EventArgs e)
+            {
+                if (_m_Item == null || _m_Item.fitemid == "")
+                {
+                    ShowMsg(m_context, "错误", "您还没有选择物料！");
+                    return;
+                }
+                var intent = new Intent(Application.Context, typeof(Activity_BillSelect_Class));
+                if (m_ClassType == "IN")//外购入库
+                {
+                    ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.SourceBill_POORDER;
+                    intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.SourceBill_POORDER);
+                }
+                else if (m_ClassType == "OUT")//销售出库
+                {
+                    ((Fragment_OutStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.SourceBill_SEORDER;
+                    intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.SourceBill_SEORDER);
+                }
+                else if (m_ClassType == "XOUT") //领料单
+                {
+                    ((Fragment_OutStockX)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.SourceBill_PPBOM;
+                    intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.SourceBill_PPBOM);
+                }
+                intent.PutExtra("FItemID",_m_Item.fitemid);
+                m_fragment.StartActivityForResult(intent, 0);
+
+                //Activity_BillSelect_Class.m_main = (MainActivity)m_g_mainActivivty;
+                //Activity_BillSelect_Class.m_Type = Tools_Tables_Adapter_Class.SourceBillType.PPOREDER;
+                //m_context.StartActivity(new Intent(Application.Context, typeof(Activity_BillSelect_Class)));
             }
 
             private void M_stockplace_Click(object sender, EventArgs e)
@@ -1102,7 +1203,6 @@ namespace Android_KingHoo_Scanner_Rebuild
                 //m_fragment.m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
                 intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.ICItem);
                 m_fragment.StartActivityForResult(intent, 0);
-
             }
 
             private void M_save_Click(object sender, EventArgs e)
@@ -1148,7 +1248,11 @@ namespace Android_KingHoo_Scanner_Rebuild
                     entry.m_fuint_name = _m_unit.fname;
                     entry.m_fuint_fitemid = _m_unit.fitemid;
                 }
-
+                if (_m_Sourcebill != null)
+                {
+                    entry.m_fsource_interid = _m_Sourcebill.fsourceinterid;
+                    entry.m_fsource_entryid = _m_Sourcebill.fsourceentryid;
+                }
                
                 if(m_ClassType == "IN")
                 {
@@ -1175,6 +1279,12 @@ namespace Android_KingHoo_Scanner_Rebuild
                 if (entry.m_fqty == "")
                 {
                     ShowMsg(m_fragment.Activity, "错误", "您还没有填写数量！");
+                    return;
+                }
+                
+                if(_m_Sourcebill.funcommitqty != 0 && _m_Sourcebill.funcommitqty < Convert.ToDecimal(entry.m_fqty))
+                {
+                    ShowMsg(m_context, "警告", "入库数量不得大于未提交数量！");
                     return;
                 }
 
@@ -1352,6 +1462,145 @@ namespace Android_KingHoo_Scanner_Rebuild
             public int m_FStockPlace = 0;
             public string m_FNote = "";
             public decimal m_CommitQty = 0;
+
+        }
+
+        public class Source_Bill : Java.Lang.Object
+        {
+            public Source_Bill() {
+                m_uuid = UUID.RandomUUID();
+            }
+            public string FBillNo { get; set; }
+            public int FInterID { get; set; }
+            public int F_Dep_Cust_Sup { get; set; }
+            public string F_Dep_Cust_Sup_Name { get; set; }
+            public int FItemID { get; set; }
+            public int FUnitID { get; set; }
+            public string FUnitID_FName { get; set; }
+            public string FItemID_FNumber { get; set; }
+            public string FItemID_FName { get; set; }
+            public string FItemID_FModel { get; set; }
+            public int FEntryID { get; set; }
+            public decimal FQty { get; set; }
+            public decimal FCommitQty { get; set; }
+            public UUID m_uuid { get; private set; }
+        }
+
+        public class SourceBillViewHolder : RecyclerView.ViewHolder
+        {
+            public TextView m_FBillNo = null, m_Import = null, m_FName = null, m_FNumber = null, m_FModel = null, m_FQty = null, m_FCommitQty = null;
+            public SourceBillViewHolder(View view) : base(view)
+            {
+                m_FBillNo = view.FindViewById<TextView>(Resource.Id.sourceselect_fbillno);
+                m_Import = view.FindViewById<TextView>(Resource.Id.sourceselect_important);
+                m_FName = view.FindViewById<TextView>(Resource.Id.sourceselect_fname);
+                m_FNumber = view.FindViewById<TextView>(Resource.Id.sourceselect_fnumber);
+                m_FModel = view.FindViewById<TextView>(Resource.Id.sourceselect_fmodel);
+                m_FQty = view.FindViewById<TextView>(Resource.Id.sourceselect_fqty);
+                m_FCommitQty = view.FindViewById<TextView>(Resource.Id.sourceselect_fcommitqty);
+            }
+        }
+
+        public class SourceBillListAdapter : BaseAdapter
+        {
+            private List<Source_Bill> m_list;
+            private Context m_context = null;
+            public delegate void ClickCallBack(string data);
+            public event ClickCallBack __ClickCallBack;
+
+            //private int ResourceID = 0;
+            public SourceBillListAdapter(Context pContext, List<Source_Bill> pList)
+            {
+                m_context = pContext;
+                m_list = pList;
+            }
+            //public override int ItemCount { get { return m_list.Count; } }
+
+            //public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+            //{
+            //    SourceBillViewHolder sbvh = holder as SourceBillViewHolder;
+            //    sbvh.m_FBillNo.Text = m_list.ElementAt<Source_Bill>(position).FBillNo;
+            //    sbvh.m_FCommitQty.Text = m_list.ElementAt<Source_Bill>(position).FCommitQty.ToString();
+            //    sbvh.m_FModel.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FModel;
+            //    sbvh.m_FName.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FName;
+            //    sbvh.m_FNumber.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FNumber;
+            //    sbvh.m_FQty.Text = m_list.ElementAt<Source_Bill>(position).FQty.ToString();
+            //    sbvh.m_Import.Text = m_list.ElementAt<Source_Bill>(position).F_Dep_Cust_Sup_Name.ToString();
+
+            //}
+
+            //public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+            //{
+            //    View v = LayoutInflater.FromContext(m_context).Inflate(Resource.Layout.activity_sourcebillselect_entry, parent, false);
+            //    return new SourceBillViewHolder(v);// new ViewHolderM(v); 
+            //}
+
+
+            public override View GetView(int position, View convertView, ViewGroup parent)
+            {
+                LayoutInflater _LayoutInflater = LayoutInflater.From(m_context);
+                convertView = _LayoutInflater.Inflate(Resource.Layout.activity_sourcebillselect_entry, null);
+                if (convertView != null)
+                {
+                    TextView fbillno = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fbillno);
+                    TextView important = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_important);
+                    TextView fnumber = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fnumber);
+                    TextView fname = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fname);
+                    TextView fmodel = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fmodel);
+                    TextView fqty = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fqty);
+                    TextView fcommitqty = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fcommitqty);
+                    Button selectbill = (Button)convertView.FindViewById<Button>(Resource.Id.sourceselect_select);
+                    
+                    selectbill.Click += Selectbill_Click;
+                    //selectbill.Tag = m_list.ElementAt<Source_Bill>(position).m_uuid.ToString() + "|" + m_list.ElementAt<Source_Bill>(position).FEntryID.ToString();
+                    selectbill.Tag = m_list.ElementAt<Source_Bill>(position).m_uuid.ToString();
+                    fbillno.Text = m_list.ElementAt<Source_Bill>(position).FBillNo;
+                    important.Text = m_list.ElementAt<Source_Bill>(position).F_Dep_Cust_Sup_Name;
+                    fnumber.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FNumber;
+                    fname.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FName;
+                    fmodel.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FModel;
+                    fqty.Text = m_list.ElementAt<Source_Bill>(position).FQty.ToString();
+                    fcommitqty.Text = m_list.ElementAt<Source_Bill>(position).FCommitQty.ToString();
+                }
+                return convertView;
+            }
+
+            private void Selectbill_Click(object sender, EventArgs e)
+            {
+                if (__ClickCallBack != null)
+                {
+                    __ClickCallBack(((Button)sender).Tag.ToString());
+                }
+            }
+
+            public override Java.Lang.Object GetItem(int position)
+            {
+                return m_list.ElementAt(position);
+            }
+            public override long GetItemId(int position)
+            {
+                return position;
+            }
+
+            //public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+            //{
+            //    throw new NotImplementedException();
+            //}
+
+            //public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+            //{
+            //    throw new NotImplementedException();
+            //}
+
+            public override int Count { get { return m_list.Count; } }
+
+            //public override int ItemCount { get { return m_list.Count; } }
+        }
+        //原单类型
+        public class  SourceBillType{
+            public const string PPOREDER = "PPOREDER";         //采购订单
+            public const string PPBOM = "PPBOM";               //领料单
+            public const string SEORDER = "SEORDER";           //销售订单
 
         }
         //not end

@@ -148,10 +148,16 @@ namespace Android_KingHoo_Scanner_Rebuild
         {
             base.OnActivityResult(requestCode, resultCode, data);
             if (data == null) return;
-            var ret_FNumber = data.GetStringExtra("FNumber");
-            var ret_FName = data.GetStringExtra("FName");
-            var ret_FExtend = data.GetStringExtra("FExtend");
-            var ret_FItemID = data.GetStringExtra("FItemID");
+            //
+            var ret_FInterID = data.GetStringExtra("FInterID");
+            var ret_FEntryID = data.GetStringExtra("FEntryID");
+            var ret_FBillNo = data.GetStringExtra("FBillNo");
+            var ret_FItemID_FNumber = data.GetStringExtra("FItemID_FNumber");
+
+            var ret_FNumber = ret_FInterID != null && ret_FInterID != ""?ret_FInterID: data.GetStringExtra("FNumber");
+            var ret_FName = ret_FEntryID != null && ret_FEntryID != ""? ret_FEntryID:data.GetStringExtra("FName");
+            var ret_FExtend = ret_FBillNo != null && ret_FBillNo!=""? ret_FBillNo: data.GetStringExtra("FExtend");
+            var ret_FItemID = ret_FItemID_FNumber != null && ret_FItemID_FNumber!=""? ret_FItemID_FNumber: data.GetStringExtra("FItemID");
             if (inStock_FunRecivieData != null)
             {
                 inStock_FunRecivieData(m_currentType, ret_FNumber, ret_FName, ret_FExtend, ret_FItemID);

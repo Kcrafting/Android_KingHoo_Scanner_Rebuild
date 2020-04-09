@@ -1,5 +1,6 @@
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@drawable/mdialog_bg"
@@ -9,70 +10,96 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-                android:textStyle="italic|bold"
-            android:text="@string/activity_main_check_inventory_layout_item_fnumber_label"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <EditText
-                 android:editable="false"
-                android:id="@+id/dialog_entry_add_fnumber"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-                android:textStyle="italic|bold"
-            android:text="@string/activity_main_check_inventory_layout_stock_label"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <EditText
-                 android:editable="false"
-                android:id="@+id/dialog_entry_add_fstock"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
         <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
                 android:textStyle="italic|bold"
-            android:text="@string/activity_main_check_inventory_layout_stockplace_label"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <EditText
+                android:text="@string/activity_main_check_inventory_layout_item_fnumber_label"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <EditText
+                android:editable="false"
+                android:id="@+id/dialog_entry_add_fnumber"
+                android:layout_width="wrap_content"
+                android:layout_weight="9"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textStyle="italic|bold"
+                android:text="@string/dialog_entry_source_bill_label"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <EditText
+                android:editable="false"
+                android:id="@+id/dialog_entry_source_bill"
+                android:layout_width="wrap_content"
+                android:layout_weight="9"
+                android:layout_height="wrap_content"/>
+
+            <EditText
+                android:id="@+id/dialog_entry_source_bill_qty"
+                android:layout_weight="2"
+                android:editable="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textStyle="italic|bold"
+                android:text="@string/activity_main_check_inventory_layout_stock_label"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <EditText
+                android:editable="false"
+                android:id="@+id/dialog_entry_add_fstock"
+                android:layout_width="wrap_content"
+                android:layout_weight="9"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/dialog_entry_add_fstockplace_label"
+                android:textStyle="italic|bold"
+                android:text="@string/activity_main_check_inventory_layout_stockplace_label"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <EditText
                 android:id="@+id/dialog_entry_add_fstockplace"
                 android:editable="false"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-          <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
+                android:layout_width="wrap_content"
+                android:layout_weight="9"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
                 android:textStyle="italic|bold"
-            android:text="@string/activity_main_check_inventory_layout_batch_label"
-            android:layout_weight="1"
+                android:id="@+id/dialog_entry_add_fbatchno_label"
+                android:text="@string/activity_main_check_inventory_layout_batch_label"
+                android:layout_weight="1"
                 android:gravity="center|left"
                 android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <!--<Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <!--<Spinner
                  android:gravity="center"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
@@ -82,118 +109,117 @@
             android:layout_weight="9"
             android:layout_height="wrap_content"/>-->
             <FrameLayout
-                 android:layout_weight="9"
+                android:layout_weight="9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-            <EditText
-                 android:gravity="center"
-                android:id="@+id/dialog_entry_add_fbatchno"
-                android:editable="true"
-            android:layout_width="match_parent"
-           
-            android:layout_height="wrap_content"/>
+                <EditText
+                    android:gravity="center"
+                    android:id="@+id/dialog_entry_add_fbatchno"
+                    android:editable="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
                 <Spinner
-                     android:id="@+id/dialog_entry_add_fbatchno_selector"
+                    android:id="@+id/dialog_entry_add_fbatchno_selector"
                     android:layout_gravity="center"
-                     android:gravity="center"
+                    android:gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </FrameLayout>
-    </LinearLayout>
-            <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:text="@string/activity_main_check_inventory_layout_mianuint_label"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <EditText
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="@string/activity_main_check_inventory_layout_mianuint_label"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <EditText
                 android:id="@+id/dialog_entry_add_mainuint"
                 android:editable="false"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-          <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-                 android:layout_gravity="center"
-            android:text="@string/activity_main_check_inventory_layout_fqty_label"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>  
+                android:layout_width="wrap_content"
+                android:layout_weight="9"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_gravity="center"
+                android:text="@string/activity_main_check_inventory_layout_fqty_label"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
             <FrameLayout
-                 android:layout_weight="9"
+                android:layout_weight="9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/dialog_entry_add_fqty"
-                android:layout_width="match_parent"
+                <EditText
+                    android:id="@+id/dialog_entry_add_fqty"
+                    android:layout_width="match_parent"
                     android:inputType="numberDecimal"
-                android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"/>
                 <LinearLayout
                     android:gravity="center"
-                     android:layout_gravity="center"
+                    android:layout_gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <EditText
                         android:id="@+id/dialog_entry_add_stock_fqty"
                         android:editable="false"
                         android:gravity="center"
-                         android:layout_gravity="center"
-                         android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                     <EditText
-                         android:id="@+id/dialog_entry_add_fqty_outstock"
+                        android:id="@+id/dialog_entry_add_fqty_outstock"
                         android:gravity="center"
-                         android:layout_gravity="center"
-                         android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
                         android:inputType="numberDecimal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
-                </FrameLayout>
-    </LinearLayout>
-              <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:text="@string/activity_main_instock_layout_note_label"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <EditText
+            </FrameLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="@string/activity_main_instock_layout_note_label"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <EditText
                 android:inputType="textMultiLine"
                 android:id="@+id/dialog_entry_add_fnote"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-                <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
+                android:layout_width="wrap_content"
+                android:layout_weight="9"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
                 android:id="@+id/dialog_entry_add_cancel"
-            android:text="@string/activity_main_instock_layout_cancel_label"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
-        <Button
+                android:text="@string/activity_main_instock_layout_cancel_label"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+            <Button
                 android:id="@+id/dialog_entry_add_save"
-            android:text="@string/activity_main_instock_layout_save_label"
-            android:editable="false"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+                android:text="@string/activity_main_instock_layout_save_label"
+                android:editable="false"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+
     </LinearLayout>
-
-
-</LinearLayout>
 </RelativeLayout>

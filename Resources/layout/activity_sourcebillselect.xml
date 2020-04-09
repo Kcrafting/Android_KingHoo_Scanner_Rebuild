@@ -9,12 +9,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:layout_weight="3"
+            android:gravity="center"
+            android:text="@string/activity_item_select_search_label"
+            android:layout_weight="1"
             android:layout_width="40dp"
             android:layout_height="wrap_content"/>
         <EditText
-            android:layout_weight="7"
+            android:id="@+id/sourceSelect_searchText"
+            android:layout_weight="9"
             android:layout_width="80dp"
             android:layout_height="wrap_content"/>
     </LinearLayout>
+    <ListView
+        android:id="@+id/sourceSelect_billlist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+<!--<include
+    layout="@layout/activity_sourcebillselect_entry"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>-->
 </LinearLayout>

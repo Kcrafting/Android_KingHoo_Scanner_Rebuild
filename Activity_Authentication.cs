@@ -17,9 +17,9 @@ namespace Android_KingHoo_Scanner_Rebuild
     [Activity(Label = "@string/acticity_login_setting_label", Theme = "@style/AppTheme", NoHistory = true)]
     class Activity_Authentication : AppCompatActivity
     {
-        EditText m_projectname = null;
+        public EditText m_projectname = null;
         TextView m_showstate = null;
-        Button m_submit = null,m_updateusedate=null,m_updateservicedate=null;
+        public Button m_submit = null,m_updateusedate=null,m_updateservicedate=null;
         public override void OnCreate(Bundle savedInstanceState, PersistableBundle persistentState)
         {
             base.OnCreate(savedInstanceState, persistentState);
@@ -40,6 +40,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             if (tes.getValueBoolean(Tools_Extend_Storage.ValueType.CertifiedFinish))
             {
                 m_submit.Enabled = false;
+                m_projectname.Enabled = false;
                 m_submit.Text = m_submit.Text + "(已激活)";
             }
             var pj = tes.getValueString(Tools_Extend_Storage.ValueType.CertifiedProjectName);
@@ -57,7 +58,7 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         private void M_submit_Click(object sender, EventArgs e)
         {
-            Tools_Tables_Adapter_Class.ShowDialog(this, "注意", "是否确认激活？", () => {
+            Tools_Tables_Adapter_Class.ShowDialog(this, "注意", "是否确认激活？","确定","取消", () => {
                 var projectname = m_projectname.Text;
                 if (projectname != "")
                 {

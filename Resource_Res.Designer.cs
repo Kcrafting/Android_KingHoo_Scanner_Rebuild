@@ -63,6 +63,16 @@ namespace Android_KingHoo_Scanner_Rebuild {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] splash_log2 {
+            get {
+                object obj = ResourceManager.GetObject("splash_log2", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] wait {
             get {
                 object obj = ResourceManager.GetObject("wait", resourceCulture);

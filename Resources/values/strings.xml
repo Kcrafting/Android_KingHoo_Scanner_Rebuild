@@ -24,12 +24,10 @@
 
   </string>
   <string name="auth_attention">
-    在当前界面，您可以激活您的设备\n
-    如果您的设备已激活，则无需重复激活\n
-    如果提示没有授权，则请首先联系\n
-    沧州金宏软件有限公司\n
-    电话:0317-3588578\n
-    公司地址:沧州市运河区颐和大厦1306室\n
+    在当前界面，您可以激活您的设备,如果您的设备已激活，则无需重复激活,如果提示没有授权，则请首先联系 \n
+    沧州金宏软件有限公司 \n
+    电话:0317-3588578 \n
+    公司地址:沧州市运河区颐和大厦1306室 \n
   </string>
 
     <string name="activity_splash_title">登录</string>
@@ -129,4 +127,11 @@
   <string name ="CertifieUpdateUseDate_label">延长使用日期</string>
   <string name ="CertifieUpdateServiceDate_label">延长服务日期</string>
   <string name ="ProjectName_label">项目名称</string>
+
+  <string name ="sourceselect_select_label">选单</string>
+  <string name="dialog_entry_source_bill_label">原单</string>
+  
+  
+  
+  
 </resources>

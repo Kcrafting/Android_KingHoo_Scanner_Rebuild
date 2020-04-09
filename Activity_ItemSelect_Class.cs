@@ -165,57 +165,61 @@ namespace Android_KingHoo_Scanner_Rebuild
                     break;
             }
         }
+        Thread ItemProcessThread = null;
         private void ProcessItemsInAnotherThread(/*string getGroupSql,*/ string getItemsSql, string fnumber, string fname, string fextend,string fitemid = "FItemID")
         {
-            var T = new Thread(new ThreadStart(() =>
+            if (ItemProcessThread == null || ItemProcessThread.ThreadState == ThreadState.Unstarted || ItemProcessThread.ThreadState == ThreadState.Stopped)
             {
-                if (Tools_SQL_Class.Status())
+                ItemProcessThread = new Thread(new ThreadStart(() =>
                 {
-                    m_dataTable_Items = Tools_SQL_Class.getTable(getItemsSql);
-                    m_ItemList.Clear();
-                    if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count >= 1)
+                    if (Tools_SQL_Class.Status())
                     {
-                        for (int i = 0; i < m_dataTable_Items.Rows.Count; i++)
+                        m_dataTable_Items = Tools_SQL_Class.getTable(getItemsSql);
+                        m_ItemList.Clear();
+                        if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count >= 1)
                         {
-                            var it = new Tools_Tables_Adapter_Class.Item();
-                            it.m_fitemid = m_dataTable_Items.Rows[i][fitemid] == null ? "" : m_dataTable_Items.Rows[i][fitemid].ToString();
-                            it.m_fnumber = m_dataTable_Items.Rows[i][fnumber].ToString();
-                            it.m_fname = m_dataTable_Items.Rows[i][fname].ToString();
-                            it.m_fextend = m_dataTable_Items.Rows[i][fextend].ToString();
-                            it.m_IfDetail = m_dataTable_Items.Rows[i]["FDetail"].ToString()=="True"?true:false;
-                            m_ItemList.Add(it);
-                        }
-                    }
-                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList/*, m_groupKey*/);
-                    RunOnUiThread(() =>
-                    {
-                        //设置索引项
-                        m_listview.Adapter = adapter;
-                        m_search.Enabled = true;
-                    });
-                    m_indexItem.Clear();
-                    var m_dataTable_Group = m_ItemList.Where(item => item.m_IfDetail == false).ToList();
-                    if (m_dataTable_Group.Count >= 1)
-                    {
-                        for (int i = 0; i < m_dataTable_Group.Count; i++)
-                        {
-                            var tv = new TextView(this);
-                            tv.Text = m_dataTable_Group[i].m_fname + "  " + m_dataTable_Group[i].m_fnumber;
-                            tv.Click += Tv_Click;
-                            tv.Gravity = GravityFlags.Right;
-                            tv.TextAlignment = TextAlignment.Gravity;
-                            RunOnUiThread(() =>
+                            for (int i = 0; i < m_dataTable_Items.Rows.Count; i++)
                             {
-                                tv.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Gray));
-                                m_indexContainer.AddView(tv);
-                            });
-                            m_indexItem.Add(tv);
+                                var it = new Tools_Tables_Adapter_Class.Item();
+                                it.m_fitemid = m_dataTable_Items.Rows[i][fitemid] == null ? "" : m_dataTable_Items.Rows[i][fitemid].ToString();
+                                it.m_fnumber = m_dataTable_Items.Rows[i][fnumber].ToString();
+                                it.m_fname = m_dataTable_Items.Rows[i][fname].ToString();
+                                it.m_fextend = m_dataTable_Items.Rows[i][fextend].ToString();
+                                it.m_IfDetail = m_dataTable_Items.Rows[i]["FDetail"].ToString() == "True" ? true : false;
+                                m_ItemList.Add(it);
+                            }
+                        }
+                        var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList/*, m_groupKey*/);
+                        RunOnUiThread(() =>
+                        {
+                            //设置索引项
+                            m_listview.Adapter = adapter;
+                            m_search.Enabled = true;
+                        });
+                        m_indexItem.Clear();
+                        var m_dataTable_Group = m_ItemList.Where(item => item.m_IfDetail == false).ToList();
+                        if (m_dataTable_Group.Count >= 1)
+                        {
+                            for (int i = 0; i < m_dataTable_Group.Count; i++)
+                            {
+                                var tv = new TextView(this);
+                                tv.Text = m_dataTable_Group[i].m_fname + "  " + m_dataTable_Group[i].m_fnumber;
+                                tv.Click += Tv_Click;
+                                tv.Gravity = GravityFlags.Right;
+                                tv.TextAlignment = TextAlignment.Gravity;
+                                RunOnUiThread(() =>
+                                {
+                                    tv.SetTextColor(Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Gray));
+                                    m_indexContainer.AddView(tv);
+                                });
+                                m_indexItem.Add(tv);
+                            }
                         }
                     }
-                }
-            }));
-            T.IsBackground = true;
-            T.Start();
+                }));
+                ItemProcessThread.IsBackground = true;
+                ItemProcessThread.Start();
+            }
         }
         System.Timers.Timer m_timer = new System.Timers.Timer(1000);
         private void M_search_AfterTextChanged(object sender, Android.Text.AfterTextChangedEventArgs e)
@@ -242,26 +246,28 @@ namespace Android_KingHoo_Scanner_Rebuild
         //Thread m_Last_Running_Thread = null;
         //Thread m_Current_Running_Thread = null;
         //string _Tag = "----------------------->";
-
-        private void updateItemsInAnotherThread(string words, string fnumber, string fname, string fextend,string fitemid = "FItemID")
+        Thread ItemUpdateThread = null;
+        private void updateItemsInAnotherThread(string words, string fnumber, string fname, string fextend, string fitemid = "FItemID")
         {
-            var T = new Thread(new ThreadStart(() =>
+            if (ItemUpdateThread == null || ItemUpdateThread.ThreadState == ThreadState.Unstarted || ItemUpdateThread.ThreadState == ThreadState.Stopped)
             {
-                if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count > 0)
+                ItemUpdateThread = new Thread(new ThreadStart(() =>
                 {
-                    var items = m_dataTable_Items.AsEnumerable();
-                    var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fname).Contains(words) || t.Field<string>(fextend).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend), m_fitemid = i.Field<int>(fitemid).ToString(), m_IfDetail = i.Field<bool>("FDetail") }).ToList<Tools_Tables_Adapter_Class.Item>();
-                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, ret);
-                    RunOnUiThread(() =>
+                    if (m_dataTable_Items != null && m_dataTable_Items.Rows.Count > 0)
                     {
-                        m_listview.Adapter = adapter;
-                        m_search.Enabled = true;
-                    });
-                }
-            }));
-            T.IsBackground = true;
-
-            T.Start();
+                        var items = m_dataTable_Items.AsEnumerable();
+                        var ret = items.Where(t => t.Field<string>(fnumber).Contains(words) || t.Field<string>(fname).Contains(words) || t.Field<string>(fextend).Contains(words)).Select(i => new Tools_Tables_Adapter_Class.Item { m_fnumber = i.Field<string>(fnumber), m_fname = i.Field<string>(fname), m_fextend = i.Field<string>(fextend), m_fitemid = i.Field<int>(fitemid).ToString(), m_IfDetail = i.Field<bool>("FDetail") }).ToList<Tools_Tables_Adapter_Class.Item>();
+                        var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, ret);
+                        RunOnUiThread(() =>
+                        {
+                            m_listview.Adapter = adapter;
+                            m_search.Enabled = true;
+                        });
+                    }
+                }));
+                ItemUpdateThread.IsBackground = true;
+                ItemUpdateThread.Start();
+            }
         }
 
         //废弃，每次搜索数据库延迟严重，改为搜索datatable，优化为 search_()
@@ -283,7 +289,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                         m_ItemList.Add(it);
                     }
                     //搜索时，不再显示索引
-                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList/*, m_groupKey*/);
+                    var adapter = new Tools_Tables_Adapter_Class.ItemAdapter(this, m_ItemList);
                     RunOnUiThread(() =>
                     {
                         m_listview.Adapter = adapter;

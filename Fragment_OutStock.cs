@@ -148,13 +148,19 @@ namespace Android_KingHoo_Scanner_Rebuild
             
             m_EntryList_list.Clear();
         }
-
+        //处理别的intent返回的数据
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
         {
+            //处理原单选择
+
+            //原流程处理单据上的其他基础资料选择
             base.OnActivityResult(requestCode, resultCode, data);
+            
             if (data == null) return;
-            var ret_FNumber = data.GetStringExtra("FNumber");
-            var ret_FName = data.GetStringExtra("FName");
+            var finterid = data.GetIntExtra("FInterID", 0);
+            var fentryid = data.GetIntExtra("FEntryID", 0);
+            var ret_FNumber = finterid != 0 ? finterid.ToString(): data.GetStringExtra("FNumber");
+            var ret_FName = fentryid != 0 ? fentryid.ToString(): data.GetStringExtra("FName");
             var ret_FExtend = data.GetStringExtra("FExtend");
             var ret_FItemID = data.GetStringExtra("FItemID");
             if (outStock_FunRecivieData != null)
@@ -209,6 +215,21 @@ namespace Android_KingHoo_Scanner_Rebuild
                                     m_customer_select_edit.Text = ret_FName;
                                     m_Stock_Header.m_FCustomerName = ret_FName;
                                     m_Stock_Header.m_FCustomer = ret_FNumber;
+                                }
+                                break;
+                            case Tools_Tables_Adapter_Class.ItemType.SourceBill_POORDER:
+                                {
+
+                                }
+                                break;
+                            case Tools_Tables_Adapter_Class.ItemType.SourceBill_SEORDER:
+                                {
+
+                                }
+                                break;
+                            case Tools_Tables_Adapter_Class.ItemType.SourceBill_PPBOM:
+                                {
+
                                 }
                                 break;
                             default:

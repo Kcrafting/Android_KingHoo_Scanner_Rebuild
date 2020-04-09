@@ -161,12 +161,16 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
             }
         }
-        public static async Task AuthDevice(string projectName,string sn, AppCompatActivity act, TextView tv, Tools_Tables_Adapter_Class.ShowPrograss pro)
+        public static async Task AuthDevice(string projectName,string sn, Activity_Authentication act, TextView tv, Tools_Tables_Adapter_Class.ShowPrograss pro)
         {
             //while (true)
+            act.RunOnUiThread(()=> {
+                pro.Show();
+            });
             {
                 try
                 {
+
                     var tes = new Tools_Extend_Storage(act);
                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     client = new HttpClient();
@@ -192,9 +196,21 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
                         return;
                     }
-                    HttpResponseMessage authresp = await client.GetAsync(AuthPath);
-                    authresp.EnsureSuccessStatusCode();
-                    var authTxt = await authresp.Content.ReadAsStringAsync();
+                    //var task = client.GetAsync(AuthPath);
+                    //task.Wait();
+
+                    //HttpResponseMessage authresp = await client.GetAsync(AuthPath);
+                    //authresp.EnsureSuccessStatusCode();
+
+                    var task_authresp = client.GetAsync(AuthPath);
+                    task_authresp.Wait();
+                    task_authresp.Result.EnsureSuccessStatusCode();
+
+                    //var authTxt = await authresp.Content.ReadAsStringAsync();
+                    var task_authTxt = task_authresp.Result.Content.ReadAsStringAsync();
+                    task_authTxt.Wait();
+                    var authTxt = task_authTxt.Result;
+
                     var authDevicList = JsonConvert.DeserializeObject<List<CertifiedComputer>>(authTxt);
                     if (authDevicList.Exists(item => item.imei == sn))
                     {
@@ -208,6 +224,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                             pro.Dismiss();
                             tv.Text = "激活成功！";
                             Tools_Tables_Adapter_Class.ShowMsg(act, "完成！", "已经成功激活！");
+                            act.m_submit.Text = act.m_submit.Text + "(已激活)";
+                            act.m_submit.Enabled = false;
+                            act.m_projectname.Enabled = false;
                         });
                        
                     }
