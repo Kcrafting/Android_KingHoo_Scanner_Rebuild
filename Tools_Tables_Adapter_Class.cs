@@ -1282,7 +1282,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     return;
                 }
                 
-                if(_m_Sourcebill.funcommitqty != 0 && _m_Sourcebill.funcommitqty < Convert.ToDecimal(entry.m_fqty))
+                if(_m_Sourcebill != null && _m_Sourcebill.funcommitqty != 0 && _m_Sourcebill.funcommitqty < Convert.ToDecimal(entry.m_fqty))
                 {
                     ShowMsg(m_context, "警告", "入库数量不得大于未提交数量！");
                     return;

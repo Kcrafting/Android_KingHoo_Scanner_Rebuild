@@ -10,9 +10,10 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height = "220dp"
+        android:scaleType="centerInside"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
-        android:src="@drawable/splash_log"
+        android:src="@drawable/splash_log2"
     />
     <TextView
         android:id="@+id/acticity_login_id_showErrorMsg"
