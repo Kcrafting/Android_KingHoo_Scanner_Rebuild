@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using Android;
 using Android.App;
 using Android.Content;
 using Android.Device;
 using Android.Graphics;
+using Android.Net;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
@@ -24,16 +26,6 @@ namespace Android_KingHoo_Scanner_Rebuild
     public class MainActivity : AppCompatActivity, NavigationView.IOnNavigationItemSelectedListener
     {
         #region override
-        //    <FrameLayout
-        //  android:id="@+id/main_fragment_layout"
-        //  android:layout_width="match_parent"
-        //  android:layout_height="match_parent">
-        //<fragment
-        //  android:name="Android_Scanner.StockOut_Fragment"
-        //  android:id="@+id/main_fragment"
-        //  android:layout_width="match_parent"
-        //  android:layout_height="match_parent"/>
-        //ScanDevice m_sd = new ScanDevice();
         public static string u_title = "";
         public static string u_message = "";
         public delegate void g_ReciveData(string data);
@@ -52,23 +44,90 @@ namespace Android_KingHoo_Scanner_Rebuild
         //Android.Widget.Toolbar m_toolbar = null;
 
         private Android.Support.V4.App.Fragment m_current_fragment = null;
-        Scanner_Receiver m_sr = new Scanner_Receiver();
+        //u8000s
+        Scanner_Receiver m_sr = null;//new Scanner_Receiver();
+        //n60
+        Scanner_Receiver_N60 m_sr_n60 = null;
+        Network_State_Changed m_network = new Network_State_Changed();
         private const String SCAN_ACTION = "scan.rcv.message";
+        private const String SCAN_ACTION_2 = "android.scanservice.action.UPLOAD_BARCODE_DATA";
+
         [BroadcastReceiver(Enabled = true)]
         [IntentFilter(new[] { SCAN_ACTION })]
-        
         //注册条码接收
         public class Scanner_Receiver : BroadcastReceiver
         {
             public delegate void ReciveData(string data);
             public event ReciveData ProcessReciveData;
-
             public override void OnReceive(Context context, Intent intent)
             {
                 byte[] barocode = intent.GetByteArrayExtra("barocode");
-                if (ProcessReciveData != null)
+                if (barocode == null) return;
+                ProcessReciveData?.Invoke(System.Text.Encoding.Default.GetString(barocode));
+            }
+        }
+        //n60条码接收注册
+        [BroadcastReceiver(Enabled = true)]
+        [IntentFilter(new[] { SCAN_ACTION_2 })]
+        //注册条码接收
+        public class Scanner_Receiver_N60 : BroadcastReceiver
+        {
+            public delegate void ReciveData(string data);
+            public event ReciveData ProcessReciveData;
+            public override void OnReceive(Context context, Intent intent)
+            {
+                var barcode = intent.GetStringExtra("barcode");
+                if (barcode == null) return;
+                Console.WriteLine(barcode);
+                ProcessReciveData?.Invoke(barcode);
+            }
+        }
+        //检测wifi状态变化
+        public class Network_State_Changed : BroadcastReceiver
+        {
+            public delegate void Network_State_Changed_Func(bool ret);
+            public event Network_State_Changed_Func ProcessReciveData;
+
+            public override void OnReceive(Context context, Intent intent)
+            {
+                //byte[] barocode = intent.GetByteArrayExtra("barocode");
+                //if (ProcessReciveData != null)
+                //{
+                //    ProcessReciveData(System.Text.Encoding.Default.GetString(barocode));
+                //}
+                if(Android.OS.Build.VERSION.SdkInt < Android.OS.Build.VERSION_CODES.Lollipop)
                 {
-                    ProcessReciveData(System.Text.Encoding.Default.GetString(barocode));
+                    ConnectivityManager connMgr = (ConnectivityManager)context.GetSystemService(Context.ConnectivityService);
+                    //获取WIFI连接的信息
+                    NetworkInfo wifiNetworkInfo = connMgr.GetNetworkInfo(ConnectivityType.Wifi);
+                    //获取移动数据连接的信息
+                    //NetworkInfo dataNetworkInfo = connMgr.GetNetworkInfo(ConnectivityType.Mobile);
+                    ProcessReciveData?.Invoke(wifiNetworkInfo.IsConnected); 
+                }
+                else
+                {
+                    //System.out.println("API level 大于23");
+                    //获得ConnectivityManager对象
+                    ConnectivityManager connMgr = (ConnectivityManager)context.GetSystemService(Context.ConnectivityService);
+                    bool constate = false;
+                    //获取所有网络连接的信息
+                    Network[] networks = connMgr.GetAllNetworks();
+                    //用于存放网络连接信息
+                    StringBuilder sb = new StringBuilder();
+                    //通过循环将网络信息逐个取出来
+                    for (int i = 0; i < networks.Length; i++)
+                    {
+                        //获取ConnectivityManager对象对应的NetworkInfo对象
+                        NetworkInfo networkInfo = connMgr.GetNetworkInfo(networks[i]);
+                        sb.Append(networkInfo.GetType() + " connect is " + networkInfo.IsConnected);
+                        if (networkInfo.IsConnected)
+                        {
+                            constate = true;
+                            break;
+                        }
+                    }
+                    ProcessReciveData?.Invoke(constate);
+                    //Toast.MakeText(context, sb.ToString(), ToastLength.Short).Show();
                 }
             }
         }
@@ -120,67 +179,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             });
             t.IsBackground = true;
             t.Start();
-            // OpenSelectBill();
-
-
-            //var t2 = new Thread(() =>
-            //{
-            //    var ret = Tools_SQL_Class.getTable(
-            //        "select A.FQty,A.FCommitQty,A.FItemID,A.FInterID,A.FEntryID,B.FUnitID, " +
-            //        "B.FName FItemID_FName, B.FNumber FItemID_FNumber, B.FModel FItemID_FModel " +
-            //        ", C.FName FUnitID_FName, D.FBillNo, D.FSupplyID, E.FName FSupplyID_FName " +
-            //        "from POOrderEntry A join t_ICItem B on A.FItemID = B.FItemID " +
-            //        "join t_MeasureUnit C on B.FUnitID = C.FItemID " +
-            //        "join POOrder D on A.FInterID = D.FInterID " +
-            //        "join t_Supplier E on E.FItemID = D.FSupplyID " +
-            //        "where FMrpClosed!=1 and FQty-FCommitQty>0");
-            //    var lista = new List<Tools_Tables_Adapter_Class.Source_Bill>();
-            //    if (ret != null && ret.Rows.Count > 0)
-            //    {
-            //        for (int i = 0; i < ret.Rows.Count; i++)
-            //        {
-            //            Tools_Tables_Adapter_Class.Source_Bill item = new Tools_Tables_Adapter_Class.Source_Bill();
-            //            try
-            //            {
-            //                item.FInterID = Convert.ToInt32(ret.Rows[i]["FInterID"].ToString());
-            //                item.FEntryID = Convert.ToInt32(ret.Rows[i]["FEntryID"].ToString());
-            //                item.FItemID = Convert.ToInt32(ret.Rows[i]["FItemID"].ToString());
-            //                item.FUnitID = Convert.ToInt32(ret.Rows[i]["FUnitID"].ToString());
-            //                item.F_Dep_Cust_Sup = Convert.ToInt32(ret.Rows[i]["FSupplyID"].ToString());
-            //                item.FQty = Convert.ToDouble(ret.Rows[i]["FQty"].ToString());
-            //                item.FCommitQty = Convert.ToDouble(ret.Rows[i]["FCommitQty"].ToString());
-            //                item.FItemID_FName = ret.Rows[i]["FItemID_FName"].ToString();
-            //                item.FItemID_FNumber = ret.Rows[i]["FItemID_FNumber"].ToString();
-            //                item.FItemID_FModel = ret.Rows[i]["FItemID_FModel"].ToString();
-            //                item.FUnitID_FName = ret.Rows[i]["FUnitID_FName"].ToString();
-            //                item.F_Dep_Cust_Sup_Name = ret.Rows[i]["FSupplyID_FName"].ToString();
-            //                item.FBillNo = ret.Rows[i]["FBillNo"].ToString();
-            //                lista.Add(item);
-            //            }
-            //            catch
-            //            {
-
-            //            }
-            //        }
-            //        Tools_Tables_Adapter_Class.SourceBillListAdapter adapter_ = new Tools_Tables_Adapter_Class.SourceBillListAdapter(this, lista);
-            //        this.RunOnUiThread(() => {
-            //            this.m_sourceBillList.Adapter = adapter_;
-            //            //drawer.CloseDrawer(GravityCompat.End);
-            //            m_drawer.OpenDrawer(GravityCompat.End);
-            //        });
-
-            //    }
-            //})
-            //{
-            //    IsBackground = true
-            //};
-            //t2.Start();
-
         }
-
-
-
-
         //获取PDA IMEI
         public string getsn() {
             TelephonyManager telephonyMgr = this.GetSystemService(Context.TelephonyService) as TelephonyManager;
@@ -255,10 +254,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                 default:
                     break;
             }
-
-
             return base.OnOptionsItemSelected(item);
         }
+
         //处理领料单
         void ProcessMenuItemClick_outstockx(int id)
         {
@@ -655,6 +653,24 @@ namespace Android_KingHoo_Scanner_Rebuild
                     Fragment_OutStockX.Instance().View.Visibility = ViewStates.Invisible;
                 }
                 m_lastSelectedFragment = Resource.Id.menu_side_bar_llStockout;
+            }else if(id == Resource.Id.menu_side_bar_soutCheck && m_lastSelectedFragment != Resource.Id.menu_side_bar_soutCheck)
+            {
+                m_save_menu.SetVisible(false);
+                m_check_menu.SetVisible(false);
+                m_delete_menu.SetVisible(false);
+                this.Title = "领料确认";
+                m_fab.Visibility = ViewStates.Invisible;
+                m_selectedItem = Resource.Id.menu_side_bar_soutCheck;
+                Android.Support.V4.App.FragmentTransaction fragmentTx = SupportFragmentManager.BeginTransaction();
+                m_current_fragment = Fragment_SoutCheck.Instance();
+                fragmentTx.Replace(Resource.Id.main_fragment_layout, m_current_fragment);
+                fragmentTx.Commit();
+                if (Fragment_SoutCheck.Instance().View != null)
+                {
+                    Fragment_SoutCheck.Instance().View.Visibility = ViewStates.Invisible;
+                }
+                m_lastSelectedFragment = Resource.Id.menu_side_bar_soutCheck;
+
             }
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             drawer.CloseDrawer(GravityCompat.Start);
@@ -670,10 +686,42 @@ namespace Android_KingHoo_Scanner_Rebuild
         protected override void OnResume()
         {
             base.OnResume();
-            
-            m_sr.ProcessReciveData += M_sr_ProcessReciveData;
-            RegisterReceiver(m_sr, new IntentFilter(SCAN_ACTION));
+            Tools_Extend_Storage tes = new Tools_Extend_Storage(this);
+            //判断pda版本型号 1 U8000S 2 N60
+            if (tes.getValueInt(Tools_Extend_Storage.ValueType.login_pda_version) == 1)
+            {
+                m_sr = m_sr == null ? new Scanner_Receiver() : m_sr;
+                m_sr.ProcessReciveData += M_sr_ProcessReciveData;
+                RegisterReceiver(m_sr, new IntentFilter(SCAN_ACTION));
+            }
+            else if(tes.getValueInt(Tools_Extend_Storage.ValueType.login_pda_version) == 2)
+            {
+                m_sr_n60 = m_sr_n60 == null ? new Scanner_Receiver_N60() : m_sr_n60;
+                m_sr_n60.ProcessReciveData += M_sr_ProcessReciveData;
+                RegisterReceiver(m_sr_n60, new IntentFilter(SCAN_ACTION_2));
+            }
+            //wifi状态监控
+            m_network.ProcessReciveData += M_network_ProcessReciveData;
+            RegisterReceiver(m_network, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+
+
+
             // Code omitted for clarity
+        }
+
+        private void M_network_ProcessReciveData(bool ret)
+        {
+            if (ret)
+            {
+                Toast.MakeText(this, "WIFI已连接！", ToastLength.Short).Show();
+                //Tools_Tables_Adapter_Class.ShowMsg(this, "注意", "");
+            }
+            else
+            {
+                //Toast.MakeText(this, "WIFI已断开！程序将无法正常使用！", ToastLength.Short).Show();
+                Tools_Tables_Adapter_Class.ShowMsg(this, "注意", "您的WIFI已断开，程序将无法使用!");
+            }
+           
         }
 
         //处理扫描头的信息
@@ -708,8 +756,19 @@ namespace Android_KingHoo_Scanner_Rebuild
         //处理返回退出
         protected override void OnPause()
         {
-            m_sr.ProcessReciveData -= M_sr_ProcessReciveData;
-            UnregisterReceiver(m_sr);
+            Tools_Extend_Storage tes = new Tools_Extend_Storage(this);
+
+            if (tes.getValueInt(Tools_Extend_Storage.ValueType.login_pda_version) == 1)
+            {
+                m_sr.ProcessReciveData -= M_sr_ProcessReciveData;
+                UnregisterReceiver(m_sr);
+            }
+            else if (tes.getValueInt(Tools_Extend_Storage.ValueType.login_pda_version) == 2)
+            {
+                m_sr_n60.ProcessReciveData -= M_sr_ProcessReciveData;
+                UnregisterReceiver(m_sr_n60);
+            }
+            UnregisterReceiver(m_network);
             // Code omitted for clarity
             base.OnPause();
         }
@@ -718,3 +777,54 @@ namespace Android_KingHoo_Scanner_Rebuild
 }
 
 
+// OpenSelectBill();
+//var t2 = new Thread(() =>
+//{
+//    var ret = Tools_SQL_Class.getTable(
+//        "select A.FQty,A.FCommitQty,A.FItemID,A.FInterID,A.FEntryID,B.FUnitID, " +
+//        "B.FName FItemID_FName, B.FNumber FItemID_FNumber, B.FModel FItemID_FModel " +
+//        ", C.FName FUnitID_FName, D.FBillNo, D.FSupplyID, E.FName FSupplyID_FName " +
+//        "from POOrderEntry A join t_ICItem B on A.FItemID = B.FItemID " +
+//        "join t_MeasureUnit C on B.FUnitID = C.FItemID " +
+//        "join POOrder D on A.FInterID = D.FInterID " +
+//        "join t_Supplier E on E.FItemID = D.FSupplyID " +
+//        "where FMrpClosed!=1 and FQty-FCommitQty>0");
+//    var lista = new List<Tools_Tables_Adapter_Class.Source_Bill>();
+//    if (ret != null && ret.Rows.Count > 0)
+//    {
+//        for (int i = 0; i < ret.Rows.Count; i++)
+//        {
+//            Tools_Tables_Adapter_Class.Source_Bill item = new Tools_Tables_Adapter_Class.Source_Bill();
+//            try
+//            {
+//                item.FInterID = Convert.ToInt32(ret.Rows[i]["FInterID"].ToString());
+//                item.FEntryID = Convert.ToInt32(ret.Rows[i]["FEntryID"].ToString());
+//                item.FItemID = Convert.ToInt32(ret.Rows[i]["FItemID"].ToString());
+//                item.FUnitID = Convert.ToInt32(ret.Rows[i]["FUnitID"].ToString());
+//                item.F_Dep_Cust_Sup = Convert.ToInt32(ret.Rows[i]["FSupplyID"].ToString());
+//                item.FQty = Convert.ToDouble(ret.Rows[i]["FQty"].ToString());
+//                item.FCommitQty = Convert.ToDouble(ret.Rows[i]["FCommitQty"].ToString());
+//                item.FItemID_FName = ret.Rows[i]["FItemID_FName"].ToString();
+//                item.FItemID_FNumber = ret.Rows[i]["FItemID_FNumber"].ToString();
+//                item.FItemID_FModel = ret.Rows[i]["FItemID_FModel"].ToString();
+//                item.FUnitID_FName = ret.Rows[i]["FUnitID_FName"].ToString();
+//                item.F_Dep_Cust_Sup_Name = ret.Rows[i]["FSupplyID_FName"].ToString();
+//                item.FBillNo = ret.Rows[i]["FBillNo"].ToString();
+//                lista.Add(item);
+//            }
+//            catch
+//            {
+//            }
+//        }
+//        Tools_Tables_Adapter_Class.SourceBillListAdapter adapter_ = new Tools_Tables_Adapter_Class.SourceBillListAdapter(this, lista);
+//        this.RunOnUiThread(() => {
+//            this.m_sourceBillList.Adapter = adapter_;
+//            //drawer.CloseDrawer(GravityCompat.End);
+//            m_drawer.OpenDrawer(GravityCompat.End);
+//        });
+//    }
+//})
+//{
+//    IsBackground = true
+//};
+//t2.Start();

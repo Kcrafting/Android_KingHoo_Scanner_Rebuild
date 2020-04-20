@@ -279,6 +279,19 @@ namespace Android_KingHoo_Scanner_Rebuild
                             "insert into t_user_pda_password(FUserFitemID)" +
                             "select FUserID from t_Base_User;");
                     }
+
+                    if (!Tools_SQL_Class.ifObjectExists("ZZ_KingHoo_StockCheck"))
+                    {
+                        getTable(
+                            "create table ZZ_KingHoo_StockCheck(" +
+                            "id int identity(1, 1) not null," +
+                            "FInterID int not null," +
+                            "FEntryID int not null," +
+                            "FCommitQty decimal(23, 10)," +
+                            "FChecked bit default(0)" +
+                            ")");
+                    }
+
                     if (!Tools_SQL_Class.ifObjectExists("ZZ_KIngHoo_LookUpInventory"))
                     {
                         var sqlTxt = Resource_Res.ZZ_KIngHoo_LookUpInventory;

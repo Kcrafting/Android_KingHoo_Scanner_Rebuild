@@ -47,6 +47,11 @@
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
     <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
     <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
+    <AndroidKeyStore>true</AndroidKeyStore>
+    <AndroidSigningStorePass>123456</AndroidSigningStorePass>
+    <AndroidSigningKeyStore>C:\Users\kcraf\AppData\Local\Xamarin\Mono for Android\Keystore\Kcrafting\Kcrafting.keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyPass>123456</AndroidSigningKeyPass>
+    <AndroidSigningKeyAlias>kcrafting</AndroidSigningKeyAlias>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -86,6 +91,7 @@
     <Compile Include="Fragment_OutStock.cs" />
     <Compile Include="Fragment_OutStockX.cs" />
     <Compile Include="Fragment_Setting_InApp.cs" />
+    <Compile Include="Fragment_SoutCheck.cs" />
     <Compile Include="Fragment_Welcome.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Activity_ItemSelect_Class.cs" />
@@ -356,6 +362,32 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash_log2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activity_main_soutcheck.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activity_main_soutcheck_entry.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\dialog_entry_confirm.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\dialog_entry_confirm_entry.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

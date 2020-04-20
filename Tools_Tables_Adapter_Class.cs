@@ -550,6 +550,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             public Guid m_uuid { get; set; }
             public int m_fsource_interid { get; set; } = 0;
             public int m_fsource_entryid { get; set; } = 0;
+            public bool m_weatherChecked { get; set; } = false;
             public void Clear()
             {
                 m_fnumber = "";
@@ -563,6 +564,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 m_fuint_name = "";
                 m_fqty = "";
                 m_fnote = "";
+                m_weatherChecked = false;
             }
         }
         public class UIDTag: Java.Lang.Object
@@ -578,11 +580,12 @@ namespace Android_KingHoo_Scanner_Rebuild
         {
 
             public override int Count { get { return m_list.Count; } }
-            List<Stock_Entry> m_list = null ; Context m_context = null;
-            public Entry_Adapter(Context context, List<Stock_Entry> list)
+            List<Stock_Entry> m_list = null ; Context m_context = null;bool m_WeatherIfforCheck ;
+            public Entry_Adapter(Context context, List<Stock_Entry> list, bool ifChecked = false)
             {
                 m_context = context;
                 m_list = list;
+                m_WeatherIfforCheck = ifChecked;
             }
             public override Java.Lang.Object GetItem(int position)
             {
@@ -607,10 +610,25 @@ namespace Android_KingHoo_Scanner_Rebuild
                 var fmainuint = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FMainUint);
                 var fqty = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FQty);
                 var fnote = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FNote);
+
                 var button_save = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_unknow);
                 var button_edit = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_edit);
                 var button_delete = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_delete);
-
+                if (m_WeatherIfforCheck)
+                {
+                    if (!((Stock_Entry)GetItem(position)).m_weatherChecked)
+                    {
+                        button_save.Text = "待检...";       
+                    }
+                    else
+                    {
+                        button_save.Text = "已检!";
+                    }
+                    button_save.Enabled = !((Stock_Entry)GetItem(position)).m_weatherChecked;
+                    button_save.Visibility = ViewStates.Visible;
+                    button_edit.Visibility = ViewStates.Gone;
+                    button_delete.Visibility = ViewStates.Gone;
+                }
                 var fnumber_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FName);
                 var fnumber_model = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FModelr);
                 var fstock_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStock_Name);
@@ -1005,7 +1023,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             _m_Sourcebill.fsourceinterid = Convert.ToInt32(fnumber);
                             _m_Sourcebill.fsourceentryid = Convert.ToInt32(fname);
                             m_chooseBill.Text = fextend + " - " + fitemid;
-                            var t = new Thread(()=> {
+                            var t = new System.Threading.Thread(()=> {
                                 var ret = Tools_SQL_Class.getTable("select str(B.FQty-B.FCommitQty,len(B.FQty-B.FCommitQty),C.FQtyDecimal) FQty from POOrder A join POOrderEntry B on A.FInterID=B.FInterID join t_ICItem C on B.FItemID=C.FItemID where A.FInterID=" + fnumber + " and B.FEntryID=" + fname);
                                 if(ret!=null && ret.Rows.Count > 0)
                                 {
@@ -1159,7 +1177,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 try
                 {
                     m_stock_fqty.Text = m_batchNo_list[(int)((Spinner)sender).SelectedItemId].m_FQty;
-                }catch(Exception ex)
+                }catch(System.Exception ex)
                 {
                     ShowMsg(m_context,"错误",ex.Message);
                 }
@@ -1603,6 +1621,221 @@ namespace Android_KingHoo_Scanner_Rebuild
             public const string SEORDER = "SEORDER";           //销售订单
 
         }
-        //not end
+
+
+
+        public class PDA_Version : Java.Lang.Object
+        {
+            public int Id { get; set; }
+            public string m_PDA_Version { get; set; }
+            public PDA_Version(int id, string label)
+            {
+                Id = id;
+                m_PDA_Version = label;
+            }
+        }
+        public class PDA_Version_List : BaseAdapter
+        {
+            private List<PDA_Version> m_list;
+            private Context context;
+            //private int ResourceID = 0;
+            public PDA_Version_List(Context pContext, List<PDA_Version> pList/*,int resourceId*/)
+            {
+                context = pContext;
+                m_list = pList;
+                //ResourceID = resourceId;
+            }
+            public override View GetView(int position, View convertView, ViewGroup parent)
+            {
+                LayoutInflater _LayoutInflater = LayoutInflater.From(context);
+                convertView = _LayoutInflater.Inflate(Resource.Layout.activity_login_account_list_layout, null);
+                if (convertView != null)
+                {
+                    TextView _TextView1 = (TextView)convertView.FindViewById<TextView>(Resource.Id.activity_login_account_list_layout_label);
+                    _TextView1.Text = m_list.ElementAt<PDA_Version>(position).m_PDA_Version;
+
+                }
+                return convertView;
+            }
+            public override Java.Lang.Object GetItem(int position)
+            {
+                return m_list.ElementAt(position);
+            }
+            public override long GetItemId(int position)
+            {
+                return position;
+            }
+            public override int Count { get { return m_list.Count; } }
+        }
+
+        //领料发货 复检
+
+        public class SOUT_Bill : Java.Lang.Object
+        {
+            public SOUT_Bill(string fbillno,int finterid,string fnote,string fdep, DateTime fdate)
+            {
+                m_FBillNo = fbillno;
+                m_FInterID = finterid;
+                m_FNote = fnote;
+                m_Department = fdep;
+                m_FDate = fdate;
+                m_uuid = UUID.RandomUUID();
+            }
+            public string m_FBillNo { get; set; }
+            public int m_FInterID { get; set; }
+            public string m_FNote { get; set; }
+            public string m_Department { get; set; }
+            public DateTime m_FDate { get; set; }
+            public UUID m_uuid { get; private set; }
+        }
+
+        public class SOUTBillAdapter : BaseAdapter
+        {
+            List<SOUT_Bill> m_list = new List<SOUT_Bill>();
+            private Context m_context = null;
+            TextView m_fbillno = null, m_date = null, m_fdep = null, m_fnote = null;
+            Button m_confirm = null;
+            public delegate void ClickCallBack(string uuid);
+            public event ClickCallBack __ClickCallBack;
+            public override int Count { get { return m_list.Count; } }
+            public SOUTBillAdapter(Context context, List<SOUT_Bill> list)
+            {
+                m_context = context; m_list = list;
+            }
+
+            public override Java.Lang.Object GetItem(int position)
+            {
+                return m_list.ElementAt(position);
+            }
+
+            public override long GetItemId(int position)
+            {
+                return position;
+            }
+
+            public override View GetView(int position, View convertView, ViewGroup parent)
+            {
+                LayoutInflater _LayoutInflater = LayoutInflater.From(m_context);
+
+                convertView = _LayoutInflater.Inflate(Resource.Layout.activity_main_soutcheck_entry, null);
+                m_fbillno = convertView.FindViewById<TextView>(Resource.Id.activity_main_soutcheck_entry_fbillno);
+                m_date = convertView.FindViewById<TextView>(Resource.Id.activity_main_soutcheck_entry_data);
+                m_fdep = convertView.FindViewById<TextView>(Resource.Id.activity_main_soutcheck_entry_department);
+                m_fnote = convertView.FindViewById<TextView>(Resource.Id.activity_main_soutcheck_entry_fnote);
+                m_confirm = convertView.FindViewById<Button>(Resource.Id.activity_main_soutcheck_entry_confirm);
+                m_fbillno.Text = m_list[position].m_FBillNo;
+                m_date.Text = m_list[position].m_FDate.ToString("yyyy-MM-dd");
+                m_fdep.Text = m_list[position].m_Department;
+                m_fnote.Text = m_list[position].m_FNote;
+                m_confirm.Click += M_confirm_Click;
+                m_confirm.Tag = m_list[position].m_FInterID;
+
+                return convertView;
+            }
+
+            private void M_confirm_Click(object sender, EventArgs e)
+            {
+                __ClickCallBack?.Invoke(((Button)sender).Tag.ToString());
+            }
+        }
+
+        public class Bill_Detail : Java.Lang.Object
+        {
+            public string FNumber { get; set; }
+            public string FModel { get; set; }
+            public string FName { get; set; }
+            public string FQty { get; set; }
+            public bool FConfirmed { get; set; } = false;
+        }
+
+            public class BillConfirm : Dialog
+        {
+            List<Stock_Entry> m_item_list = new List<Stock_Entry>();
+            MainActivity m_Activity = null;
+            ListView m_list = null;
+            string m_fbillno = null;
+            public delegate void onScanFinish(string Txt);
+            public event onScanFinish __OnScanFinish;
+            public BillConfirm(MainActivity context,string fbillno) : base(context, Resource.Style.mdialog)
+            {
+                m_Activity = context;
+                m_fbillno = fbillno;
+            }
+            protected override void OnCreate(Bundle savedInstanceState)
+            {
+                base.OnCreate(savedInstanceState);
+                m_Activity.g_ProcessReciveData += M_Activity_g_ProcessReciveData;
+                LayoutInflater layoutInflater = LayoutInflater.From(m_Activity);
+                View view = layoutInflater.Inflate(Resource.Layout.dialog_entry_confirm, null);
+                m_list = view.FindViewById<ListView>(Resource.Id.dialog_entry_confirm_list);
+                SetContentView(view);
+                //SetCancelable(false);
+                var t = new Thread(() =>
+                {
+                    string sqlTxt = "select " +
+                        "B.FItemID, C.FName FItemID_FName, C.FNumber FItemID_FNumber, C.FModel FItemID_FModel, " +
+                        "B.FDCStockID FStockID, E.FName FStockID_FName, B.FDCSPID FStockPlaceID, " +
+                        "(select FName from t_StockPlace AA where AA.FSPID = isnull(B.FSCSPID, 0)) FStockPlaceID_FName, " +
+                        "B.FUnitID ,D.FName FUnitID_FName, replace(str(B.FQty, len(B.FQty), C.FQtyDecimal), ' ', '') FQty , " +
+                        "B.FBatchNo,B.FNote,B.FInterID,B.FEntryID " +
+                        "from ICStockBill A " +
+                        "join ICStockBillEntry B on A.FInterID = B.FInterID " +
+                        "join t_ICItem C on B.FItemID = C.FItemID " +
+                        "join t_MeasureUnit D on B.FUnitID = D.FItemID " +
+                        "join t_Stock E on E.FItemID = B.FSCStockID " +
+                        "where A.FTranType = 24 and A.FInterID = " + m_fbillno + "";
+                    var ret = Tools_SQL_Class.getTable(sqlTxt);
+                    for(int i = 0;i < ret.Rows.Count; i++)
+                    {
+                        var item = new Stock_Entry();
+                        item.m_fnumber = ret.Rows[i]["FItemID_FNumber"].ToString();
+                        item.m_fnumber_model = ret.Rows[i]["FItemID_FModel"].ToString();
+                        item.m_fnumber_name = ret.Rows[i]["FItemID_FName"].ToString();
+                        item.m_fqty = ret.Rows[i]["FQty"].ToString();
+                        item.m_fstockplace_name = ret.Rows[i]["FStockPlaceID_FName"].ToString();
+                        item.m_fuint_name = ret.Rows[i]["FUnitID_FName"].ToString();
+                        item.m_fstock_name = ret.Rows[i]["FStockID_FName"].ToString();
+                        item.m_fbatchno = ret.Rows[i]["FBatchNo"].ToString();
+                        item.m_fsource_interid = Convert.ToInt32(ret.Rows[i]["FInterID"].ToString());
+                        item.m_fsource_entryid = Convert.ToInt32(ret.Rows[i]["FEntryID"].ToString());
+                        m_item_list.Add(item);
+                    }
+                    var se = new Entry_Adapter(m_Activity, m_item_list, true);
+                    m_Activity.RunOnUiThread(()=> {
+                        m_list.Adapter = se;
+                    });
+                })
+                { IsBackground = true };
+                t.Start();
+                
+            }
+
+            private void M_Activity_g_ProcessReciveData(string data)
+            {
+                //得到条码
+                var ret = m_item_list.Where(item => item.m_fnumber == data).ToList();
+                if (ret.Count > 0)
+                {
+                    for(int i = 0;i<ret.Count;i++)
+                    {
+                        ret[i].m_weatherChecked = true;
+                    }
+                    if(m_item_list.Where(item => item.m_weatherChecked == false).ToList().Count < 1)
+                    {
+                        this.Dismiss();
+                        //todo 插入数据库
+                        __OnScanFinish(m_item_list[0].m_fsource_interid.ToString());
+                        Tools_SQL_Class.TransationAutoCommit(new string[] {""});
+                        ShowMsg(m_Activity, "完成", "复检完成！");
+                    }
+                    var se = new Entry_Adapter(m_Activity, m_item_list, true);
+                    m_Activity.RunOnUiThread(()=> {
+                        m_list.Adapter = se;
+                    });
+                }
+            }
+        }
+
+            //not end
     }
 }

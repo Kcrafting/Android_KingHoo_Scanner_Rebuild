@@ -6,7 +6,10 @@
     <string name="action_menu_save">提交</string>
     <string name="action_menu_check">审核</string>
     <string name="action_menu_delete">删除</string>
+  <string name="Confirm">确认</string>
+  <string name="Department">部门</string>
   <string name="OK">确定</string>
+  <string name="FNote">备注</string>
   <string name="CANCEL">取消</string>
   <string name="QUIT">退出</string>
   <string name="welcome_h1">注意事项：</string>
@@ -65,6 +68,7 @@
   <string name="menu_outsock">销售出库</string>
   <string name="menu_llstockout">领料出库</string>
   <string name="menu_subTitle">扫码出库</string>
+  <string name="menu_soutcheck_confirm">领料确认</string>
 
   <string name="acticity_setting_changepassword_title">修改密码</string>
   <string name="acticity_setting_changepassword_account_label">用户名</string>
@@ -130,7 +134,7 @@
 
   <string name ="sourceselect_select_label">选单</string>
   <string name="dialog_entry_source_bill_label">原单</string>
-  
+  <string name="acticity_setting_pda_version_select_label">PDA型号</string>
   
   
   

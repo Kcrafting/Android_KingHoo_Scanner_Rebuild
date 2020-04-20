@@ -48,7 +48,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             CertifiedFinish = 22,
             CertifiedAuthPath = 23,
             CertifiedDescriptPath = 24,
-            CertifiedNoticePath = 25
+            CertifiedNoticePath = 25,
+            login_pda_version = 26
         }
         //private static ISharedPreferences m_shareData = PreferenceManager.GetDefaultSharedPreferences(this);
         public void saveValue( ValueType type, string value) {

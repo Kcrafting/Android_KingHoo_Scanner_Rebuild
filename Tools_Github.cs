@@ -180,7 +180,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     if (tes.getValueString(Tools_Extend_Storage.ValueType.CertifiedAuthPath) == "")
                     {
-                        var urlTxt = "https://api.github.com/repos/Kcrafting/Projects/contents/" + projectName;
+                        var urlTxt = "https://api.github.com/repos/Kcrafting/Projects/contents/" + projectName.Replace("\r","").Replace("\n","").Replace(" ","");
                         var url = urlTxt;
                         HttpResponseMessage response = await client.GetAsync(url);
                         response.EnsureSuccessStatusCode();

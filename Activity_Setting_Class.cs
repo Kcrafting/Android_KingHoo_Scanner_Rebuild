@@ -21,9 +21,10 @@ namespace Android_KingHoo_Scanner_Rebuild
     {
         AutoCompleteTextView m_HostIP = null;
         EditText m_UserName = null,m_UserPassword = null,m_Port = null;
-        Spinner m_DatabaseList = null,m_software_select;
+        Spinner m_DatabaseList = null,m_software_select = null,m_PDA_select = null;
         List<Tools_Tables_Adapter_Class.Account_Detail> m_AccountList = new List<Tools_Tables_Adapter_Class.Account_Detail>();
         List<Tools_Tables_Adapter_Class.Software_Version> software_VersionsList = new List<Tools_Tables_Adapter_Class.Software_Version>();
+        List<Tools_Tables_Adapter_Class.PDA_Version> PDA_VersionsList = new List<Tools_Tables_Adapter_Class.PDA_Version>();
         Tools_Extend_Storage m_Tes = null;
         Button m_auth = null;
         //是否第一次启动
@@ -54,18 +55,35 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_UserName.Text = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseUserName);
             m_UserPassword.Text = m_Tes.getValueString(Tools_Extend_Storage.ValueType.login_databaseUserPassword);
             Connect_Click(null, null);
+            //软件版本选择
             m_software_select = FindViewById<Spinner>(Resource.Id.activity_setting_server_software_version_select);
             m_software_select.ItemSelected += M_software_select_ItemSelected;
+            //激活设备
             m_auth = FindViewById<Button>(Resource.Id.CertifieDevice);
             m_auth.Click += M_auth_Click;
+            //PDA版本选择
+            m_PDA_select = FindViewById<Spinner>(Resource.Id.activity_setting_pda_version_select);
+            m_PDA_select.ItemSelected += M_PDA_select_ItemSelected;
 
             software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(0, ""));
             software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(1, "Kis旗舰版6.0+"));
             software_VersionsList.Add(new Tools_Tables_Adapter_Class.Software_Version(2, "K3 Wise 14.0+"));
+
+            PDA_VersionsList.Add(new Tools_Tables_Adapter_Class.PDA_Version(0, ""));
+            PDA_VersionsList.Add(new Tools_Tables_Adapter_Class.PDA_Version(1, "U8000S"));
+            PDA_VersionsList.Add(new Tools_Tables_Adapter_Class.PDA_Version(2, "AMS-N60"));
+
             m_software_select.Adapter = new Tools_Tables_Adapter_Class.Software_Version_List(this,  software_VersionsList);
+            m_PDA_select.Adapter = new Tools_Tables_Adapter_Class.PDA_Version_List(this, PDA_VersionsList);
+
             if (m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version) != 0)
             {
                 m_software_select.SetSelection(m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version));
+            }
+            var ret = m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_pda_version);
+            if (ret != 0)
+            {
+                m_PDA_select.SetSelection(ret);
             }
 
             //new Thread(new ThreadStart(()=> {
@@ -88,6 +106,11 @@ namespace Android_KingHoo_Scanner_Rebuild
             cancelAutoLogin.Click += CancelAutoLogin_Click;
 
 
+        }
+
+        private void M_PDA_select_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
+        {
+            m_Tes.saveValue(Tools_Extend_Storage.ValueType.login_pda_version, ((Spinner)sender).SelectedItemPosition);
         }
 
         private void M_auth_Click(object sender, EventArgs e)
@@ -127,6 +150,7 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         private void Save_Click(object sender, EventArgs e)
         {
+            //m_Tes.saveValue(Tools_Extend_Storage.ValueType.login_pda_version,)
             if (Tools_SQL_Class.Status())
             {
                 m_Tes.saveValue(Tools_Extend_Storage.ValueType.login_databaseAddress, Tools_SQL_Class.m_Host);

@@ -16,9 +16,12 @@
       <item
             android:id="@+id/menu_side_bar_llStockout"
             android:title="@string/menu_llstockout" />
+      <item
+            android:id="@+id/menu_side_bar_soutCheck"
+            android:title="@string/menu_soutcheck_confirm" />
     </group>
 
-    <item android:title="@string/menu_subTitle">
+    <item android:title="@string/menu_subTitle" >
         <menu>
             <item
                 android:id="@+id/menu_side_bar_setting"
