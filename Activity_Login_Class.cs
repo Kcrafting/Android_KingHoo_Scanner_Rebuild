@@ -157,6 +157,8 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         private void Button_login_Click(object sender, EventArgs e)
         {
+            //StartActivity(new Intent(Application.Context, typeof(MainActivity)));
+            //
             if (!m_Tes.getValueBoolean(Tools_Extend_Storage.ValueType.CertifiedFinish))
             {
                 Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "您还没有激活软件，请先进入设置激活软件后再进行登录");
@@ -210,7 +212,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 return;
                             }
                         }
-
+                        
                         StartActivity(new Intent(Application.Context, typeof(MainActivity)));
                     }
                     else

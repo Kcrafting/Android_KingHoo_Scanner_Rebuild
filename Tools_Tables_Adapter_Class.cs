@@ -1824,9 +1824,12 @@ namespace Android_KingHoo_Scanner_Rebuild
                     {
                         this.Dismiss();
                         //todo 插入数据库
-                        __OnScanFinish(m_item_list[0].m_fsource_interid.ToString());
-                        Tools_SQL_Class.TransationAutoCommit(new string[] {""});
+                        __OnScanFinish?.Invoke(m_item_list[0].m_fsource_interid.ToString());
+                        Tools_SQL_Class.TransationAutoCommit(new string[] {"insert into ZZ_KingHoo_StockCheck(FInterID,FChecked,FEntryID) values(" + m_item_list[0].m_fsource_interid + ",1,0)" });
+
                         ShowMsg(m_Activity, "完成", "复检完成！");
+
+                        return;
                     }
                     var se = new Entry_Adapter(m_Activity, m_item_list, true);
                     m_Activity.RunOnUiThread(()=> {
