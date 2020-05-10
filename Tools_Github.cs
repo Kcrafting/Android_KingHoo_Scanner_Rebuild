@@ -161,6 +161,16 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
             }
         }
+
+        public static void TestAuth(Activity_Authentication act)
+        {
+            var tes = new Tools_Extend_Storage(act);
+            tes.saveValue(Tools_Extend_Storage.ValueType.CertifiedUUID, "{656B7B35-8163-4DB2-8A8F-7F5EC63E701D}");
+            tes.saveValue(Tools_Extend_Storage.ValueType.CertifiedDevice, true);
+            tes.saveValue(Tools_Extend_Storage.ValueType.CertifiedServiceDate, "2022-12-1");
+            tes.saveValue(Tools_Extend_Storage.ValueType.CertifiedUseDate, "2022-12-1");
+            tes.saveValue(Tools_Extend_Storage.ValueType.CertifiedFinish, true);
+        }
         public static async Task AuthDevice(string projectName,string sn, Activity_Authentication act, TextView tv, Tools_Tables_Adapter_Class.ShowPrograss pro)
         {
             //while (true)

@@ -197,6 +197,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 if (Tools_SQL_Class.ifObjectExists("dbo.t_ad_kdAccount_gl"))
                                 {
                                     var DBList = Tools_SQL_Class.getTable("select FAcctName,FDBName from t_ad_kdAccount_gl");
+                                    if(DBList==null && DBList.Rows.Count == 0)
+                                    {
+                                        return;
+                                    }
                                     m_AccountList.Clear();
                                     for (int i = 0; i < DBList.Rows.Count; i++)
                                     {
@@ -218,6 +222,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                                     });
                                 }
                             }
+                        }
+                        else
+                        {
+                            RunOnUiThread(() => {
+                                prograss.Dismiss();
+                                Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "没有找到账套管理数据库！");
+                            });
                         }
                     }
                     else

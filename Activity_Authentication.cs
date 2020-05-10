@@ -29,6 +29,8 @@ namespace Android_KingHoo_Scanner_Rebuild
         protected override void OnResume()
         {
             base.OnResume();
+            //测试激活
+            //Tools_Github.TestAuth(this);
             SetContentView(Resource.Layout.activity_authentication);
             m_projectname = FindViewById<EditText>(Resource.Id.ProjectName);
             m_submit = FindViewById<Button>(Resource.Id.authdevice);
