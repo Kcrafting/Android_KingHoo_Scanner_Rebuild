@@ -153,11 +153,11 @@ namespace Android_KingHoo_Scanner_Rebuild
                     Console.WriteLine(ex.Message);
                     //Thread.Sleep(3000);
                     return;
-                    m_loopTimes++;
-                    if (m_loopTimes >= 10)
-                    {
-                        break;
-                    }
+                    //m_loopTimes++;
+                    //if (m_loopTimes >= 10)
+                    //{
+                    //    break;
+                    //}
                 }
             }
         }

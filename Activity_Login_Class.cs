@@ -159,11 +159,11 @@ namespace Android_KingHoo_Scanner_Rebuild
         {
             //StartActivity(new Intent(Application.Context, typeof(MainActivity)));
             //
-            if (!m_Tes.getValueBoolean(Tools_Extend_Storage.ValueType.CertifiedFinish))
-            {
-                Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "您还没有激活软件，请先进入设置激活软件后再进行登录");
-                return;
-            }
+            //if (!m_Tes.getValueBoolean(Tools_Extend_Storage.ValueType.CertifiedFinish))
+            //{
+            //    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "您还没有激活软件，请先进入设置激活软件后再进行登录");
+            //    return;
+            //}
 
             if (m_Tes.getValueInt(Tools_Extend_Storage.ValueType.login_software_version) == 0)
             {
@@ -206,11 +206,11 @@ namespace Android_KingHoo_Scanner_Rebuild
                         }
                         else
                         {
-                            if (ret.Rows.Count >= 1)
-                            {
-                                Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "版本已过期！");
-                                return;
-                            }
+                            //if (ret.Rows.Count >= 1)
+                            //{
+                            //    Tools_Tables_Adapter_Class.ShowMsg(this, "错误", "版本已过期！");
+                            //    return;
+                            //}
                         }
                         
                         StartActivity(new Intent(Application.Context, typeof(MainActivity)));

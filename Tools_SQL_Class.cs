@@ -12,8 +12,6 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using System.Data;
-using System.Data.SqlClient;
 
 namespace Android_KingHoo_Scanner_Rebuild
 {

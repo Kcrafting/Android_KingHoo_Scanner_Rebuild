@@ -23,7 +23,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         public string m_currentType = "";
         public ListView m_itemlist = null;
         public Scroller m_scroller = null;
-        private int _m_saveFInterID = 0;
+        //private int _m_saveFInterID = 0;
         //adapter 
         public List<Tools_Tables_Adapter_Class.Stock_Entry> m_EntryList_list = new List<Tools_Tables_Adapter_Class.Stock_Entry>();
         public Tools_Tables_Adapter_Class.Stock_Header m_Stock_Header = new Tools_Tables_Adapter_Class.Stock_Header();

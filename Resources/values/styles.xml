@@ -51,7 +51,7 @@
      
   </style>
 
-  <style name="dialog" parent="Theme.AppCompat.Light.NoActionBar">
+  <style name="Dialog" parent="Theme.AppCompat.Light.NoActionBar">
     <!-- 是否有边框 -->
     <item name="android:windowFrame">@null</item>
     <!--是否在悬浮Activity之上  -->

@@ -330,7 +330,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             m_listview.SetSelection(m_ItemList.FindIndex(a => a.m_fname + "  " + a.m_fnumber == ((TextView)sender).Text));
         }
 
-        bool m_ScrollUpdate = false;
+        //bool m_ScrollUpdate = false;
         private void Bt_Click(object sender, EventArgs e)
         {
             foreach (var item in m_TextView_list)

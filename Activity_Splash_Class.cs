@@ -23,7 +23,7 @@ namespace Android_KingHoo_Scanner_Rebuild
     class Activity_Splash_Class : AppCompatActivity
     {
         //延迟时间
-        int m_timeDelay = 15;
+        //int m_timeDelay = 15;
         #region override
         public override void OnCreate(Bundle savedInstanceState, PersistableBundle persistentState)
         {

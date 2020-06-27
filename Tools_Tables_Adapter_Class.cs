@@ -19,6 +19,7 @@ using Android.Text.Format;
 using System.Threading;
 using System.Linq.Expressions;
 using Android.Support.V4.View;
+using Java.IO;
 
 namespace Android_KingHoo_Scanner_Rebuild
 {
@@ -46,12 +47,12 @@ namespace Android_KingHoo_Scanner_Rebuild
         //    dialog.Show();
         //}
 
-        public static void ShowDialog(Context context, string title, string content,string okText = "",string cancelText = "", Action ok = null,Action cancel = null)
+        public static void ShowDialog(Context context, string title, string content, string okText = "", string cancelText = "", Action ok = null, Action cancel = null)
         {
             var dialog = new Android.Support.V7.App.AlertDialog.Builder(context);
             dialog.SetTitle(title);
             dialog.SetMessage(content);
-            dialog.SetPositiveButton(cancelText, new EventHandler<DialogClickEventArgs>((__sender, __event) => { cancel(); } )) ;
+            dialog.SetPositiveButton(cancelText, new EventHandler<DialogClickEventArgs>((__sender, __event) => { cancel(); }));
             dialog.SetNegativeButton(okText, new EventHandler<DialogClickEventArgs>((__sender, __event) => { ok(); /* Process.KillProcess(Android.OS.Process.MyPid());*/ }));
             dialog.Show();
         }
@@ -105,7 +106,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         {
             private SparseArray<View> Views;
             View ConvertView;
-            private Context context;
+            //private Context context;
             int mPosition;
             private KingHoo_Generic_ViewHolder(Context _context, ViewGroup parent, int itemLayoutId, int position)
             {
@@ -282,7 +283,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             public static CheckInventory_Adapter m_rva = null;
             public static List<Inventroy_Detail_Row> m_list = new List<Inventroy_Detail_Row>();
             private Context m_context;
-            bool m_Ifinit = false;
+            //bool m_Ifinit = false;
             public CheckInventory_Adapter(Context context, List<Inventroy_Detail_Row> data)
             {
                 m_rva = this;
@@ -354,12 +355,13 @@ namespace Android_KingHoo_Scanner_Rebuild
             public string m_fname;
             public string m_fextend;
             public bool m_IfDetail;
+            public string m_model;
         }
         //public class ItemViewHolder : ViewHolder
         public class ItemAdapter : BaseAdapter
         {
             public override int Count { get { return m_list.Count; } }
-            List<Item> m_list = null; 
+            List<Item> m_list = null;
             //根本不需要 组分组，组内容应该包含在列表当中
             //List<string> m_groupKey = null; 
             Context m_context = null;
@@ -445,6 +447,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             public const string SourceBill_POORDER = "8";
             public const string SourceBill_PPBOM = "9";
             public const string SourceBill_SEORDER = "10";
+            //public const string SourceBill = "11";
         }
 
         public class MDFDatePickerDialog : DatePickerDialog
@@ -505,7 +508,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
         }
 
-        public class Stock_Header: Java.Lang.Object
+        public class Stock_Header : Java.Lang.Object
         {
             public int m_FInterID { get; set; } = 0;
             public string m_FSupply { get; set; }
@@ -517,57 +520,125 @@ namespace Android_KingHoo_Scanner_Rebuild
             public string m_Fbillno { get; set; }
             public string m_Foperator { get; set; }
             public string m_FoperatorName { get; set; }
+            public string m_FSourceBill { get; set; }
             public void Clear()
             {
                 m_FInterID = 0;
                 m_FSupply = "";
+                m_FSupplyName = "";
                 m_FDate = "";
                 m_FNote = "";
                 m_FCustomer = "";
+                m_FCustomerName = "";
                 m_Fbillno = "";
                 m_Foperator = "";
                 m_FoperatorName = "";
+                m_FSourceBill = "";
             }
         }
         public class Stock_Entry : Java.Lang.Object
         {
-            public string m_fnumber_fitemid { get; set; }
-            public string m_fnumber { get; set; }
-            public string m_fnumber_name { get; set; }
-            public string m_fnumber_model { get; set; }
-            public string m_fstock_fitemid { get; set; }
-            public string m_fstock { get; set; }
-            public string m_fstock_name { get; set; }
-            public string m_fstockplace_fitemid { get; set; }
-            public string m_fstockplace { get; set; }
-            public string m_fstockplace_name { get; set; }
-            public string m_fuint_fitemid { get; set; }
-            public string m_fuint { get; set; }
-            public string m_fuint_name { get; set; }
-            public string m_fqty { get; set; }
-            public string m_fbatchno { get; set; }
-            public string m_fnote { get; set; }
+            public Stock_Entry() { m_uuid = Guid.NewGuid();  }
+            //物料内码
+            public string m_fnumber_fitemid { get; set; } = "";
+            //物料代码
+            public string m_fnumber { get; set; } = "";
+            //物料名称
+            public string m_fnumber_name { get; set; } = "";
+            //规格型号
+            public string m_fnumber_model { get; set; } = "";
+            //仓库内吗
+            public string m_fstock_fitemid { get; set; } = "";
+            //仓库
+            public string m_fstock { get; set; } = "";
+            //仓库名称
+            public string m_fstock_name { get; set; } = "";
+            //仓位内码
+            public string m_fstockplace_fitemid { get; set; } = "";
+            //仓位
+            public string m_fstockplace { get; set; } = "";
+            //仓位名称
+            public string m_fstockplace_name { get; set; } = "";
+            //计量单位内码
+            public string m_funit_fitemid { get; set; } = "";
+            //单位
+            public string m_funit { get; set; } = "";
+            //单位名称
+            public string m_funit_name { get; set; } = "";
+            //数量
+            public string m_fqty { get; set; } = "";
+            //批号
+            public string m_fbatchno { get; set; } = "";
+            //备注
+            public string m_fnote { get; set; } = "";
             public Guid m_uuid { get; set; }
+            //原单内码
             public int m_fsource_interid { get; set; } = 0;
+            //原单分录内码
             public int m_fsource_entryid { get; set; } = 0;
+            //是否审核
             public bool m_weatherChecked { get; set; } = false;
+            //已提交数量
+            public string m_fcommitqty { get; set; } = "";
+            //全部数量
+            public string m_ftotleqty { get; set; } = "";
+            //是否可编辑-选原单
+            public bool m_fromsourcebill { get; set; } = false;
+            //是否启用批号管理
+            public bool m_batchmanagment { get; set; } = false;
+            //是否启用仓位管理
+            public bool m_ifStockplaceMgr { get; set; } = false;
+            //供应商内码
+            public int m_fsup { get; set; } = 0;
+            //供应商名字
+            public string m_fsupname { get; set; } = "";
+            //客户名字
+            public string m_fcustname { get; set; } = "";
+            //客户内码
+            public int m_fcust { get; set; } = 0;
+            //部门名字
+            public string m_departname { get; set; } = "";
+            //部门内码
+            public int m_depart { get; set; } = 0;
+            //标签
+            public Java.Lang.Object Tag { get; set; } = null;
             public void Clear()
             {
+                m_fnumber_fitemid = "";
                 m_fnumber = "";
                 m_fnumber_name = "";
                 m_fnumber_model = "";
+                m_fstock_fitemid = "";
                 m_fstock = "";
                 m_fstock_name = "";
+                m_fstockplace_fitemid = "";
                 m_fstockplace = "";
                 m_fstockplace_name = "";
-                m_fuint = "";
-                m_fuint_name = "";
+                m_funit_fitemid = "";
+                m_funit = "";
+                m_funit_name = "";
+                m_fbatchno = "";
                 m_fqty = "";
                 m_fnote = "";
+                m_uuid = Guid.NewGuid();
+                m_fsource_interid = 0;
+                m_fsource_entryid = 0;
                 m_weatherChecked = false;
+                m_fcommitqty = "";
+                m_ftotleqty = "";
+                m_fromsourcebill = false;
+                m_batchmanagment = false;
+                m_ifStockplaceMgr = false;
+                m_fsup = 0;
+                m_fsupname = "";
+                m_fcustname = "";
+                m_fcust = 0;
+                m_departname = "";
+                m_depart = 0;
+                Tag = null;
             }
         }
-        public class UIDTag: Java.Lang.Object
+        public class UIDTag : Java.Lang.Object
         {
             public UIDTag(Guid guid)
             {
@@ -575,18 +646,57 @@ namespace Android_KingHoo_Scanner_Rebuild
             }
             public Guid m_UUID;
         }
-
+        /// <summary>
+        /// 正常出入库的单据体
+        /// </summary>
         public class Entry_Adapter : BaseAdapter
         {
 
             public override int Count { get { return m_list.Count; } }
-            List<Stock_Entry> m_list = null ; Context m_context = null;bool m_WeatherIfforCheck ;
+            List<Stock_Entry> m_list = null; Context m_context = null; bool m_WeatherIfforCheck;
+            Android.Support.V4.App.Fragment m_fragment = null;
+            string m_ClickUID = "";
+            EditText m_LastEditText = null;
             public Entry_Adapter(Context context, List<Stock_Entry> list, bool ifChecked = false)
             {
                 m_context = context;
                 m_list = list;
                 m_WeatherIfforCheck = ifChecked;
+                //Fragment_InStock.Instance().inStock_FunRecivieData += Entry_Adapter_inStock_FunRecivieData1;
+                System.Console.WriteLine("适配器构造完毕！");
+                m_contrilList = new List<controls>();
             }
+
+            ~Entry_Adapter()
+            {
+                System.Console.WriteLine("适配器析构！");
+            }
+            private void Entry_Adapter_inStock_FunRecivieData1(string Type, string fnumber, string fname, string fextend, string fitemid)
+            {
+                //throw new NotImplementedException();
+                switch (Type)
+                {
+                    case Tools_Tables_Adapter_Class.ItemType.ICStock:
+                        {
+                            m_list.Find(item => item.m_uuid.ToString() == m_ClickUID).m_fstock = fitemid;
+                            m_list.Find(item => item.m_uuid.ToString() == m_ClickUID).m_fstock_name = fname;
+                            m_LastEditText.Text = fname;
+
+                        }
+                        break;
+                    default:
+                        {
+
+                        }
+                        break;
+                }
+            }
+
+            public void setStock(string FName,string FNumber,int FItemID)
+            {
+
+            }
+
             public override Java.Lang.Object GetItem(int position)
             {
                 return m_list[position];
@@ -596,105 +706,270 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
                 return position;
             }
-
+            struct controls
+            {
+                public EditText m_stock;
+                public EditText m_stockPlace;
+                public EditText m_batch;
+                public EditText m_qty;
+                public Guid m_uuid;
+            }
+            List<controls> m_contrilList = null;
             public override View GetView(int position, View groupkey, ViewGroup parent)
             {
 
                 View view = groupkey;
-            
-                view = LayoutInflater.From(m_context).Inflate(Resource.Layout.activity_main_instock_entry_layout, null);
-
-                var fnumber = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FNumber);
-                var fstock = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStock);
-                var fstockplace = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStockPlace);
-                var fmainuint = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FMainUint);
-                var fqty = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FQty);
-                var fnote = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FNote);
-
-                var button_save = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_unknow);
-                var button_edit = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_edit);
-                var button_delete = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_delete);
-                if (m_WeatherIfforCheck)
+                if (!((Stock_Entry)GetItem(position)).m_fromsourcebill)
                 {
-                    if (!((Stock_Entry)GetItem(position)).m_weatherChecked)
+                    view = LayoutInflater.From(m_context).Inflate(Resource.Layout.activity_main_instock_entry_layout, null);
+                    var fnumber = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FNumber);
+                    var fstock = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStock);
+                    var fstockplace = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStockPlace);
+                    
+                    var fmainuint = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FMainUint);
+                    var fqty = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FQty);
+                    var fnote = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FNote);
+
+                    var button_save = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_unknow);
+                    var button_edit = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_edit);
+                    var button_delete = view.FindViewById<Button>(Resource.Id.activity_main_instock_entry_layout_delete);
+
+                    if (m_WeatherIfforCheck)
                     {
-                        button_save.Text = "待检...";       
+                        if (!((Stock_Entry)GetItem(position)).m_weatherChecked)
+                        {
+                            button_save.Text = "待检...";
+                        }
+                        else
+                        {
+                            button_save.Text = "已检!";
+                        }
+                        button_save.Enabled = !((Stock_Entry)GetItem(position)).m_weatherChecked;
+                        button_save.Visibility = ViewStates.Visible;
+                        button_edit.Visibility = ViewStates.Gone;
+                        button_delete.Visibility = ViewStates.Gone;
+                    }
+                    var fnumber_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FName);
+                    var fnumber_model = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FModelr);
+                    var fstock_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStock_Name);
+                    var fstockplace_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStockPlace_Name);
+                    var fmainuint_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FMainUint_Name);
+                    var fbatchNo = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_fbatchNo);
+
+                    var uuid = Guid.NewGuid();
+                    m_list[position].m_uuid = uuid;
+                    button_delete.SetTag(Resource.Id.activity_main_instock_entry_layout_delete, new UIDTag(uuid));
+
+                    button_delete.Click += Button_delete_Click;
+                    if (fmainuint_name != null)
+                    {
+                        fmainuint_name.Text = ((Stock_Entry)GetItem(position)).m_funit_name;
+
+                    }
+                    if (fstockplace_name != null)
+                    {
+                        fstockplace_name.Text = ((Stock_Entry)GetItem(position)).m_fstockplace_name;
+                    }
+                    if (fstock_name != null)
+                    {
+                        fstock_name.Text = ((Stock_Entry)GetItem(position)).m_fstock_name;
+                    }
+                    if (fnumber_model != null)
+                    {
+                        fnumber_model.Text = ((Stock_Entry)GetItem(position)).m_fnumber_model;
+                    }
+                    if (fnumber_name != null)
+                    {
+                        fnumber_name.Text = ((Stock_Entry)GetItem(position)).m_fnumber_name;
+
+                    }
+                    if (fnumber != null)
+                    {
+                        fnumber.Text = ((Stock_Entry)GetItem(position)).m_fnumber;
+                    }
+
+                    if (fstock != null)
+                    {
+                        fstock.Text = ((Stock_Entry)GetItem(position)).m_fstock;
+                    }
+
+                    if (fstockplace != null)
+                    {
+                        fstockplace.Text = ((Stock_Entry)GetItem(position)).m_fstockplace;
+                    }
+                    if (fmainuint != null)
+                    {
+                        fmainuint.Text = ((Stock_Entry)GetItem(position)).m_funit;
+                    }
+                    if (fqty != null)
+                    {
+                        fqty.Text = ((Stock_Entry)GetItem(position)).m_fqty;
+                    }
+                    if (fnote != null)
+                    {
+                        fnote.Text = ((Stock_Entry)GetItem(position)).m_fnote;
+                    }
+                    if (fbatchNo != null)
+                    {
+                        fbatchNo.Text = ((Stock_Entry)GetItem(position)).m_fbatchno;
+                    }
+                    return view;
+                }
+                else
+                {
+                    view = LayoutInflater.From(m_context).Inflate(Resource.Layout.activity_main_instock_entry_layout_SourceBill, null);
+                    var fnumber = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_SourceBill_FNumber);
+                    
+                    var fstock = view.FindViewById<EditText>(Resource.Id.activity_main_instock_entry_layout_SourceBill_Stock);
+                    fnumber.Tag = ((Stock_Entry)GetItem(position)).m_uuid.ToString() ;
+                    //链表 第一环 仓库
+                    
+                    //((Stock_Entry)GetItem(position)).Tag = fstock;
+                    fstock.Focusable = false;
+                    fstock.Click += Fstock_Click;
+                    var fstockplace = view.FindViewById<EditText>(Resource.Id.activity_main_instock_entry_layout_SourceBill_StockPlace);
+                    //链表 第二环 仓库 下的仓位
+                    fstock.Tag = ((Stock_Entry)GetItem(position)).m_uuid.ToString();
+                    fstockplace.Focusable = false;
+                    fstockplace.Click += Fstockplace_Click;
+                    var fmainuint = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_SourceBill_Unit);
+                    var fqty = view.FindViewById<EditText>(Resource.Id.activity_main_instock_entry_layout_SourceBill_Qty);
+                    var fnote = view.FindViewById<EditText>(Resource.Id.activity_main_instock_entry_layout_SourceBill_Note);
+                    var fcommitqty = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_SourceBill_CommitQty);
+                    var ftotleqty = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_SourceBill_TotleQty);
+
+                    var fnumber_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_SourceBill_FName);
+                    var fnumber_model = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_SourceBill_FModel);
+                    var fbatchNo = view.FindViewById<EditText>(Resource.Id.activity_main_instock_entry_layout_SourceBill_Batch);
+                    //链表 第三环 仓位下 的批号
+                    fstockplace.Tag = ((Stock_Entry)GetItem(position)).m_uuid.ToString();
+                    //链表 第三环 仓位下 的批号
+                    fbatchNo.Tag = ((Stock_Entry)GetItem(position)).m_uuid.ToString();
+                    fstockplace.Enabled = false;
+                    if (((Stock_Entry)GetItem(position)).m_batchmanagment)
+                    {
+                        fbatchNo.Enabled = false;
+                    }
+                    //if (((Stock_Entry)GetItem(position)).m_ifStockplaceMgr)
+                    //{
+                    //    fstockplace.Enabled = false;
+                    //}
+
+                    //var uuid = Guid.NewGuid();
+                    //m_list[position].m_uuid = uuid;
+                    //fstock.Tag = ((Stock_Entry)GetItem(position)).m_uuid.ToString();
+                    //链表 第三环 仓位下的批号
+                    //fstock.Tag = fstockplace;
+
+                    if (fnumber_model != null)
+                    {
+                        fnumber_model.Text = ((Stock_Entry)GetItem(position)).m_fnumber_model;
+                    }
+                    if (fnumber_name != null)
+                    {
+                        fnumber_name.Text = ((Stock_Entry)GetItem(position)).m_fnumber_name;
+                    }
+                    if (fnumber != null)
+                    {
+                        fnumber.Text = ((Stock_Entry)GetItem(position)).m_fnumber;
+                    }
+                    if (fcommitqty != null)
+                    {
+                        fcommitqty.Text = ((Stock_Entry)GetItem(position)).m_fcommitqty;
+                    }
+                    if (fstock != null)
+                    {
+                        fstock.Text = ((Stock_Entry)GetItem(position)).m_fstock;
+                    }
+                    if (ftotleqty != null)
+                    {
+                        ftotleqty.Text = ((Stock_Entry)GetItem(position)).m_ftotleqty;
+
+                    }
+                    if (fstockplace != null)
+                    {
+                        fstockplace.Text = ((Stock_Entry)GetItem(position)).m_fstockplace;
+                    }
+                    if (fmainuint != null)
+                    {
+                        fmainuint.Text = ((Stock_Entry)GetItem(position)).m_funit_name;
+                    }
+                    //if (fqty != null)
+                    //{
+                    //    fqty.Text = ((Stock_Entry)GetItem(position)).m_fqty;
+                    //}
+                    if (fnote != null)
+                    {
+                        fnote.Text = ((Stock_Entry)GetItem(position)).m_fnote;
+                    }
+                    if (fbatchNo != null)
+                    {
+                        fbatchNo.Text = ((Stock_Entry)GetItem(position)).m_fbatchno;
+                    }
+                    if (fqty != null)
+                    {
+                        fqty.Text = ((Stock_Entry)GetItem(position)).m_fqty;
+                    }
+                    int ret = m_contrilList.FindIndex(item => item.m_stock == fstock);
+                    if (ret == -1)
+                    {
+                        controls c = new controls();
+                        c.m_stock = fstock;
+                        c.m_stockPlace = fstockplace;
+                        c.m_batch = fbatchNo;
+                        c.m_qty = fqty;
+                        c.m_uuid = ((Stock_Entry)GetItem(position)).m_uuid;
+                        m_contrilList.Add(c);
+
+                    }
+
+
+                    return view;
+                }
+
+
+
+            }
+
+            private void Fstockplace_Click(object sender, EventArgs e)
+            {
+                //if()
+                var showmsg1 = new SelectBaseItem(m_context, ItemType.ICStockPlace, (string fnumber, string fname, string fmodel, string fextend, string fitemid) => {
+                    //Tools_Tables_Adapter_Class.ShowMsg(m_context, "可以", fnumber);
+                    ((EditText)sender).Text = fname;
+                    m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_fstockplace = fitemid;
+                    m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_fstockplace_name = fnumber;
+                    //m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_fstockplace_fitemid = fitemid;
+                });
+                showmsg1.Show();                                                   
+            }
+                                          
+            private void Fstock_Click(object sender, EventArgs e)         
+            {
+                var showmsg1 = new SelectBaseItem(m_context,ItemType.ICStock,(string fnumber,string fname,string fmodel,string fextend,string fitemid)=> {
+                    //Tools_Tables_Adapter_Class.ShowMsg(m_context, "可以", fnumber);
+                    ((EditText)sender).Text = fname;
+                    m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_fstock_name = fname;
+                    m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_fstock = fnumber;
+                    m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_fstock_fitemid = fitemid; 
+                    if(fextend == "0")
+                    {
+                        //m_list.Find(i_ => i_.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_ifStockplaceMgr = false;
+                        //((EditText)((EditText)sender).Tag).Enabled = false;
+                        m_contrilList.Find(item => item.m_stock == ((EditText)sender)).m_stockPlace.Enabled = false;
+                        m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_ifStockplaceMgr = false;
                     }
                     else
                     {
-                        button_save.Text = "已检!";
+                        m_contrilList.Find(item => item.m_stock == ((EditText)sender)).m_stockPlace.Enabled = true;
+                        m_list.Find(item => item.m_uuid.ToString() == ((EditText)sender).Tag.ToString()).m_ifStockplaceMgr = true;
                     }
-                    button_save.Enabled = !((Stock_Entry)GetItem(position)).m_weatherChecked;
-                    button_save.Visibility = ViewStates.Visible;
-                    button_edit.Visibility = ViewStates.Gone;
-                    button_delete.Visibility = ViewStates.Gone;
-                }
-                var fnumber_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FName);
-                var fnumber_model = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FModelr);
-                var fstock_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStock_Name);
-                var fstockplace_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FStockPlace_Name);
-                var fmainuint_name = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_FMainUint_Name);
-                var fbatchNo = view.FindViewById<TextView>(Resource.Id.activity_main_instock_entry_layout_fbatchNo);
 
-                var uuid = Guid.NewGuid();
-                m_list[position].m_uuid = uuid;
-                button_delete.SetTag(Resource.Id.activity_main_instock_entry_layout_delete, new UIDTag(uuid));
-
-                button_delete.Click += Button_delete_Click;
-                if (fmainuint_name != null)
-                {
-                    fmainuint_name.Text = ((Stock_Entry)GetItem(position)).m_fuint_name;
-
-                }
-                if (fstockplace_name != null)
-                {
-                    fstockplace_name.Text = ((Stock_Entry)GetItem(position)).m_fstockplace_name;
-                }
-                if (fstock_name != null)
-                {
-                    fstock_name.Text = ((Stock_Entry)GetItem(position)).m_fstock_name;
-                }
-                if (fnumber_model != null)
-                {
-                    fnumber_model.Text = ((Stock_Entry)GetItem(position)).m_fnumber_model;
-                }
-                if (fnumber_name != null)
-                {
-                    fnumber_name.Text = ((Stock_Entry)GetItem(position)).m_fnumber_name;
-
-                }
-                if (fnumber != null)
-                {
-                    fnumber.Text = ((Stock_Entry)GetItem(position)).m_fnumber;
-                }
-
-                if (fstock != null)
-                {
-                    fstock.Text = ((Stock_Entry)GetItem(position)).m_fstock;
-                }
-
-                if (fstockplace != null)
-                {
-                    fstockplace.Text = ((Stock_Entry)GetItem(position)).m_fstockplace;
-                }
-                if (fmainuint != null)
-                {
-                    fmainuint.Text = ((Stock_Entry)GetItem(position)).m_fuint;
-                }
-                if (fqty != null)
-                {
-                    fqty.Text = ((Stock_Entry)GetItem(position)).m_fqty;
-                }
-                if (fnote != null)
-                {
-                    fnote.Text = ((Stock_Entry)GetItem(position)).m_fnote;
-                }
-                if (fbatchNo != null)
-                {
-                    fbatchNo.Text = ((Stock_Entry)GetItem(position)).m_fbatchno; 
-                }
-                return view;
+                });
+                
+                showmsg1.Show();
             }
+
             //删除分录
             private void Button_delete_Click(object sender, EventArgs e)
             {
@@ -703,8 +978,11 @@ namespace Android_KingHoo_Scanner_Rebuild
                 NotifyDataSetChanged();
             }
         }
+        /// <summary>
+        /// 选单单据的分录
+        /// </summary>
 
-        public class FBatch_Msg: Java.Lang.Object
+        public class FBatch_Msg : Java.Lang.Object
         {
             public int m_id { get; set; }
             public string m_FBatchNo { get; set; }
@@ -749,14 +1027,15 @@ namespace Android_KingHoo_Scanner_Rebuild
             Android.Support.V4.App.Fragment m_fragment;
             string m_ClassType = "";
             Button m_cancel = null, m_save = null;
-            EditText m_fnumber = null, m_fstock = null, m_stockplace = null, m_mainuint = null, m_fqty = null, m_fnote = null, m_fqty_outStock = null,m_stock_fqty = null;
-            EditText m_batchno = null,m_uncommitqty;
+            EditText m_fnumber = null, m_fstock = null, m_stockplace = null, m_mainuint = null, m_fqty = null, m_fnote = null, m_fqty_outStock = null, m_stock_fqty = null;
+            EditText m_batchno = null, m_uncommitqty;
             bool StockPlace_Enable = false, BatchNo_Enable = false;
             Spinner m_batchSelector = null;
             EditText m_chooseBill = null;
             TextView m_stockplace_label = null, m_batch_label = null;
             //物料
-            class _Item{
+            class _Item
+            {
                 public string fitemid { get; set; } = "";
                 public string fnumber { get; set; } = "";
                 public string fname { get; set; } = "";
@@ -790,10 +1069,10 @@ namespace Android_KingHoo_Scanner_Rebuild
                 public int fsourceentryid { get; set; } = 0;
                 public decimal funcommitqty { get; set; } = 0.0M;
             }
-            _Unit _m_unit = null;_StockPlace _m_stockplace = null;_Stock _m_stock = null;_Item _m_Item = null;_SourceBill _m_Sourcebill = null;
+            _Unit _m_unit = null; _StockPlace _m_stockplace = null; _Stock _m_stock = null; _Item _m_Item = null; _SourceBill _m_Sourcebill = null;
             MainActivity m_g_mainActivivty = null;//接收扫描头数据
             List<Source_Bill> m_SouBillList = new List<Source_Bill>();
-            public TypeEntry(Context context, Android.Support.V4.App.Fragment fragment,string Type,MainActivity main) : base(context,Resource.Style.mdialog)
+            public TypeEntry(Context context, Android.Support.V4.App.Fragment fragment, string Type, MainActivity main) : base(context, Resource.Style.mdialog)
             {
                 m_g_mainActivivty = main;
                 m_g_mainActivivty.g_ProcessReciveData += M_g_mainActivivty_g_ProcessReciveData;
@@ -803,21 +1082,23 @@ namespace Android_KingHoo_Scanner_Rebuild
                 if (Type == "IN")
                 {
                     ((Fragment_InStock)fragment).inStock_FunRecivieData += Fragment_inStock_FunRecivieData;
-                } else if (Type == "OUT")
+                }
+                else if (Type == "OUT")
                 {
                     ((Fragment_OutStock)fragment).outStock_FunRecivieData += Fragment_inStock_FunRecivieData;
-                } else if (Type == "XOUT") 
+                }
+                else if (Type == "XOUT")
                 {
                     ((Fragment_OutStockX)fragment).outStock_FunRecivieData += Fragment_inStock_FunRecivieData;
-                }    
+                }
             }
             //处理物料选择
             private void M_g_mainActivivty_g_ProcessReciveData(string data)
             {
-                if(data!=null && data != "")
+                if (data != null && data != "")
                 {
                     var ret = Tools_SQL_Class.getTable("select 1 from t_ICItem where FNumber='" + data + "'");
-                    if(ret!=null && ret.Rows.Count > 0)
+                    if (ret != null && ret.Rows.Count > 0)
                     {
                         m_fnumber.Text = data;
                     }
@@ -830,11 +1111,12 @@ namespace Android_KingHoo_Scanner_Rebuild
 
             List<FBatch_Msg> m_batchNo_list = new List<FBatch_Msg>();
             //获取选择的物料的批号
-            private void getBatchNo(string FItemID,string FStock,string FStockPlace)
+            private void getBatchNo(string FItemID, string FStock, string FStockPlace)
             {
-                if(FItemID!="" && FStock != "")
+                if (FItemID != "" && FStock != "")
                 {
-                    var T = new System.Threading.Thread(new ThreadStart(() => {
+                    var T = new System.Threading.Thread(new ThreadStart(() =>
+                    {
                         if (!BatchNo_Enable /*&& StockPlace_Enable*/)
                         {
                             var _ret = Tools_SQL_Class.getTable(
@@ -843,15 +1125,17 @@ namespace Android_KingHoo_Scanner_Rebuild
                             "join t_Stock C on A.FStockID = C.FItemID " +
                             "join t_StockPlace D on A.FStockPlaceID = D.FSPID " +
                             "where B.FNumber like '" + FItemID + "' and C.FNumber like '" + FStock + "' and D.FNumber like '" + FStockPlace + "' ");
-                            if(_ret!=null && _ret.Rows.Count > 0)
+                            if (_ret != null && _ret.Rows.Count > 0)
                             {
-                                m_fragment.Activity.RunOnUiThread(()=> {
+                                m_fragment.Activity.RunOnUiThread(() =>
+                                {
                                     m_stock_fqty.Text = _ret.Rows[0]["FQty"].ToString();
                                 });
                             }
                             else
                             {
-                                m_fragment.Activity.RunOnUiThread(() => {
+                                m_fragment.Activity.RunOnUiThread(() =>
+                                {
                                     m_stock_fqty.Text = "";
                                 });
                             }
@@ -896,15 +1180,17 @@ namespace Android_KingHoo_Scanner_Rebuild
                                     bat.m_FQty = ret.Rows[i]["FQty"].ToString();
                                     m_batchNo_list.Add(bat);
                                 }
-                                m_fragment.Activity.RunOnUiThread(()=> {
+                                m_fragment.Activity.RunOnUiThread(() =>
+                                {
                                     m_batchSelector.Enabled = true;
                                     m_batchSelector.Adapter = new Batch_Adapter(m_context, m_batchNo_list);
                                 });
-                               
+
                             }
                             else
                             {
-                                m_fragment.Activity.RunOnUiThread(() => {
+                                m_fragment.Activity.RunOnUiThread(() =>
+                                {
                                     m_stock_fqty.Text = "";
                                 });
                             }
@@ -913,14 +1199,14 @@ namespace Android_KingHoo_Scanner_Rebuild
                     T.IsBackground = true;
                     T.Start();
                 }
-                
+
             }
             //获取仓库
             void getStock()
             {
                 if (m_ClassType == "OUT")
                 {
-                    if (_m_Item!=null && _m_stock!=null&& _m_Item.fnumber != "" && _m_stock.fnumber != "")
+                    if (_m_Item != null && _m_stock != null && _m_Item.fnumber != "" && _m_stock.fnumber != "")
                     {
                         if (StockPlace_Enable && _m_stockplace != null && _m_stockplace.fnumber != "")
                         {
@@ -931,12 +1217,12 @@ namespace Android_KingHoo_Scanner_Rebuild
                             getBatchNo(_m_Item.fnumber, _m_stock.fnumber, "*");
                         }
                     }
-                } 
+                }
             }
             //获取物料信息回调
-            private void Fragment_inStock_FunRecivieData(string Type, string fnumber,string fname,string fextend,string fitemid)
+            private void Fragment_inStock_FunRecivieData(string Type, string fnumber, string fname, string fextend, string fitemid)
             {
-               switch (Type)
+                switch (Type)
                 {
                     case ItemType.ICItem:
                         {
@@ -947,7 +1233,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                             _m_Item.fmodel = fextend;
                             _m_Item.fitemid = fitemid;
                             var ret = Tools_SQL_Class.getTable("select FNumber,FName,FItemID from t_Item where FItemClassID=7 and FItemID = (select top 1 FUnitID from t_ICItem where FNumber='" + fnumber + "')");
-                            if(ret!=null && ret.Rows.Count > 0)
+                            if (ret != null && ret.Rows.Count > 0)
                             {
                                 _m_unit = new _Unit();
                                 _m_unit.fname = ret.Rows[0]["FName"].ToString();
@@ -1001,7 +1287,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                                 m_stockplace.Visibility = ViewStates.Gone;
                                 m_stockplace.Enabled = false;
                                 StockPlace_Enable = false;
-                               // m_stockplace.RequestFocus();
+                                // m_stockplace.RequestFocus();
                             }
                             getStock();
                         }
@@ -1023,17 +1309,20 @@ namespace Android_KingHoo_Scanner_Rebuild
                             _m_Sourcebill.fsourceinterid = Convert.ToInt32(fnumber);
                             _m_Sourcebill.fsourceentryid = Convert.ToInt32(fname);
                             m_chooseBill.Text = fextend + " - " + fitemid;
-                            var t = new System.Threading.Thread(()=> {
+                            var t = new System.Threading.Thread(() =>
+                            {
                                 var ret = Tools_SQL_Class.getTable("select str(B.FQty-B.FCommitQty,len(B.FQty-B.FCommitQty),C.FQtyDecimal) FQty from POOrder A join POOrderEntry B on A.FInterID=B.FInterID join t_ICItem C on B.FItemID=C.FItemID where A.FInterID=" + fnumber + " and B.FEntryID=" + fname);
-                                if(ret!=null && ret.Rows.Count > 0)
+                                if (ret != null && ret.Rows.Count > 0)
                                 {
-                                    m_fragment.Activity.RunOnUiThread(()=> {
+                                    m_fragment.Activity.RunOnUiThread(() =>
+                                    {
                                         var quantity = ret.Rows[0]["FQty"].ToString();
                                         _m_Sourcebill.funcommitqty = Convert.ToDecimal(quantity);
                                         m_uncommitqty.Text = quantity;
                                     });
                                 }
-                            }) { IsBackground=true};
+                            })
+                            { IsBackground = true };
                             t.Start();
                         }
                         break;
@@ -1062,7 +1351,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
                 base.OnCreate(savedInstanceState);
                 LayoutInflater layoutInflater = LayoutInflater.From(m_context);
-                View view = layoutInflater.Inflate(Resource.Layout.dialog_entry_add,null);
+                View view = layoutInflater.Inflate(Resource.Layout.dialog_entry_add, null);
                 SetContentView(view);
                 m_fnumber = view.FindViewById<EditText>(Resource.Id.dialog_entry_add_fnumber);
                 m_fstock = view.FindViewById<EditText>(Resource.Id.dialog_entry_add_fstock);
@@ -1115,7 +1404,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 var intent = new Intent(Application.Context, typeof(Activity_BillSelect_Class));
                 if (m_ClassType == "IN")//外购入库
                 {
-                    ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.SourceBill_POORDER;
+                    Fragment_InStock.m_currentType = Tools_Tables_Adapter_Class.ItemType.SourceBill_POORDER;
                     intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.SourceBill_POORDER);
                 }
                 else if (m_ClassType == "OUT")//销售出库
@@ -1128,7 +1417,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                     ((Fragment_OutStockX)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.SourceBill_PPBOM;
                     intent.PutExtra("Type", Tools_Tables_Adapter_Class.ItemType.SourceBill_PPBOM);
                 }
-                intent.PutExtra("FItemID",_m_Item.fitemid);
+                intent.PutExtra("FItemID", _m_Item.fitemid);
                 m_fragment.StartActivityForResult(intent, 0);
 
                 //Activity_BillSelect_Class.m_main = (MainActivity)m_g_mainActivivty;
@@ -1141,7 +1430,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 var intent = new Intent(Application.Context, typeof(Activity_ItemSelect_Class));
                 if (m_ClassType == "IN")
                 {
-                    ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStockPlace;
+                    Fragment_InStock.m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStockPlace;
                 }
                 else if (m_ClassType == "OUT")
                 {
@@ -1160,7 +1449,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 //throw new NotImplementedException();
                 try
                 {
-                    if(Convert.ToDecimal(m_stock_fqty.Text) < Convert.ToDecimal(((EditText)sender).Text))
+                    if (Convert.ToDecimal(m_stock_fqty.Text) < Convert.ToDecimal(((EditText)sender).Text))
                     {
                         ShowMsg(m_fragment.Activity, "错误", "出库数量不能大于库存数量");
                         ((EditText)sender).Text = "";
@@ -1177,18 +1466,19 @@ namespace Android_KingHoo_Scanner_Rebuild
                 try
                 {
                     m_stock_fqty.Text = m_batchNo_list[(int)((Spinner)sender).SelectedItemId].m_FQty;
-                }catch(System.Exception ex)
+                }
+                catch (System.Exception ex)
                 {
-                    ShowMsg(m_context,"错误",ex.Message);
+                    ShowMsg(m_context, "错误", ex.Message);
                 }
             }
 
             private void M_fstock_Click(object sender, EventArgs e)
             {
                 var intent = new Intent(Application.Context, typeof(Activity_ItemSelect_Class));
-                if(m_ClassType == "IN")
+                if (m_ClassType == "IN")
                 {
-                    ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStock;
+                    Fragment_InStock.m_currentType = Tools_Tables_Adapter_Class.ItemType.ICStock;
                 }
                 else if (m_ClassType == "OUT")
                 {
@@ -1209,12 +1499,13 @@ namespace Android_KingHoo_Scanner_Rebuild
                 var intent = new Intent(Application.Context, typeof(Activity_ItemSelect_Class));
                 if (m_ClassType == "IN")
                 {
-                    ((Fragment_InStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
+                    Fragment_InStock.m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
                 }
-                else if(m_ClassType == "OUT")
+                else if (m_ClassType == "OUT")
                 {
                     ((Fragment_OutStock)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
-                } else if(m_ClassType == "XOUT")
+                }
+                else if (m_ClassType == "XOUT")
                 {
                     ((Fragment_OutStockX)m_fragment).m_currentType = Tools_Tables_Adapter_Class.ItemType.ICItem;
                 }
@@ -1241,7 +1532,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
                 //m_fragment.m_itemlist.Adapter = null;
                 var entry = new Stock_Entry();
-                if(_m_Item != null)
+                if (_m_Item != null)
                 {
                     entry.m_fnumber = _m_Item.fnumber;
                     entry.m_fnumber_name = _m_Item.fname;
@@ -1262,17 +1553,17 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
                 if (_m_unit != null)
                 {
-                    entry.m_fuint = _m_unit.fnumber;
-                    entry.m_fuint_name = _m_unit.fname;
-                    entry.m_fuint_fitemid = _m_unit.fitemid;
+                    entry.m_funit = _m_unit.fnumber;
+                    entry.m_funit_name = _m_unit.fname;
+                    entry.m_funit_fitemid = _m_unit.fitemid;
                 }
                 if (_m_Sourcebill != null)
                 {
                     entry.m_fsource_interid = _m_Sourcebill.fsourceinterid;
                     entry.m_fsource_entryid = _m_Sourcebill.fsourceentryid;
                 }
-               
-                if(m_ClassType == "IN")
+
+                if (m_ClassType == "IN")
                 {
                     entry.m_fqty = m_fqty.Text;
                     entry.m_fbatchno = m_batchno.Text;
@@ -1282,9 +1573,9 @@ namespace Android_KingHoo_Scanner_Rebuild
                     entry.m_fqty = m_fqty_outStock.Text;
                     entry.m_fbatchno = m_batchNo_list[((int)m_batchSelector.SelectedItemId)].m_FBatchNo;
                 }
-                
+
                 entry.m_fnote = m_fnote.Text;
-                if(entry.m_fnumber == "")
+                if (entry.m_fnumber == "")
                 {
                     ShowMsg(m_fragment.Activity, "错误", "您的物料编码没有选择！");
                     return;
@@ -1299,8 +1590,8 @@ namespace Android_KingHoo_Scanner_Rebuild
                     ShowMsg(m_fragment.Activity, "错误", "您还没有填写数量！");
                     return;
                 }
-                
-                if(_m_Sourcebill != null && _m_Sourcebill.funcommitqty != 0 && _m_Sourcebill.funcommitqty < Convert.ToDecimal(entry.m_fqty))
+
+                if (_m_Sourcebill != null && _m_Sourcebill.funcommitqty != 0 && _m_Sourcebill.funcommitqty < Convert.ToDecimal(entry.m_fqty))
                 {
                     ShowMsg(m_context, "警告", "入库数量不得大于未提交数量！");
                     return;
@@ -1316,7 +1607,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                 }
                 if (BatchNo_Enable)
                 {
-                    if(entry.m_fbatchno == "")
+                    if (entry.m_fbatchno == "")
                     {
                         ShowMsg(m_fragment.Activity, "错误", "您还没有填写批号！");
                         return;
@@ -1330,13 +1621,14 @@ namespace Android_KingHoo_Scanner_Rebuild
                     ((Fragment_InStock)m_fragment).m_itemlist.Adapter = ada;
                     getListViewHeigth(((Fragment_InStock)m_fragment).m_itemlist);
                 }
-                else if(m_ClassType == "OUT")
+                else if (m_ClassType == "OUT")
                 {
                     ((Fragment_OutStock)m_fragment).m_EntryList_list.Add(entry);
                     var ada = new Entry_Adapter(m_fragment.Activity, ((Fragment_OutStock)m_fragment).m_EntryList_list);
                     ((Fragment_OutStock)m_fragment).m_itemlist.Adapter = ada;
                     getListViewHeigth(((Fragment_OutStock)m_fragment).m_itemlist);
-                }else if(m_ClassType == "XOUT")
+                }
+                else if (m_ClassType == "XOUT")
                 {
                     ((Fragment_OutStockX)m_fragment).m_EntryList_list.Add(entry);
                     var ada = new Entry_Adapter(m_fragment.Activity, ((Fragment_OutStockX)m_fragment).m_EntryList_list);
@@ -1350,12 +1642,12 @@ namespace Android_KingHoo_Scanner_Rebuild
                 m_g_mainActivivty.g_ProcessReciveData -= M_g_mainActivivty_g_ProcessReciveData;
                 this.Dismiss();
             }
-            private void getListViewHeigth(ListView listview)
+            static public void getListViewHeigth(ListView listview)
             {
                 var adapter = listview.Adapter;
                 if (adapter == null) return;
                 int totalHeight = 0;
-                for(int i = 0; i < adapter.Count; i++)
+                for (int i = 0; i < adapter.Count; i++)
                 {
                     View listItem = adapter.GetView(i, null, listview);
                     listItem.Measure(0, 0);
@@ -1395,11 +1687,11 @@ namespace Android_KingHoo_Scanner_Rebuild
 
 
 
-        public class ShowPrograss: Dialog
+        public class ShowPrograss : Dialog
         {
             Context m_context = null;
             //VideoView m_videoView = null;
-            public ShowPrograss(Context context):base(context, Resource.Style.mdialog)
+            public ShowPrograss(Context context) : base(context, Resource.Style.mdialog)
             {
                 m_context = context;
             }
@@ -1425,7 +1717,7 @@ namespace Android_KingHoo_Scanner_Rebuild
         {
             public int Id { get; set; }
             public string m_Software_Version { get; set; }
-            public Software_Version(int id,string label)
+            public Software_Version(int id, string label)
             {
                 Id = id;
                 m_Software_Version = label;
@@ -1485,13 +1777,53 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         public class Source_Bill : Java.Lang.Object
         {
-            public Source_Bill() {
+            public Source_Bill()
+            {
                 m_uuid = UUID.RandomUUID();
             }
             public string FBillNo { get; set; }
             public int FInterID { get; set; }
             public int F_Dep_Cust_Sup { get; set; }
             public string F_Dep_Cust_Sup_Name { get; set; }
+            public string F_Dep_Cust_Sup_Number { get; set; }
+            public List<Source_Bill_Body> m_Entry { get; set; }
+            public UUID m_uuid { get; private set; }
+        }
+
+
+        public class Source_Bill_Head : Java.Lang.Object
+        {
+            public Source_Bill_Head()
+            {
+                m_uuid = UUID.RandomUUID();
+            }
+            public string FBillNo { get; set; }
+            public int FInterID { get; set; }
+            public int F_Dep_Cust_Sup { get; set; }
+            public string F_Dep_Cust_Sup_Name { get; set; }
+            //public int FItemID { get; set; }
+            //public int FUnitID { get; set; }
+            //public string FUnitID_FName { get; set; }
+            //public string FItemID_FNumber { get; set; }
+            //public string FItemID_FName { get; set; }
+            //public string FItemID_FModel { get; set; }
+            //public int FEntryID { get; set; }
+            //public decimal FQty { get; set; }
+            //public decimal FCommitQty { get; set; }
+            List<Source_Bill_Body> m_Entry { get; set; }
+            public UUID m_uuid { get; private set; }
+        }
+
+        public class Source_Bill_Body : Java.Lang.Object
+        {
+            public Source_Bill_Body()
+            {
+                m_uuid = UUID.RandomUUID();
+            }
+            //public string FBillNo { get; set; }
+            public int FInterID { get; set; }
+            //public int F_Dep_Cust_Sup { get; set; }
+            //public string F_Dep_Cust_Sup_Name { get; set; }
             public int FItemID { get; set; }
             public int FUnitID { get; set; }
             public string FUnitID_FName { get; set; }
@@ -1499,8 +1831,8 @@ namespace Android_KingHoo_Scanner_Rebuild
             public string FItemID_FName { get; set; }
             public string FItemID_FModel { get; set; }
             public int FEntryID { get; set; }
-            public decimal FQty { get; set; }
-            public decimal FCommitQty { get; set; }
+            public string FQty { get; set; }
+            public string FCommitQty { get; set; }
             public UUID m_uuid { get; private set; }
         }
 
@@ -1511,14 +1843,17 @@ namespace Android_KingHoo_Scanner_Rebuild
             {
                 m_FBillNo = view.FindViewById<TextView>(Resource.Id.sourceselect_fbillno);
                 m_Import = view.FindViewById<TextView>(Resource.Id.sourceselect_important);
-                m_FName = view.FindViewById<TextView>(Resource.Id.sourceselect_fname);
-                m_FNumber = view.FindViewById<TextView>(Resource.Id.sourceselect_fnumber);
-                m_FModel = view.FindViewById<TextView>(Resource.Id.sourceselect_fmodel);
-                m_FQty = view.FindViewById<TextView>(Resource.Id.sourceselect_fqty);
-                m_FCommitQty = view.FindViewById<TextView>(Resource.Id.sourceselect_fcommitqty);
+                //m_FName = view.FindViewById<TextView>(Resource.Id.sourceselect_fname);
+                //m_FNumber = view.FindViewById<TextView>(Resource.Id.sourceselect_fnumber);
+                //m_FModel = view.FindViewById<TextView>(Resource.Id.sourceselect_fmodel);
+                //m_FQty = view.FindViewById<TextView>(Resource.Id.sourceselect_fqty);
+                //m_FCommitQty = view.FindViewById<TextView>(Resource.Id.sourceselect_fcommitqty);
             }
         }
 
+        /// <summary>
+        /// 选择原单适配
+        /// </summary>
         public class SourceBillListAdapter : BaseAdapter
         {
             private List<Source_Bill> m_list;
@@ -1526,33 +1861,52 @@ namespace Android_KingHoo_Scanner_Rebuild
             public delegate void ClickCallBack(string data);
             public event ClickCallBack __ClickCallBack;
 
+            List<SourceBillListEntryAdapter> m_Entrys = new List<SourceBillListEntryAdapter>();
             //private int ResourceID = 0;
             public SourceBillListAdapter(Context pContext, List<Source_Bill> pList)
             {
                 m_context = pContext;
                 m_list = pList;
             }
-            //public override int ItemCount { get { return m_list.Count; } }
 
-            //public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
-            //{
-            //    SourceBillViewHolder sbvh = holder as SourceBillViewHolder;
-            //    sbvh.m_FBillNo.Text = m_list.ElementAt<Source_Bill>(position).FBillNo;
-            //    sbvh.m_FCommitQty.Text = m_list.ElementAt<Source_Bill>(position).FCommitQty.ToString();
-            //    sbvh.m_FModel.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FModel;
-            //    sbvh.m_FName.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FName;
-            //    sbvh.m_FNumber.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FNumber;
-            //    sbvh.m_FQty.Text = m_list.ElementAt<Source_Bill>(position).FQty.ToString();
-            //    sbvh.m_Import.Text = m_list.ElementAt<Source_Bill>(position).F_Dep_Cust_Sup_Name.ToString();
+            public void setListViewHeightBasedOnChildren(ListView listView)
+            {
 
-            //}
+                // 获取ListView对应的Adapter
 
-            //public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
-            //{
-            //    View v = LayoutInflater.FromContext(m_context).Inflate(Resource.Layout.activity_sourcebillselect_entry, parent, false);
-            //    return new SourceBillViewHolder(v);// new ViewHolderM(v); 
-            //}
+                var listAdapter = listView.Adapter;
 
+                if (listAdapter == null)
+                {
+
+                    return;
+
+                }
+
+                int totalHeight = 0;
+
+                for (int i = 0; i < listAdapter.Count; i++)
+                { // listAdapter.getCount()返回数据项的数目
+
+                    View listItem = listAdapter.GetView(i, null, listView);
+
+                    listItem.Measure(0, 0); // 计算子项View 的宽高
+
+                    totalHeight += listItem.MeasuredHeight; // 统计所有子项的总高度
+
+                }
+
+                var params_ = listView.LayoutParameters;
+
+                params_.Height = totalHeight + (listView.DividerHeight * (listAdapter.Count - 1));
+
+                // listView.getDividerHeight()获取子项间分隔符占用的高度
+
+                // params.height最后得到整个ListView完整显示需要的高度
+
+                listView.LayoutParameters = params_;
+
+            }
 
             public override View GetView(int position, View convertView, ViewGroup parent)
             {
@@ -1562,33 +1916,26 @@ namespace Android_KingHoo_Scanner_Rebuild
                 {
                     TextView fbillno = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fbillno);
                     TextView important = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_important);
-                    TextView fnumber = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fnumber);
-                    TextView fname = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fname);
-                    TextView fmodel = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fmodel);
-                    TextView fqty = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fqty);
-                    TextView fcommitqty = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fcommitqty);
                     Button selectbill = (Button)convertView.FindViewById<Button>(Resource.Id.sourceselect_select);
-                    
+                    //分录
+                    ListView entrylist = (ListView)convertView.FindViewById<ListView>(Resource.Id.sourceselect_list);
+                    SourceBillListEntryAdapter listAdapter = new SourceBillListEntryAdapter(m_context, m_list.ElementAt<Source_Bill>(position).m_Entry);
+
+                    entrylist.Adapter = listAdapter;
+
+                    setListViewHeightBasedOnChildren(entrylist);
                     selectbill.Click += Selectbill_Click;
-                    //selectbill.Tag = m_list.ElementAt<Source_Bill>(position).m_uuid.ToString() + "|" + m_list.ElementAt<Source_Bill>(position).FEntryID.ToString();
+
                     selectbill.Tag = m_list.ElementAt<Source_Bill>(position).m_uuid.ToString();
                     fbillno.Text = m_list.ElementAt<Source_Bill>(position).FBillNo;
                     important.Text = m_list.ElementAt<Source_Bill>(position).F_Dep_Cust_Sup_Name;
-                    fnumber.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FNumber;
-                    fname.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FName;
-                    fmodel.Text = m_list.ElementAt<Source_Bill>(position).FItemID_FModel;
-                    fqty.Text = m_list.ElementAt<Source_Bill>(position).FQty.ToString();
-                    fcommitqty.Text = m_list.ElementAt<Source_Bill>(position).FCommitQty.ToString();
                 }
                 return convertView;
             }
 
             private void Selectbill_Click(object sender, EventArgs e)
             {
-                if (__ClickCallBack != null)
-                {
-                    __ClickCallBack(((Button)sender).Tag.ToString());
-                }
+                __ClickCallBack?.Invoke(((Button)sender).Tag.ToString());
             }
 
             public override Java.Lang.Object GetItem(int position)
@@ -1600,22 +1947,12 @@ namespace Android_KingHoo_Scanner_Rebuild
                 return position;
             }
 
-            //public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
-            //{
-            //    throw new NotImplementedException();
-            //}
-
-            //public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
-            //{
-            //    throw new NotImplementedException();
-            //}
-
             public override int Count { get { return m_list.Count; } }
 
-            //public override int ItemCount { get { return m_list.Count; } }
         }
         //原单类型
-        public class  SourceBillType{
+        public class SourceBillType
+        {
             public const string PPOREDER = "PPOREDER";         //采购订单
             public const string PPBOM = "PPBOM";               //领料单
             public const string SEORDER = "SEORDER";           //销售订单
@@ -1672,7 +2009,7 @@ namespace Android_KingHoo_Scanner_Rebuild
 
         public class SOUT_Bill : Java.Lang.Object
         {
-            public SOUT_Bill(string fbillno,int finterid,string fnote,string fdep, DateTime fdate)
+            public SOUT_Bill(string fbillno, int finterid, string fnote, string fdep, DateTime fdate)
             {
                 m_FBillNo = fbillno;
                 m_FInterID = finterid;
@@ -1748,7 +2085,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             public bool FConfirmed { get; set; } = false;
         }
 
-            public class BillConfirm : Dialog
+        public class BillConfirm : Dialog
         {
             List<Stock_Entry> m_item_list = new List<Stock_Entry>();
             MainActivity m_Activity = null;
@@ -1756,7 +2093,7 @@ namespace Android_KingHoo_Scanner_Rebuild
             string m_fbillno = null;
             public delegate void onScanFinish(string Txt);
             public event onScanFinish __OnScanFinish;
-            public BillConfirm(MainActivity context,string fbillno) : base(context, Resource.Style.mdialog)
+            public BillConfirm(MainActivity context, string fbillno) : base(context, Resource.Style.mdialog)
             {
                 m_Activity = context;
                 m_fbillno = fbillno;
@@ -1785,7 +2122,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                         "join t_Stock E on E.FItemID = B.FSCStockID " +
                         "where A.FTranType = 24 and A.FInterID = " + m_fbillno + "";
                     var ret = Tools_SQL_Class.getTable(sqlTxt);
-                    for(int i = 0;i < ret.Rows.Count; i++)
+                    for (int i = 0; i < ret.Rows.Count; i++)
                     {
                         var item = new Stock_Entry();
                         item.m_fnumber = ret.Rows[i]["FItemID_FNumber"].ToString();
@@ -1793,7 +2130,7 @@ namespace Android_KingHoo_Scanner_Rebuild
                         item.m_fnumber_name = ret.Rows[i]["FItemID_FName"].ToString();
                         item.m_fqty = ret.Rows[i]["FQty"].ToString();
                         item.m_fstockplace_name = ret.Rows[i]["FStockPlaceID_FName"].ToString();
-                        item.m_fuint_name = ret.Rows[i]["FUnitID_FName"].ToString();
+                        item.m_funit_name = ret.Rows[i]["FUnitID_FName"].ToString();
                         item.m_fstock_name = ret.Rows[i]["FStockID_FName"].ToString();
                         item.m_fbatchno = ret.Rows[i]["FBatchNo"].ToString();
                         item.m_fsource_interid = Convert.ToInt32(ret.Rows[i]["FInterID"].ToString());
@@ -1801,13 +2138,14 @@ namespace Android_KingHoo_Scanner_Rebuild
                         m_item_list.Add(item);
                     }
                     var se = new Entry_Adapter(m_Activity, m_item_list, true);
-                    m_Activity.RunOnUiThread(()=> {
+                    m_Activity.RunOnUiThread(() =>
+                    {
                         m_list.Adapter = se;
                     });
                 })
                 { IsBackground = true };
                 t.Start();
-                
+
             }
 
             private void M_Activity_g_ProcessReciveData(string data)
@@ -1816,29 +2154,328 @@ namespace Android_KingHoo_Scanner_Rebuild
                 var ret = m_item_list.Where(item => item.m_fnumber == data).ToList();
                 if (ret.Count > 0)
                 {
-                    for(int i = 0;i<ret.Count;i++)
+                    for (int i = 0; i < ret.Count; i++)
                     {
                         ret[i].m_weatherChecked = true;
                     }
-                    if(m_item_list.Where(item => item.m_weatherChecked == false).ToList().Count < 1)
+                    if (m_item_list.Where(item => item.m_weatherChecked == false).ToList().Count < 1)
                     {
                         this.Dismiss();
                         //todo 插入数据库
                         __OnScanFinish?.Invoke(m_item_list[0].m_fsource_interid.ToString());
-                        Tools_SQL_Class.TransationAutoCommit(new string[] {"insert into ZZ_KingHoo_StockCheck(FInterID,FChecked,FEntryID) values(" + m_item_list[0].m_fsource_interid + ",1,0)" });
+                        Tools_SQL_Class.TransationAutoCommit(new string[] { "insert into ZZ_KingHoo_StockCheck(FInterID,FChecked,FEntryID) values(" + m_item_list[0].m_fsource_interid + ",1,0)" });
 
                         ShowMsg(m_Activity, "完成", "复检完成！");
 
                         return;
                     }
                     var se = new Entry_Adapter(m_Activity, m_item_list, true);
-                    m_Activity.RunOnUiThread(()=> {
+                    m_Activity.RunOnUiThread(() =>
+                    {
                         m_list.Adapter = se;
                     });
                 }
             }
         }
 
-            //not end
+        //选单的物料分录
+        public class SourceBillListEntryAdapter : BaseAdapter
+        {
+            private List<Source_Bill_Body> m_list;
+
+            private Context m_context = null;
+            public delegate void ClickCallBack(string data);
+            public event ClickCallBack __ClickCallBack;
+
+            public SourceBillListEntryAdapter(Context pContext, List<Source_Bill_Body> pList)
+            {
+                m_context = pContext;
+                m_list = pList;
+            }
+
+            public override View GetView(int position, View convertView, ViewGroup parent)
+            {
+                LayoutInflater _LayoutInflater = LayoutInflater.From(m_context);
+                convertView = _LayoutInflater.Inflate(Resource.Layout.activity_sourcebillselect_list, null);
+                if (convertView != null)
+                {
+
+                    TextView fnumber = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fnumber);
+                    TextView fname = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fname);
+                    TextView fmodel = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fmodel);
+                    TextView fqty = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fqty);
+                    TextView fcommitqty = (TextView)convertView.FindViewById<TextView>(Resource.Id.sourceselect_fcommitqty);
+
+
+
+                    fnumber.Text = m_list.ElementAt<Source_Bill_Body>(position).FItemID_FNumber;
+                    fname.Text = m_list.ElementAt<Source_Bill_Body>(position).FItemID_FName;
+                    fmodel.Text = m_list.ElementAt<Source_Bill_Body>(position).FItemID_FModel;
+                    fqty.Text = m_list.ElementAt<Source_Bill_Body>(position).FQty.ToString();
+                    fcommitqty.Text = m_list.ElementAt<Source_Bill_Body>(position).FCommitQty.ToString();
+                }
+                return convertView;
+            }
+
+            private void Selectbill_Click(object sender, EventArgs e)
+            {
+                if (__ClickCallBack != null)
+                {
+                    __ClickCallBack(((Button)sender).Tag.ToString());
+                }
+            }
+
+            public override Java.Lang.Object GetItem(int position)
+            {
+                return m_list.ElementAt(position);
+            }
+            public override long GetItemId(int position)
+            {
+                return position;
+            }
+
+            public override int Count { get { return m_list.Count; } }
+
+        }
+
+        //物料选取界面
+
+        public class SelectBaseItem : Dialog
+        {
+            
+            private Context m_Context = null;
+            LinearLayout m_IndexContainer = null;
+            //基础资料列表
+            ListView m_ItemList = null;
+            EditText m_Search = null;
+            TextView m_Search_Label = null;
+            string m_FName, m_FNumber, m_FModel, m_FItemID, m_Extend;
+            System.Timers.Timer m_InputFinish = new System.Timers.Timer(1000);
+            private string m_ItemType = "";
+            List<Item> m_BaseItemList = new List<Item>();
+            //最后一次选择的物料
+            int m_lastSelectItem = -1;
+            //返回资料
+            public delegate void onReturnMsg(string fnumber, string fname,string fmodel, string fextend, string fitemid);
+            public event onReturnMsg m_onRetValue;
+            public SelectBaseItem(Context context,string itemtype, onReturnMsg func ) : 
+                base(context, Resource.Style.mdialog)
+            {
+                m_Context = context;
+                m_ItemType = itemtype;
+                m_onRetValue = func;
+            }
+            //处理物料选择
+
+
+            //获取选择的物料的批号
+
+            //获取仓库
+
+            //获取物料信息回调
+
+
+            protected override void OnCreate(Bundle savedInstanceState)
+            {
+                base.OnCreate(savedInstanceState);
+                LayoutInflater layoutInflater = LayoutInflater.From(m_Context);
+                View view = layoutInflater.Inflate(Resource.Layout.activity_itemSelect, null,false);
+                SetContentView(view);
+                m_IndexContainer = FindViewById<LinearLayout>(Resource.Id.activity_item_select_index);
+                m_ItemList = FindViewById<ListView>(Resource.Id.activity_item_select_list_item);
+                m_ItemList.ChoiceMode = ChoiceMode.Single;
+                m_ItemList.ItemClick += M_ItemList_ItemClick;
+                m_Search = FindViewById<EditText>(Resource.Id.activity_item_select_search);
+                m_Search_Label = FindViewById<TextView>(Resource.Id.activity_item_select_search_tv);
+                m_Search.AfterTextChanged += M_Search_AfterTextChanged;
+                m_Search_Label.Click += M_Search_Label_Click;
+                m_InputFinish.Elapsed += M_InputFinish_Elapsed;
+                m_Search.Enabled = false;
+                //this.Window.Attributes.Width = this.Window.WindowManager //((Activity)Context).Window.Attributes.Width;
+                var manager = this.Window.WindowManager;
+                var screenmetrics = new DisplayMetrics();
+                manager.DefaultDisplay.GetMetrics(screenmetrics);
+                this.Window.Attributes.Width = screenmetrics.WidthPixels;
+                var t = new Thread(() =>
+                {
+                    string sqlTxt = "";
+                    switch (m_ItemType)
+                    {
+                        case ItemType.Customer:
+                            {
+                                getBaseItemList("select FNumber,FDetail,FName,ffullname,FItemID from t_Item where FItemClassID=1", "FItemID", "FNumber", "FName", "FDetail", "ffullname");
+                            }
+                            break;
+                        case ItemType.Dep:
+                            {
+                                getBaseItemList("select FNumber,FDetail,FName,ffullname,FItemID from t_Item where FItemClassID=2", "FItemID", "FNumber", "FName", "FDetail", "ffullname");
+                            }
+                            break;
+                        case ItemType.ICItem:
+                            {
+                                getBaseItemList("select B.FNumber,B.FDetail,B.FName,isnull(A.FModel,'') FModel ,isnull(A.FitemID,0) FitemID from t_ICItem A full join t_Item B on A.FItemID=B.FItemID where B.FItemClassID=4 order by B.FNumber", "FitemID", "FNumber", "FName", "FDetail", "FModel");
+                            }
+                            break;
+                        case ItemType.ICStock:
+                            {
+                                getBaseItemList("select B.FNumber,B.FDetail,B.FName,B.FFullName,B.FitemID,cast(A.FIsStockMgr as nvarchar(8)) FExtend from t_Item B join t_Stock A on A.FItemID = B.FItemID where B.FItemClassID=5", "FItemID", "FNumber", "FName", "FDetail", "FExtend");
+                            }
+                            break;
+                        case ItemType.ICStockPlace:
+                            {
+                                getBaseItemList("select fnumber,FDetail,FName,FFullName,FSPID FItemID from t_StockPlace where FSPID!=0", "FItemID", "FNumber", "FName", "FDetail", "FFullName");
+                            }
+                            break;
+                        case ItemType.SourceBill_POORDER:
+                            {
+
+                            }
+                            break;
+                        case ItemType.SourceBill_PPBOM:
+                            {
+
+                            }
+                            break;
+                        case ItemType.SourceBill_SEORDER:
+                            {
+
+                            }
+                            break;
+                        case ItemType.Supply:
+                            {
+                                getBaseItemList("select FNumber,FDetail,FName,ffullname,FItemID from t_Item where FItemClassID=8", "FItemID", "FNumber", "FName", "FDetail", "ffullname");
+                            }
+                            break;
+                        case ItemType.User:
+                            {
+                                getBaseItemList("select FNumber,FName,FDetail,FFullName,FitemID from t_Item where FItemClassID=3", "FitemID", "FNumber", "FName", "FDetail", "FFullName");
+                            }
+                            break;
+                    }
+                })
+                { IsBackground = true };
+                t.Start();
+            }
+
+            private void getBaseItemList(string sqlTxt, string FItemID, string FNumber,string FName,string FDetail="", string FExtend = "", string FModel = "")
+            {
+                var ret = Tools_SQL_Class.getTable(sqlTxt);
+                if(ret != null && ret.Rows.Count > 0)
+                {
+                    m_BaseItemList.Clear();
+                    var Enum = DataTableExtensions.AsEnumerable(ret);
+                    m_BaseItemList = Enum.Select(row =>
+                    new Item
+                    {
+                        m_IfDetail = (FDetail == "" ? false : row.Field<bool>(FDetail)),
+                        m_fitemid = row.Field<int>(FItemID).ToString(),
+                        m_fname = row.Field<string>(FName),
+                        m_fnumber = row.Field<string>(FNumber),
+                        m_fextend = (FExtend == ""?"":row.Field<string>(FExtend)),
+                        m_model = (FModel == "" ? "":row.Field<string>(FModel)),
+                        
+                    }).ToList();
+                    var adapter = new ItemAdapter(m_Context, m_BaseItemList);
+
+                    ((Activity)m_Context).RunOnUiThread(() =>
+                    {
+                            var indexList = Enum.Where(row => row.Field<bool>(FDetail) == false).Select(itemRow =>
+                        new TextView(m_Context) {
+                            Text = itemRow.Field<string>(FNumber),
+                            Gravity = GravityFlags.Right,
+                            TextAlignment = TextAlignment.Gravity                        
+                        }).ToList();
+                        for (int i = 0; i < indexList.Count; i++)
+                        {
+                            indexList[i].Click += IndexItem_Click;
+                            ((Activity)m_Context).RunOnUiThread(() =>
+                            {
+                                m_IndexContainer.AddView(indexList[i]);
+                            });
+                        }
+                    });
+                    ((Activity)m_Context).RunOnUiThread(() =>
+                    {
+                        //设置索引项
+                        m_ItemList.Adapter = adapter;
+                        m_Search.Enabled = true;
+                    });
+                }
+            }
+
+            private void IndexItem_Click(object sender, EventArgs e)
+            {
+                m_ItemList.SetSelection(m_BaseItemList.FindIndex(item => item.m_fnumber == ((TextView)sender).Text));
+                
+            }
+            private void M_InputFinish_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+            {
+                m_InputFinish.Stop();
+                var searchTxt = m_Search.Text;
+                var t = new Thread(() =>
+                {
+                    SearchDataTable(searchTxt);
+                })
+                { IsBackground = true };
+
+                t.Start();
+                m_Search.Enabled = false;
+
+            }
+            private void SearchDataTable(string SearchTxt)
+            {
+                SearchTxt = SearchTxt.Replace("'", "").Replace(",", "").Replace("[", "");
+                
+                
+                ((Activity)m_Context).RunOnUiThread(()=> {
+                    m_ItemList.Adapter = null;
+                    m_ItemList.Adapter = new ItemAdapter(m_Context, m_BaseItemList.Where(row => row.m_fname.Contains(SearchTxt) || row.m_fnumber.Contains(SearchTxt) || row.m_fextend.Contains(SearchTxt)).ToList());
+                    m_Search.Enabled = true;
+                });
+                
+                
+            }
+
+            private void M_Search_Label_Click(object sender, EventArgs e)
+            {
+                //throw new NotImplementedException();
+            }
+
+            private void M_Search_AfterTextChanged(object sender, Android.Text.AfterTextChangedEventArgs e)
+            {
+                m_InputFinish.Stop();
+                m_InputFinish.Start();
+            }
+
+            private void M_ItemList_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+            {
+                if (e.Position == m_lastSelectItem && ((Item)m_ItemList.Adapter.GetItem(e.Position)).m_IfDetail)
+                {
+                    m_onRetValue?.Invoke(((Item)m_ItemList.Adapter.GetItem(e.Position)).m_fnumber, ((Item)m_ItemList.Adapter.GetItem(e.Position)).m_fname, ((Item)m_ItemList.Adapter.GetItem(e.Position)).m_model, ((Item)m_ItemList.Adapter.GetItem(e.Position)).m_fextend, ((Item)m_ItemList.Adapter.GetItem(e.Position)).m_fitemid);
+                    this.Dismiss();
+                    //ShowMsg(m_Context, "注意", ((Item)m_ItemList.Adapter.GetItem(e.Position)).m_fnumber);
+                }
+                m_lastSelectItem = e.Position;
+            }
+
+            //处理原单选择
+
+            static public void getListViewHeigth(ListView listview)
+            {
+                var adapter = listview.Adapter;
+                if (adapter == null) return;
+                int totalHeight = 0;
+                for (int i = 0; i < adapter.Count; i++)
+                {
+                    View listItem = adapter.GetView(i, null, listview);
+                    listItem.Measure(0, 0);
+                    totalHeight += listItem.MeasuredHeight;
+                }
+                ViewGroup.LayoutParams _params = listview.LayoutParameters;
+                _params.Height = totalHeight + (listview.DividerHeight * adapter.Count - 1);
+                listview.LayoutParameters = _params;
+            }
+        }
+        //not end
     }
 }

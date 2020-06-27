@@ -113,6 +113,7 @@
   <string name ="activity_main_instock_layout_buystyle_label">采购方式</string>
   <string name ="activity_main_instock_layout_buystyle_shexiao_label">赊购</string>
   <string name ="activity_main_instock_layout_note_label">摘要</string>
+  <string name ="activity_main_instock_layout_orgbill_label">原单编号</string>
 
   <string name ="activity_main_instock_layout_save_label">保存</string>
   <string name ="activity_main_instock_layout_cancel_label">取消</string>
